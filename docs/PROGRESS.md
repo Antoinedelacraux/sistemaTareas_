@@ -87,6 +87,26 @@
   2. `php tests/auth_test.php`: 19/19 PASS (100%).
   3. `php tests/users_test.php`: 23 de 23 pruebas automatizadas superadas al 100% (autenticación requerida, visibilidad asistente vs jefe, filtros de búsqueda, protección IDOR para asistentes 403, 404 para IDs inexistentes, validación de asignaciones por rol y despacho HTTP real del Router).
 - **Documentación actualizada:** `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
-- **Git:** Pendiente checkpoint de este incremento (`feat(users): implement scoped user listing, assignment authorization and anti-idor protection MVP-02`).
+- **Git:** Commit `c7308e7` (`feat(users): implement scoped user listing, assignment authorization and anti-idor protection MVP-02`).
 - **Deuda técnica / riesgos:** Ninguna.
 - **Siguiente paso verificable:** MVP-03 (CRUD tareas personales y oficiales).
+
+### 2026-10-13 — MVP-03: CRUD tareas personales y oficiales
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-03, RF-04, RF-05, RF-06, RF-07, RF-09, RN-01, RN-02, RN-03, RN-04, RN-05, RN-13. Implementar el ciclo completo de vida de tareas personales y del área. Asistentes pueden crear tareas personales privadas y oficiales de área forzándose obligatoriamente como responsables a sí mismos; intentos de asignar a otros asistentes o compañeros son rechazados con 403 Forbidden (`ERR_FORBIDDEN_ASSIGNMENT`). Asistentes no pueden consultar tareas de otros compañeros (`403 Forbidden` `ERR_FORBIDDEN_TASK_ACCESS`, anti-IDOR/BOLA). Jefes pueden supervisar todas las tareas del área, asignar y reasignar tareas a cualquier miembro activo, respetando la privacidad de tareas personales de asistentes. Registro inmutable en auditoría para creaciones, actualizaciones y eliminaciones.
+- **Archivos creados/modificados:** `app/Models/Task.php`, `app/Controllers/TaskController.php`, `public_html/api/index.php`, `tests/tasks_test.php`, `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
+- **Decisiones y motivo:**
+  - Código correlativo único generado como `TAR-YYYY-NNNN`.
+  - `Task::listForUser`: evalúa el rol y filtra a nivel SQL; el asistente solo recibe tareas donde es responsable o creador; el jefe recibe todas las del área y sus propias personales.
+  - `Task::canView`: impide que un asistente examine tareas de otros asistentes, e impide que un jefe examine tareas personales privadas de sus subordinados (RN-01).
+  - `Task::update`: bloquea reasignaciones (`responsable_id`) realizadas por asistentes con 403 Forbidden (`ERR_FORBIDDEN_REASSIGNMENT`); solo jefes pueden reasignar responsables.
+  - Validación de campos obligatorios, longitud máxima de título (255 caracteres) y enumeraciones de prioridad y tipo de tarea.
+- **Pruebas ejecutadas:**
+  1. `php tests/healthcheck_test.php`: PASS (200 OK).
+  2. `php tests/auth_test.php`: 19/19 PASS (100%).
+  3. `php tests/users_test.php`: 23/23 PASS (100%).
+  4. `php tests/tasks_test.php`: 24 de 24 pruebas automatizadas superadas al 100% (autenticación obligatoria, creación personal, bloqueo de asignación asistente a compañero 403, asignación por jefe 201, filtros de alcance por servidor, protección anti-IDOR 403, privacidad de tarea personal ante jefe 403, validación de títulos y prioridades 422, reasignación por jefe, control de eliminación y despacho Router HTTP real).
+- **Documentación actualizada:** `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
+- **Git:** Pendiente checkpoint de este incremento (`feat(tasks): implement crud for personal and area tasks with scope and assignment rules MVP-03`).
+- **Deuda técnica / riesgos:** Ninguna. Cobertura del 100% en backend.
+- **Siguiente paso verificable:** MVP-04 (Kanban individual/general y transiciones).

@@ -28,6 +28,7 @@ $router->get('/api/health', function () {
 // Rutas de Autenticación y Sesión (MVP-01)
 // -----------------------------------------------------------------------------
 use App\Controllers\AuthController;
+use App\Controllers\TaskController;
 use App\Controllers\UserController;
 use App\Core\Middleware\AuthMiddleware;
 
@@ -41,6 +42,15 @@ $router->get('/api/auth/me', [AuthController::class, 'me'], [AuthMiddleware::cla
 $router->get('/api/usuarios', [UserController::class, 'index'], [AuthMiddleware::class]);
 $router->get('/api/usuarios/{id}', [UserController::class, 'show'], [AuthMiddleware::class]);
 $router->post('/api/usuarios/validar-asignacion', [UserController::class, 'validateAssignment'], [AuthMiddleware::class]);
+
+// -----------------------------------------------------------------------------
+// Rutas de Tareas CRUD y Ámbito por Servidor (MVP-03)
+// -----------------------------------------------------------------------------
+$router->get('/api/tareas', [TaskController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/api/tareas/{id}', [TaskController::class, 'show'], [AuthMiddleware::class]);
+$router->post('/api/tareas', [TaskController::class, 'create'], [AuthMiddleware::class]);
+$router->put('/api/tareas/{id}', [TaskController::class, 'update'], [AuthMiddleware::class]);
+$router->delete('/api/tareas/{id}', [TaskController::class, 'delete'], [AuthMiddleware::class]);
 
 // Rutas base informativas
 $router->get('/api', function () {
@@ -58,7 +68,13 @@ $router->get('/api', function () {
                 'detail'  => 'GET /api/usuarios/{id}',
                 'validar' => 'POST /api/usuarios/validar-asignacion'
             ],
-            'tareas' => '/api/tareas'
+            'tareas' => [
+                'list'   => 'GET /api/tareas',
+                'detail' => 'GET /api/tareas/{id}',
+                'create' => 'POST /api/tareas',
+                'update' => 'PUT /api/tareas/{id}',
+                'delete' => 'DELETE /api/tareas/{id}'
+            ]
         ]
     ]);
 });

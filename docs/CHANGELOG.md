@@ -1,7 +1,19 @@
 # Changelog
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
-## [Sin versión - Usuarios, Ámbitos y Asignación] - 2026-10-13 (MVP-02)
+## [Sin versión - CRUD de Tareas y Alcance] - 2026-10-13 (MVP-03)
+### Añadido
+- Módulo integral de gestión de tareas personales y del área (**Fase 1: MVP-03**).
+- Modelo `app/Models/Task.php` con generación de códigos correlativos `TAR-YYYY-NNNN`, alcance en consultas SQL por rol, reglas de visibilidad y métodos de persistencia con auditoría.
+- Controlador `app/Controllers/TaskController.php` con endpoints:
+  - `GET /api/tareas`: Listado con filtro por alcance; asistentes solo ven tareas asignadas o creadas por ellos; jefes ven tareas del área de todo el equipo y tareas personales propias. Soporte para filtros `?tipo=`, `?columna_id=`, `?prioridad=`, `?responsable_id=`, `?buscar=`.
+  - `GET /api/tareas/{id}`: Detalle de tarea con protección anti-IDOR para tareas ajenas y salvaguarda de privacidad de tareas personales frente a jefes (**RF-07, RN-01, RN-02**).
+  - `POST /api/tareas`: Creación de tareas; fuerza autoasignación en asistentes y deniega con 403 Forbidden intentos de asignar a compañeros (**RF-05, RN-03**); jefes pueden asignar a cualquier miembro activo (**RF-06, RN-04**).
+  - `PUT /api/tareas/{id}`: Modificación de atributos de tareas; deniega reasignación de responsable ejecutada por asistentes (**RN-03**).
+  - `DELETE /api/tareas/{id}`: Eliminación de tareas con autorización exclusiva para el creador o jefatura.
+- Suite de pruebas automatizadas `tests/tasks_test.php` con 24 casos positivos, negativos y de integración HTTP (100% PASS).
+
+## [Sin versión - Usuarios, Ámbitos y Asignación] - 2026-10-13 (Commit `c7308e7`)
 ### Añadido
 - Módulo de consulta de usuarios y validación de asignaciones por rol (**Fase 1: MVP-02**).
 - Endpoints en `app/Controllers/UserController.php`:
