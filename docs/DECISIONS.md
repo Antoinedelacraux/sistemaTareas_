@@ -11,17 +11,24 @@
 - D-008 Procesos secuenciales y paralelos.
 - D-009 Tareas personales y del área separadas.
 - D-010 Acceso web seguro desde cualquier ubicación.
+- D-011 Plataforma de despliegue DonWeb Ferozo (Web Hosting tradicional): Backend PHP 8.2+ (REST API modular), Base de datos MySQL / MariaDB (InnoDB con transacciones ACID), Frontend SPA moderna (HTML5, Vanilla CSS / Design Tokens, JavaScript modular).
 
 ## Propuestas pendientes de validación
 - P-001 Privacidad de tareas personales también ante jefes, exclusión de KPIs oficiales.
 - P-002 Motor de dependencias AND para habilitar sucesores; OR futuro si lo requiere el proceso.
-- P-003 Estado inicial de 5 columnas Kanban.
-- P-004 Stack sugerido React/TypeScript + FastAPI/Python + PostgreSQL.
-- P-005 Identidad corporativa, MFA obligatoria, SSO y hosting todavía por definir con TI.
-- P-006 Gestión de adjuntos: tipos admitidos, límites, almacenamiento y retención.
-- P-007 Modo de reasignar/convertir tarea personal a oficial y su autorización.
+- P-003 Estado inicial de 5 columnas Kanban (Pendiente, En proceso, Bloqueada, En revisión, Finalizada).
+- P-004 [SUSTITUIDO POR D-011 / ADR-0001] Stack sugerido React/FastAPI/Postgres descartado por incompatibilidad con Web Hosting Ferozo compartido.
+- P-005 Sesiones protegidas por tokens/cookies HttpOnly; MFA/SSO a evaluar para versiones posteriores.
+- P-006 Gestión de adjuntos: directorio protegido fuera de web root o vía `.htaccess`, tipos MIME validados, límite de tamaño (10MB).
+- P-007 Modo de reasignar/convertir tarea personal a oficial y su autorización por el usuario o jefe.
 
 ## ADR (Architecture Decision Records)
-Al aprobar decisiones técnicas, registrar una entrada nueva con fecha real:
-`ADR-000N | Estado: propuesta/aceptada/sustituida | Contexto | Alternativas | Decisión | Consecuencias | Aprobador`.
-No marcar propuestas técnicas como aceptadas de manera autónoma.
+- **ADR-0001** | Estado: ACEPTADA | 2026-10-13
+  - **Contexto:** El sistema se desplegará en la infraestructura de DonWeb bajo panel Ferozo (Web Hosting tradicional compartido).
+  - **Alternativas consideradas:**
+    1. *Python FastAPI + PostgreSQL:* Descartada porque Ferozo compartido no admite ejecución continua de demonios ASGI (uvicorn/gunicorn) de fondo ni ofrece PostgreSQL nativo.
+    2. *Node.js Express + MongoDB:* Descartada por limitaciones de procesos en segundo plano y compatibilidad en Ferozo tradicional.
+    3. *PHP 8.2+ + MySQL 8 / MariaDB + SPA moderna:* Seleccionada. Es el entorno 100% nativo de Ferozo, ofrece soporte nativo para Apache/mod_rewrite, base de datos administrada con phpMyAdmin, cero demonios propensos a caídas y rendimiento óptimo para el equipo de 5 usuarios y escalabilidad modular.
+  - **Decisión:** Implementar backend en PHP 8.2+ con arquitectura monolítica modular (API REST limpia, PDO con transacciones, validaciones en backend), base de datos relacional MySQL/MariaDB (InnoDB), y frontend SPA moderno (HTML5 semántico, Vanilla CSS de alta fidelidad, JavaScript modular) servido en `public_html`.
+  - **Consecuencias:** Despliegue directo sin fricción en DonWeb, soporte garantizado en Apache/.htaccess, máxima velocidad de respuesta y mantenimiento simple.
+  - **Aprobador:** Usuario / Responsable del proyecto.

@@ -1,14 +1,18 @@
-# Arquitectura técnica — propuesta, aún no aprobada
+# Arquitectura técnica — Aprobada (ADR-0001)
 
 ## Orientación
-Monolito modular con cliente web, API, base de datos relacional y tareas programadas. No implementar microservicios de entrada.
+Monolito modular estructurado por capas y dominios, con API REST desacoplada, SPA frontend y base de datos relacional. Diseñado específicamente para ejecutarse de forma óptima y nativa en el Web Hosting Ferozo de DonWeb, sin dependencias de demonios persistentes ni microservicios innecesarios.
 
-## Stack propuesto (pendiente de decisión ADR)
-- Frontend: React + TypeScript, biblioteca accesible para Kanban, UI responsiva.
-- Backend: Python + FastAPI, capa API / aplicación / dominio / persistencia.
-- Base de datos: PostgreSQL; ORM SQLAlchemy, migraciones Alembic.
-- Notificaciones inicialmente dentro de la aplicación; correo opcional posterior.
-- Despliegue: servicio administrado o equivalente estable, HTTPS, secretos administrados, backups y monitoreo. Docker solo si aporta reproducibilidad.
+## Stack aprobado (ADR-0001)
+- **Plataforma de Alojamiento:** DonWeb Web Hosting tradicional (Panel Ferozo, Apache 2.4 / LiteSpeed con `mod_rewrite` y `.htaccess`).
+- **Backend:** PHP 8.2+ (orientado a objetos, tipado estricto, PSR-4, API REST modular con enrutamiento limpio, transacciones PDO contra MySQL).
+- **Base de Datos:** MySQL 8 / MariaDB (motor InnoDB, transacciones ACID, integridad referencial con claves foráneas, administrable en phpMyAdmin de Ferozo).
+- **Frontend:** SPA moderna de alta fidelidad estética (HTML5 semántico, Vanilla CSS estructurado con Design Tokens / Variables CSS, modo oscuro/claro, transiciones fluidas, JavaScript modular nativo o empaquetado para `public_html`).
+- **Seguridad de Sesiones:** Autenticación con credenciales protegidas con `password_hash()` (Argon2id/Bcrypt), cookies de sesión o tokens con atributos `HttpOnly; SameSite=Strict; Secure`.
+- **Estructura en Servidor Ferozo:**
+  - `public_html/`: Punto de entrada público (`index.html`, assets frontend, y único `api/index.php` para enrutamiento de la API vía `.htaccess`).
+  - `app/` o `src/` (fuera del DocumentRoot o protegido por `.htaccess` `Require all denied`): Código de dominio, lógica de negocio, configuración, migraciones y modelos, inaccesible directamente por URL.
+- **Notificaciones:** Notificaciones internas dentro de la aplicación; soporte para correo SMTP autenticado opcional posterior.
 
 ## Módulos lógicos
 `identidad`, `autorizacion`, `usuarios`, `tableros`, `tareas`, `dependencias`, `aprobaciones`, `notificaciones`, `auditoria`, `reportes`.

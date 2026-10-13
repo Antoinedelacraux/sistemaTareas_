@@ -4,11 +4,11 @@
 `PENDIENTE`, `EN_CURSO`, `EN_REVISION`, `COMPLETADO`, `BLOQUEADO`.
 
 ## Fase 0 — Preparación
-- [ ] SETUP-01 Validar alcance V1.2 y supuestos abiertos. [PENDIENTE]
-- [ ] SETUP-02 Aprobar arquitectura/stack y ADR. [PENDIENTE]
-- [ ] SETUP-03 Diseñar navegación/wireframes por rol. [PENDIENTE]
-- [ ] SETUP-04 Diseñar casos de uso, modelo de datos y API. [PENDIENTE]
-- [ ] SETUP-05 Preparar repositorio, CI y entornos. [PENDIENTE]
+- [x] SETUP-01 Validar alcance V1.2 y supuestos abiertos (P-001 a P-007 revisados, P-004 resuelto). [COMPLETADO]
+- [x] SETUP-02 Aprobar arquitectura/stack y ADR (ADR-0001: PHP 8.2+ / MySQL / SPA en DonWeb Ferozo). [COMPLETADO]
+- [ ] SETUP-03 Diseñar navegación/wireframes por rol (asistente vs. jefe). [PENDIENTE]
+- [ ] SETUP-04 Diseñar casos de uso, modelo de datos y API (MySQL / PHP REST). [PENDIENTE]
+- [ ] SETUP-05 Preparar estructura del proyecto y entorno local compatible con Ferozo. [PENDIENTE]
 
 ## Fase 1 — MVP
 - [ ] MVP-01 Autenticación, RBAC y pruebas negativas de acceso. [PENDIENTE]
