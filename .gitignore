@@ -1,0 +1,43 @@
+# Archivos de entorno y credenciales
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# Python / Entornos virtuales
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node / Frontend builds
+node_modules/
+dist/
+build/
+.next/
+coverage/
+
+# Bases de datos y logs locales
+*.sqlite3
+*.db
+*.log
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+*.bak
+
+# Datos productivos, respaldos y exportaciones sensibles
+backups/
+data/private/
+*.sql.gz
+*.dump

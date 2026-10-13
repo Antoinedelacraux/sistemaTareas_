@@ -1,0 +1,34 @@
+# Fragmento propuesto: fusionar con .gitignore, no reemplazar reglas existentes
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+node_modules/
+dist/
+build/
+.next/
+coverage/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.sqlite3
+*.db
+*.log
+.DS_Store
+Thumbs.db
+*.bak
+# No versionar datos productivos, exportaciones sensibles ni copias de base de datos.
+backups/
+data/private/
+*.sql.gz
+*.dump
