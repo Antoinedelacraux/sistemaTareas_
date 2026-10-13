@@ -1,0 +1,7 @@
+# Protección contra ejecución de archivos subidos en DonWeb Ferozo / Apache
+Options -ExecCGI
+Options -Indexes
+
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|php8|cgi|pl|py|sh|bash)$">
+    Require all denied
+</FilesMatch>

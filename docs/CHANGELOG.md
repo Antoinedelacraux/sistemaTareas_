@@ -1,7 +1,21 @@
 # Changelog
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
-## [Sin versión - Modelo de Datos y API] - 2026-10-13
+## [Sin versión - Estructura y Bootstrap Ferozo] - 2026-10-13
+### Añadido
+- Culminación de la **Fase 0 (Preparación)** con la tarea `SETUP-05`.
+- Estructura física del monolito modular para DonWeb Ferozo: `public_html/` y `app/` protegida con directiva Apache `Require all denied`.
+- Script DDL completo de base de datos en `database/schema.sql` (10 tablas InnoDB con FKs e índices).
+- Datos semilla iniciales en `database/seeds.sql` (5 columnas Kanban y 5 usuarios iniciales con hashes Bcrypt).
+- Plantilla de variables de entorno `.env.example` y cargador liviano `app/Config/Env.php`.
+- Conector seguro PDO MySQL con transacciones ACID en `app/Config/Database.php`.
+- Enrutador REST `app/Core/Router.php`, respuestas JSON `app/Core/Response.php` y Front Controller `public_html/api/index.php`.
+- Reglas de reescritura `.htaccess` en `public_html/` para API y SPA client-side routing.
+- Shell inicial SPA con Design Tokens en `public_html/index.html` y script `public_html/assets/js/app.js`.
+- Protección de almacenamiento de adjuntos en `storage/uploads/.htaccess`.
+- Script de prueba de salud `tests/healthcheck_test.php` verificado exitosamente.
+
+## [Sin versión - Modelo de Datos y API] - 2026-10-13 (Commit `8f548a1`)
 ### Añadido
 - Especificación formal de casos de uso (CU-01 a CU-10), diagrama ER y script DDL SQL completo para MySQL 8 / MariaDB (InnoDB) en `docs/DATA_MODEL_AND_API.md` (SETUP-04).
 - Definición de 10 tablas relacionales (`usuarios`, `sesiones`, `tableros_columnas`, `tareas`, `subtareas`, `tarea_dependencias`, `tarea_aprobaciones`, `tarea_comentarios`, `tarea_colaboradores`, `auditoria_eventos`) con claves foráneas e índices optimizados.

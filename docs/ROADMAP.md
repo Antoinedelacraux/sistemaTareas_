@@ -8,7 +8,7 @@
 - [x] SETUP-02 Aprobar arquitectura/stack y ADR (ADR-0001: PHP 8.2+ / MySQL / SPA en DonWeb Ferozo). [COMPLETADO]
 - [x] SETUP-03 Diseñar navegación/wireframes por rol (asistente vs. jefe) en `docs/UX_WIREFRAMES.md`. [COMPLETADO]
 - [x] SETUP-04 Diseñar casos de uso, modelo de datos y API (MySQL / PHP REST) en `docs/DATA_MODEL_AND_API.md`. [COMPLETADO]
-- [ ] SETUP-05 Preparar estructura del proyecto y entorno local compatible con Ferozo. [PENDIENTE]
+- [x] SETUP-05 Preparar estructura del proyecto, esquema DDL, seeds y entorno compatible con Ferozo. [COMPLETADO]
 
 ## Fase 1 — MVP
 - [ ] MVP-01 Autenticación, RBAC y pruebas negativas de acceso. [PENDIENTE]

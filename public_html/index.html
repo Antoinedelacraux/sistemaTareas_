@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Seguimiento de Tareas — Área de Planeamiento</title>
+    <meta name="description" content="Sistema Web interno de Gestión y Seguimiento de Tareas del Área de Planeamiento. Tableros Kanban, flujos de aprobación y automatización de procesos.">
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+    <header class="app-header">
+        <div class="brand-section">
+            <span class="brand-badge">TAL</span>
+            <h1 class="brand-title">Planeamiento — Sistema de Tareas</h1>
+        </div>
+        <div class="header-actions">
+            <button id="theme-toggle-btn" class="btn btn-outline" aria-label="Cambiar modo claro y oscuro">
+                <span id="theme-icon" aria-hidden="true">🌙</span>
+                <span>Tema</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="system-card">
+            <h2>Bienvenido al Sistema de Gestión de Tareas</h2>
+            <p>Plataforma interna del Área de Planeamiento diseñada para optimizar la distribución de trabajo, supervisión de flujos y trazabilidad de compromisos.</p>
+            <div style="margin-top: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+                <span>Estado de la API Backend:</span>
+                <span id="api-status-badge" class="badge">Verificando...</span>
+            </div>
+            <p id="api-status-text" style="font-size: 0.8125rem; margin-top: 0.5rem;"></p>
+        </section>
+
+        <section id="app-root">
+            <!-- Contenedor dinámico de la SPA montado en la Fase 1 -->
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <p>&copy; 2026 TAL S.A. — Área de Planeamiento. Diseñado para DonWeb Ferozo.</p>
+    </footer>
+
+    <script src="assets/js/app.js"></script>
+</body>
+</html>

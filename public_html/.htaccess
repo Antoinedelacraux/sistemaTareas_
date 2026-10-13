@@ -1,0 +1,31 @@
+# =============================================================================
+# CONFIGURACIÓN APACHE — DONWEB FEROSO
+# public_html/.htaccess
+# =============================================================================
+
+Options -Indexes
+ServerSignature Off
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # 1. Enrutar peticiones a la API REST hacia public_html/api/index.php
+    RewriteRule ^api(/.*)?$ api/index.php [QSA,L]
+
+    # 2. Servir archivos y carpetas reales existentes de forma directa (CSS, JS, imágenes)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # 3. Enrutar todas las demás rutas a index.html (SPA client-side routing)
+    RewriteRule ^ index.html [L]
+</IfModule>
+
+# Cabeceras de Seguridad Básicas
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
