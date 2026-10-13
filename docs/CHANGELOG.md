@@ -1,7 +1,14 @@
 # Changelog
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
-## [Sin versión - Diseño UI/UX] - 2026-10-13
+## [Sin versión - Modelo de Datos y API] - 2026-10-13
+### Añadido
+- Especificación formal de casos de uso (CU-01 a CU-10), diagrama ER y script DDL SQL completo para MySQL 8 / MariaDB (InnoDB) en `docs/DATA_MODEL_AND_API.md` (SETUP-04).
+- Definición de 10 tablas relacionales (`usuarios`, `sesiones`, `tableros_columnas`, `tareas`, `subtareas`, `tarea_dependencias`, `tarea_aprobaciones`, `tarea_comentarios`, `tarea_colaboradores`, `auditoria_eventos`) con claves foráneas e índices optimizados.
+- Algoritmos para validación de aciclicidad (DFS en DAG) y desbloqueo atómico secuencial y paralelo (Regla AND) con transacciones ACID.
+- Catálogo exhaustivo de endpoints de la API REST PHP 8.2+ con validación de autorización por alcance en servidor (asistente solo autoasigna, jefes gestionan equipo).
+
+## [Sin versión - Diseño UI/UX] - 2026-10-13 (Commit `6df22cd`)
 ### Añadido
 - Especificación formal de UI/UX, arquitectura de información y wireframes estructurales en `docs/UX_WIREFRAMES.md` (SETUP-03).
 - Definición de Design Tokens para modo claro y oscuro (paleta cromática, elevaciones, bordes y tipografía).
