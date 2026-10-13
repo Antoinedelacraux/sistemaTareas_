@@ -24,13 +24,27 @@ $router->get('/api/health', function () {
     ]);
 });
 
+// -----------------------------------------------------------------------------
+// Rutas de Autenticación y Sesión (MVP-01)
+// -----------------------------------------------------------------------------
+use App\Controllers\AuthController;
+use App\Core\Middleware\AuthMiddleware;
+
+$router->post('/api/auth/login', [AuthController::class, 'login']);
+$router->post('/api/auth/logout', [AuthController::class, 'logout'], [AuthMiddleware::class]);
+$router->get('/api/auth/me', [AuthController::class, 'me'], [AuthMiddleware::class]);
+
 // Rutas base informativas
 $router->get('/api', function () {
     Response::json([
         'message' => 'API REST - Sistema de Tareas (Planeamiento)',
         'endpoints' => [
             'health' => '/api/health',
-            'auth'   => '/api/auth/login',
+            'auth'   => [
+                'login'  => 'POST /api/auth/login',
+                'logout' => 'POST /api/auth/logout',
+                'me'     => 'GET /api/auth/me'
+            ],
             'tareas' => '/api/tareas'
         ]
     ]);

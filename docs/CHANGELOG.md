@@ -1,7 +1,16 @@
 # Changelog
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
-## [Sin versión - Estructura y Bootstrap Ferozo] - 2026-10-13
+## [Sin versión - Autenticación y RBAC] - 2026-10-13
+### Añadido
+- Módulo de autenticación y sesiones de la **Fase 1 (MVP-01)**.
+- Modelos `User`, `Session` y `Audit` en `app/Models/`.
+- Middleware de autenticación y RBAC `app/Core/Middleware/AuthMiddleware.php`.
+- Controlador de autenticación `app/Controllers/AuthController.php` con endpoints `POST /api/auth/login`, `POST /api/auth/logout` y `GET /api/auth/me`.
+- Soporte para cookies `HttpOnly; SameSite=Strict` y encabezados `Authorization: Bearer <token>`.
+- Suite automatizada `tests/auth_test.php` con 19 pruebas positivas, negativas de acceso y de auditoría inmutable (100% PASS).
+
+## [Sin versión - Estructura y Bootstrap Ferozo] - 2026-10-13 (Commit `9f648c6`)
 ### Añadido
 - Culminación de la **Fase 0 (Preparación)** con la tarea `SETUP-05`.
 - Estructura física del monolito modular para DonWeb Ferozo: `public_html/` y `app/` protegida con directiva Apache `Require all denied`.

@@ -1,31 +1,28 @@
 # Traspaso entre sesiones (leer primero)
 
 ## Estado actual verificable
-- Repositorio Git inicializado con commits `652765c` (configuración), `d0df541` (arquitectura Ferozo), `6df22cd` (diseño UX) y `8f548a1` (modelo datos y API).
+- Repositorio Git inicializado con commits `652765c`, `d0df541`, `6df22cd`, `8f548a1` y `9f648c6` (Fase 0 completa).
 - Plataforma de despliegue consolidada: DonWeb Web Hosting tradicional (Ferozo) con stack PHP 8.2+ / MySQL / SPA (ADR-0001).
-- **Fase 0 (Preparación) COMPLETADA AL 100%:**
-  - SETUP-01: Alcance V1.2 y supuestos consolidados.
-  - SETUP-02: Stack aprobado y ADR-0001 registrado.
-  - SETUP-03: Wireframes y diseño UX en `docs/UX_WIREFRAMES.md`.
-  - SETUP-04: Modelo relacional MySQL (InnoDB) y contratos API en `docs/DATA_MODEL_AND_API.md`.
-  - SETUP-05: Estructura del proyecto creada (`public_html/`, `app/`, `database/schema.sql`, `database/seeds.sql`, `.env.example`, `.htaccess` de seguridad, bootstrap y healthcheck probado con PASS).
+- **Fase 1 (MVP) en marcha:**
+  - **MVP-01 COMPLETADO AL 100%:** Módulo de autenticación segura (`app/Controllers/AuthController.php`), modelos `User`, `Session`, `Audit`, middleware `AuthMiddleware`, endpoints `/api/auth/login`, `/api/auth/logout`, `/api/auth/me`, cookies `HttpOnly; SameSite=Strict`, auditoría inmutable de accesos, y 19 pruebas automatizadas (positivas y negativas) con 100% PASS en `tests/auth_test.php`.
+- No se detectan regresiones (`tests/healthcheck_test.php` PASS).
 
 ## Decisiones cerradas
 - Ver D-001 a D-011 y **ADR-0001** en `docs/DECISIONS.md`.
 - Especificación UX en `docs/UX_WIREFRAMES.md`.
 - Modelo de datos y contratos API en `docs/DATA_MODEL_AND_API.md`.
+- Mecanismo de autenticación y RBAC validado en `MVP-01`.
 
 ## Bloqueos y pendientes
-- Sin bloqueos técnicos. Fase 0 cerrada exitosamente.
-- Listo para comenzar la **Fase 1 (MVP)** con la tarea **MVP-01** (Autenticación, RBAC y pruebas negativas de acceso).
+- Sin bloqueos técnicos. Siguiente hito del MVP: **MVP-02** (Usuarios, ámbitos y permisos de asignación).
 
 ## Próximo paso recomendado
-1. Registrar commit del checkpoint de SETUP-05 cerrando la Fase 0.
-2. Iniciar **Fase 1 — MVP-01**: Implementar el módulo de autenticación segura (`app/Controllers/AuthController.php`, `app/Models/User.php`, `app/Core/Middleware/AuthMiddleware.php`), endpoints de login/logout/me, y suite de pruebas automatizadas con casos positivos y pruebas negativas de acceso.
+1. Registrar commit del checkpoint de MVP-01.
+2. Iniciar **MVP-02**: Diseñar e implementar el catálogo de usuarios del área con control de visibilidad por ámbito, listado de usuarios autorizados para asignación y validación estricta de autoasignación exclusiva para asistentes (**RF-05, RF-06, RN-03, RN-04**).
 
 ## Datos para la próxima sesión
-- Último commit verificado: `8f548a1` (más el commit de SETUP-05).
-- Pruebas: Sintaxis PHP 8.4 verificada en todos los archivos (`php -l`), prueba de enrutamiento y healthcheck ejecutada (`php tests/healthcheck_test.php` -> PASS).
-- Siguiente tarea: MVP-01 (Autenticación, RBAC y pruebas negativas de acceso).
+- Último commit verificado: `9f648c6` (más el commit de MVP-01).
+- Pruebas: Suite completa de autenticación y RBAC (`php tests/auth_test.php` -> 19/19 PASS) y suite de salud (`php tests/healthcheck_test.php` -> PASS).
+- Siguiente tarea: MVP-02 (Usuarios, ámbitos y permisos de asignación).
 
 Actualizar este documento al FINAL de cada avance, sin prometer trabajo futuro automático.

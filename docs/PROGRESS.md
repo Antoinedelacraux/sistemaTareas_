@@ -55,6 +55,20 @@
   1. `php -l` en los 6 archivos PHP: 0 errores de sintaxis (`No syntax errors detected`).
   2. `php tests/healthcheck_test.php`: PASS. El endpoint `/api/health` despachó exitosamente JSON Envelope con status `ok`, versión `1.2.0` y runtime `PHP 8.4.25`.
 - **Documentación actualizada:** `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
-- **Git:** Pendiente checkpoint de este incremento (`feat(setup): initialize project structure, database schema and api bootstrap for Ferozo SETUP-05`).
+- **Git:** Commit `9f648c6` (`feat(setup): initialize directory structure, schema, seeds and api bootstrap for Ferozo SETUP-05`).
 - **Deuda técnica / riesgos:** Ninguna. Fase 0 completada al 100%.
 - **Siguiente paso verificable:** Iniciar Fase 1 (MVP) con la tarea **MVP-01** (Autenticación, RBAC y pruebas negativas de acceso).
+
+### 2026-10-13 — MVP-01: Autenticación, RBAC y pruebas negativas de acceso
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-01, RF-02, RF-07, RN-13. Implementar autenticación segura basada en sesiones criptográficas (SHA-256 en DB, token crudo de 256 bits), control de acceso por roles (`ASISTENTE`, `JEFE_PERSONAL`, `JEFE_PLANEAMIENTO`), hashing de contraseñas con Bcrypt, cookies seguras `HttpOnly; SameSite=Strict`, middleware `AuthMiddleware`, y endpoints `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`.
+- **Archivos creados/modificados:** `app/Models/User.php`, `app/Models/Session.php`, `app/Models/Audit.php`, `app/Core/Middleware/AuthMiddleware.php`, `app/Controllers/AuthController.php`, `app/Core/Response.php`, `public_html/api/index.php`, `tests/auth_test.php`, `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
+- **Decisiones y motivo:** Implementado control estricto de sesiones y roles en backend. Manejo de errores con código `ERR_INVALID_CREDENTIALS` (401), bloqueo de cuentas inactivas con `ERR_USER_INACTIVE` (403), validación de campos obligatorios con `ERR_VALIDATION_FAILED` (422) y registro inmutable en `auditoria_eventos` de todos los accesos e intentos fallidos.
+- **Pruebas ejecutadas:**
+  1. `php -l` en todos los archivos: 0 errores de sintaxis (`No syntax errors detected`).
+  2. `php tests/healthcheck_test.php`: PASS (regresión sin fallos).
+  3. `php tests/auth_test.php`: 19 de 19 pruebas unitarias, de integración y negativas superadas con 100% PASS (login asistente, login jefe, contraseñas erróneas, emails inexistentes, campos vacíos, cuentas inactivas, verificación de middleware por token y por rol, logout y revocación, y trazabilidad en auditoría).
+- **Documentación actualizada:** `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
+- **Git:** Pendiente checkpoint de este incremento (`feat(auth): implement authentication, session management and rbac with negative tests MVP-01`).
+- **Deuda técnica / riesgos:** Ninguna. Cobertura completa de casos positivos y negativos en backend.
+- **Siguiente paso verificable:** MVP-02 (Usuarios, ámbitos y permisos de asignación).

@@ -11,7 +11,7 @@
 - [x] SETUP-05 Preparar estructura del proyecto, esquema DDL, seeds y entorno compatible con Ferozo. [COMPLETADO]
 
 ## Fase 1 — MVP
-- [ ] MVP-01 Autenticación, RBAC y pruebas negativas de acceso. [PENDIENTE]
+- [x] MVP-01 Autenticación, RBAC y pruebas negativas de acceso (19/19 tests PASS). [COMPLETADO]
 - [ ] MVP-02 Usuarios, ámbitos y permisos de asignación. [PENDIENTE]
 - [ ] MVP-03 CRUD tareas personales y oficiales. [PENDIENTE]
 - [ ] MVP-04 Kanban individual/general y transiciones. [PENDIENTE]

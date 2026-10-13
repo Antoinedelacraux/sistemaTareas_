@@ -10,12 +10,25 @@ namespace App\Core;
 class Response
 {
     /**
+     * Permite desactivar el exit automático durante la ejecución de pruebas unitarias.
+     */
+    public static bool $exitOnSend = true;
+
+    /**
+     * Guarda el último código de estado HTTP emitido.
+     */
+    public static int $lastStatusCode = 200;
+
+    /**
      * Emite una respuesta de éxito con código HTTP.
      */
     public static function json(mixed $data = null, int $statusCode = 200, array $meta = []): void
     {
-        http_response_code($statusCode);
-        header('Content-Type: application/json; charset=utf-8');
+        self::$lastStatusCode = $statusCode;
+        if (!headers_sent()) {
+            http_response_code($statusCode);
+            header('Content-Type: application/json; charset=utf-8');
+        }
 
         $response = [
             'success' => true,
@@ -27,7 +40,10 @@ class Response
         ];
 
         echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        exit;
+
+        if (self::$exitOnSend) {
+            exit;
+        }
     }
 
     /**
@@ -35,8 +51,11 @@ class Response
      */
     public static function error(string $message, int $statusCode = 400, ?string $errorCode = null, mixed $details = null): void
     {
-        http_response_code($statusCode);
-        header('Content-Type: application/json; charset=utf-8');
+        self::$lastStatusCode = $statusCode;
+        if (!headers_sent()) {
+            http_response_code($statusCode);
+            header('Content-Type: application/json; charset=utf-8');
+        }
 
         $errorPayload = [
             'code'    => $errorCode ?? 'ERR_HTTP_' . $statusCode,
@@ -57,6 +76,9 @@ class Response
         ];
 
         echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        exit;
+
+        if (self::$exitOnSend) {
+            exit;
+        }
     }
 }
