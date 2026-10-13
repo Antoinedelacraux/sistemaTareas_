@@ -126,6 +126,26 @@
   4. `php tests/tasks_test.php`: 24/24 PASS (100%).
   5. `php tests/kanban_test.php`: 18 de 18 pruebas automatizadas superadas al 100% (listado de columnas, agrupación Kanban individual vs general por alcance, transiciones básicas, bloqueo de transiciones en tareas ajenas 403, rechazo de cierre sin confirmación 422, estado intacto tras rechazo, cierre confirmado 200 con fecha, rechazo de cierre directo en tareas con aprobación 409, transición a revisión 200, reapertura con reseteo de fecha, supervisión de jefatura y despacho Router HTTP). Total acumulado: 84 pruebas superadas.
 - **Documentación actualizada:** `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
-- **Git:** Pendiente checkpoint de este incremento (`feat(kanban): implement grouped board views and task state transitions with closing confirmation MVP-04`).
+- **Git:** Commit `746990f` (`feat(kanban): implement grouped board views and task state transitions with closing confirmation MVP-04`).
 - **Deuda técnica / riesgos:** Ninguna.
 - **Siguiente paso verificable:** MVP-05 (Subtareas, comentarios, adjuntos seguros).
+
+### 2026-10-13 — MVP-05: Subtareas, comentarios, adjuntos seguros
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-10, RF-07, RN-02, RN-05. Implementar el módulo de checklist de avance (subtareas) y comunicación contextual (comentarios y evidencias adjuntas con subida y descarga blindada de archivos). Soporte para marcar completitud, eliminación autorizada y orden de subtareas; comentarios con indicación de evidencia y metadatos de archivo; almacenamiento en `storage/uploads/` con nombres hasheados únicos (anti-Path Traversal y anti-ejecución); validación estricta de extensiones permitidas (PDF, imágenes, hojas de cálculo, documentos, texto), bloqueo de scripts (.php) y cuota máxima de 10 MB. Descarga binaria protegida por token y validación de alcance sobre la tarea padre (anti-IDOR/BOLA).
+- **Archivos creados/modificados:** `app/Core/UploadHandler.php`, `app/Models/Subtask.php`, `app/Models/Comment.php`, `app/Controllers/SubtaskController.php`, `app/Controllers/CommentController.php`, `app/Core/Router.php`, `public_html/api/index.php`, `tests/subtasks_comments_test.php`, `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
+- **Decisiones y motivo:**
+  - `UploadHandler`: tratamiento de adjuntos como no confiables, almacenamiento desacoplado de nombres originales y cabeceras seguras `X-Content-Type-Options: nosniff` en descargas autorizadas.
+  - `Router.php`: soporte unificado para payloads JSON y formularios `multipart/form-data` con `$_POST` y `$_FILES`.
+  - Autorización en cascada: tanto subtareas como comentarios y descargas exigen que el usuario posea permisos legítimos sobre la tarea padre (`Task::canView` / `Task::canEdit`).
+- **Pruebas ejecutadas:**
+  1. `php tests/healthcheck_test.php`: PASS (200 OK).
+  2. `php tests/auth_test.php`: 19/19 PASS (100%).
+  3. `php tests/users_test.php`: 23/23 PASS (100%).
+  4. `php tests/tasks_test.php`: 24/24 PASS (100%).
+  5. `php tests/kanban_test.php`: 18/18 PASS (100%).
+  6. `php tests/subtasks_comments_test.php`: 22 de 22 pruebas automatizadas superadas al 100% (creación de subtareas, listado ordenado, completitud toggle, eliminación, comentarios de texto, evidencias con archivos adjuntos PDF, bloqueo de archivos maliciosos .php 422, control de tamaño máximo 10MB 422, descarga autorizada y rechazo anti-IDOR en descargas 403). Total acumulado: 106 pruebas superadas sin fallos.
+- **Documentación actualizada:** `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
+- **Git:** Pendiente checkpoint de este incremento (`feat(tasks): implement subtasks, comments and secure file attachments MVP-05`).
+- **Deuda técnica / riesgos:** Ninguna.
+- **Siguiente paso verificable:** MVP-06 (Confirmación de cierre y aprobaciones).

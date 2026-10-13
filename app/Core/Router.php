@@ -86,7 +86,7 @@ class Router
                 // Filtrar solo los parámetros nombrados
                 $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
 
-                // Obtener payload JSON si existe
+                // Obtener payload JSON o POST estándar
                 $body = [];
                 $input = file_get_contents('php://input');
                 if (!empty($input)) {
@@ -96,12 +96,18 @@ class Router
                     }
                 }
 
+                // Soportar formularios multipart/form-data o x-www-form-urlencoded
+                if (!empty($_POST)) {
+                    $body = array_merge($body, $_POST);
+                }
+
                 $request = [
                     'method' => $method,
                     'path'   => $path,
                     'params' => $params,
                     'query'  => $_GET,
-                    'body'   => $body
+                    'body'   => $body,
+                    'files'  => $_FILES ?? []
                 ];
 
                 // Resetear flag de respuesta antes de iniciar la cadena de ejecución

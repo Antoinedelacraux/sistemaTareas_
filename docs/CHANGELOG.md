@@ -1,7 +1,23 @@
 # Changelog
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
-## [Sin versión - Tablero Kanban y Transiciones] - 2026-10-13 (MVP-04)
+## [Sin versión - Subtareas, Comentarios y Adjuntos] - 2026-10-13 (MVP-05)
+### Añadido
+- Módulo de subtareas, comentarios y subida/descarga segura de evidencias (**Fase 1: MVP-05**).
+- Servicio `app/Core/UploadHandler.php` para almacenamiento sanitizado de adjuntos en `storage/uploads/` con nombres hasheados únicos, validación estricta de extensiones (PDF, imágenes, hojas de cálculo, documentos, texto), bloqueo de scripts maliciosos (.php) y cuota máxima de 10 MB.
+- Modelos `app/Models/Subtask.php` y `app/Models/Comment.php`.
+- Controladores y endpoints:
+  - `GET /api/tareas/{id}/subtareas`: Listado de subtareas ordenadas.
+  - `POST /api/tareas/{id}/subtareas`: Creación de subtareas con validación de permisos de edición sobre la tarea padre.
+  - `PATCH /api/subtareas/{id}`: Actualización de estado completado o título.
+  - `DELETE /api/subtareas/{id}`: Eliminación de subtareas.
+  - `GET /api/tareas/{id}/comentarios`: Listado de comentarios y evidencias de la tarea.
+  - `POST /api/tareas/{id}/comentarios`: Registro de comentarios de texto o evidencias con archivo adjunto procesado de forma segura.
+  - `GET /api/comentarios/{id}/archivo`: Descarga de archivo adjunto protegida por alcance en servidor (anti-IDOR) y cabeceras de seguridad `X-Content-Type-Options: nosniff`.
+- Soporte para formularios `multipart/form-data` y `$_FILES` en `app/Core/Router.php`.
+- Suite de pruebas automatizadas `tests/subtasks_comments_test.php` con 22 casos positivos, negativos y de integración HTTP (100% PASS).
+
+## [Sin versión - Tablero Kanban y Transiciones] - 2026-10-13 (Commit `746990f`)
 ### Añadido
 - Módulo de tablero Kanban y motor de transiciones de estado (**Fase 1: MVP-04**).
 - Modelo `app/Models/BoardColumn.php` para gestión de columnas y mapeo de estados funcionales (`PENDIENTE`, `EN_PROCESO`, `BLOQUEADA`, `EN_REVISION`, `FINALIZADA`).

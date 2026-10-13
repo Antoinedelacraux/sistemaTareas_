@@ -41,3 +41,10 @@ backups/
 data/private/
 *.sql.gz
 *.dump
+
+# Almacenamiento local y uploads
+storage/uploads/*
+!storage/uploads/.htaccess
+!storage/uploads/.gitkeep
+storage/logs/*
+!storage/logs/.gitkeep

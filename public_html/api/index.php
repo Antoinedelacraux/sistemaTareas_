@@ -61,6 +61,21 @@ $router->get('/api/tableros/columnas', [BoardController::class, 'columns'], [Aut
 $router->get('/api/tableros/kanban', [BoardController::class, 'kanban'], [AuthMiddleware::class]);
 $router->post('/api/tareas/{id}/transicion', [BoardController::class, 'transition'], [AuthMiddleware::class]);
 
+// -----------------------------------------------------------------------------
+// Rutas de Subtareas, Comentarios y Evidencias Seguras (MVP-05)
+// -----------------------------------------------------------------------------
+use App\Controllers\SubtaskController;
+use App\Controllers\CommentController;
+
+$router->get('/api/tareas/{id}/subtareas', [SubtaskController::class, 'index'], [AuthMiddleware::class]);
+$router->post('/api/tareas/{id}/subtareas', [SubtaskController::class, 'create'], [AuthMiddleware::class]);
+$router->patch('/api/subtareas/{id}', [SubtaskController::class, 'update'], [AuthMiddleware::class]);
+$router->delete('/api/subtareas/{id}', [SubtaskController::class, 'delete'], [AuthMiddleware::class]);
+
+$router->get('/api/tareas/{id}/comentarios', [CommentController::class, 'index'], [AuthMiddleware::class]);
+$router->post('/api/tareas/{id}/comentarios', [CommentController::class, 'create'], [AuthMiddleware::class]);
+$router->get('/api/comentarios/{id}/archivo', [CommentController::class, 'download'], [AuthMiddleware::class]);
+
 // Rutas base informativas
 $router->get('/api', function () {
     Response::json([
@@ -88,6 +103,14 @@ $router->get('/api', function () {
             'tableros' => [
                 'columnas' => 'GET /api/tableros/columnas',
                 'kanban'   => 'GET /api/tableros/kanban'
+            ],
+            'subtareas' => [
+                'list_or_create' => 'GET|POST /api/tareas/{id}/subtareas',
+                'update_delete'  => 'PATCH|DELETE /api/subtareas/{id}'
+            ],
+            'comentarios' => [
+                'list_or_create' => 'GET|POST /api/tareas/{id}/comentarios',
+                'archivo'        => 'GET /api/comentarios/{id}/archivo'
             ]
         ]
     ]);
