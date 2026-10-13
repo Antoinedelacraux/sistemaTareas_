@@ -66,12 +66,6 @@ class Router
         $method = strtoupper($method);
         // Extraer path sin query string
         $path = parse_url($uri, PHP_URL_PATH) ?? '/';
-
-        // Quitar prefijo de subcarpeta si la app está en subdirectorio
-        $scriptDir = dirname($_SERVER['SCRIPT_NAME'] ?? '');
-        if ($scriptDir !== '/' && $scriptDir !== '\\' && str_starts_with($path, $scriptDir)) {
-            $path = substr($path, strlen($scriptDir));
-        }
         $path = '/' . trim($path, '/');
 
         $methodMatches = false;

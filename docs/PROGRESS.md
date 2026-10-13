@@ -146,6 +146,23 @@
   5. `php tests/kanban_test.php`: 18/18 PASS (100%).
   6. `php tests/subtasks_comments_test.php`: 22 de 22 pruebas automatizadas superadas al 100% (creación de subtareas, listado ordenado, completitud toggle, eliminación, comentarios de texto, evidencias con archivos adjuntos PDF, bloqueo de archivos maliciosos .php 422, control de tamaño máximo 10MB 422, descarga autorizada y rechazo anti-IDOR en descargas 403). Total acumulado: 106 pruebas superadas sin fallos.
 - **Documentación actualizada:** `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
-- **Git:** Pendiente checkpoint de este incremento (`feat(tasks): implement subtasks, comments and secure file attachments MVP-05`).
+- **Git:** Commit `8d17cc5` (`feat(tasks): implement subtasks, comments and secure file attachments MVP-05`).
 - **Deuda técnica / riesgos:** Ninguna.
 - **Siguiente paso verificable:** MVP-06 (Confirmación de cierre y aprobaciones).
+
+### 2026-10-13 — SPA UI & Servidor Local de Desarrollo: Frontend interactivo conectado a la API y fallback local SQLite
+- **Estado:** completado
+- **Objetivo y RF/RN:** Desplegar servidor local integrado (`server.php` en puerto 8000) y cliente frontend SPA completo e interactivo con estética moderna para permitir la observación y pruebas de usuario de los avances logrados (MVP-01 a MVP-05) antes de abordar MVP-06.
+- **Archivos creados/modificados:** `server.php`, `app/Config/Database.php`, `app/Core/Router.php`, `public_html/index.html`, `public_html/assets/css/app.css`, `public_html/assets/js/app.js`, `.gitignore`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`.
+- **Decisiones y motivo:**
+  - `Database.php`: inclusión de fallback automático transparente a `storage/database.sqlite` cuando el entorno es `development` y no existe instancia MySQL local activa, con creación automática de tablas y datos semilla de los 5 usuarios y tareas demostrativas.
+  - `server.php`: enrutador para el servidor embebido `php -S localhost:8000 server.php` que despacha rutas `/api/*` al Front Controller y sirve activos estáticos con sus tipos MIME correspondientes.
+  - SPA UI: interfaz con modo oscuro/claro, selector rápido de perfiles para pruebas de roles, tablero Kanban de 5 columnas, modales de creación, detalle con checklist interactivo de subtareas, publicación de comentarios y evidencias, y diálogo de confirmación de cierre (**RN-11**).
+- **Pruebas ejecutadas:**
+  - Servidor local iniciado y activo en `http://127.0.0.1:8000`.
+  - Endpoint `/api/health` respondiendo 200 OK con JSON Envelope.
+  - Endpoint `/api/auth/login` validado y emitiendo tokens de sesión.
+  - Batería de regresión automatizada: 106 de 106 pruebas aprobadas (100% PASS).
+- **Documentación actualizada:** `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`.
+- **Git:** Pendiente checkpoint de este incremento (`feat(ui): implement interactive spa frontend and local development server`).
+- **Siguiente paso verificable:** Proceder con MVP-06 (Confirmación de cierre y aprobaciones).

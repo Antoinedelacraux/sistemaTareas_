@@ -27,6 +27,7 @@ build/
 coverage/
 
 # Bases de datos y logs locales
+*.sqlite
 *.sqlite3
 *.db
 *.log

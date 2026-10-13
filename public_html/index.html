@@ -3,43 +3,333 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Seguimiento de Tareas — Área de Planeamiento</title>
+    <title>TAL S.A. — Sistema de Tareas | Área de Planeamiento</title>
     <meta name="description" content="Sistema Web interno de Gestión y Seguimiento de Tareas del Área de Planeamiento. Tableros Kanban, flujos de aprobación y automatización de procesos.">
     <link rel="stylesheet" href="assets/css/variables.css">
     <link rel="stylesheet" href="assets/css/app.css">
 </head>
 <body>
+    <!-- Top Header & Brand -->
     <header class="app-header">
         <div class="brand-section">
             <span class="brand-badge">TAL</span>
-            <h1 class="brand-title">Planeamiento — Sistema de Tareas</h1>
+            <div>
+                <h1 class="brand-title">Planeamiento — Sistema de Tareas</h1>
+                <span class="brand-subtitle">TAL S.A. &bull; Gestión Operativa</span>
+            </div>
         </div>
         <div class="header-actions">
-            <button id="theme-toggle-btn" class="btn btn-outline" aria-label="Cambiar modo claro y oscuro">
+            <!-- Indicador de Usuario Activo -->
+            <div id="user-profile-container" style="display: none;">
+                <div class="user-profile-badge">
+                    <div id="user-avatar" class="user-avatar">?</div>
+                    <div class="user-details">
+                        <span id="user-name" class="user-name">Cargando...</span>
+                        <span id="user-role" class="user-role-label">...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menú de cambio rápido de perfil para pruebas de roles -->
+            <select id="quick-role-select" class="select-filter" title="Cambiar rápidamente de usuario para probar alcances y permisos" style="display: none;">
+                <option value="" disabled selected>Cambiar de Usuario...</option>
+                <option value="mchumbes@planeamiento.tal">👤 Marco Chumbes (Asistente 1)</option>
+                <option value="asistente2@planeamiento.tal">👤 Asistente Dos (Asistente 2)</option>
+                <option value="jefe.planeamiento@planeamiento.tal">👑 Elena Vega (Jefe Planeamiento)</option>
+                <option value="jefe.personal@planeamiento.tal">👔 Roberto (Jefe Personal)</option>
+            </select>
+
+            <button id="theme-toggle-btn" class="btn btn-outline btn-sm" aria-label="Cambiar modo claro y oscuro">
                 <span id="theme-icon" aria-hidden="true">🌙</span>
-                <span>Tema</span>
+                <span id="theme-text">Modo</span>
+            </button>
+
+            <button id="logout-btn" class="btn btn-outline btn-sm" style="display: none;">
+                <span>Salir</span>
             </button>
         </div>
     </header>
 
-    <main class="main-content">
-        <section class="system-card">
-            <h2>Bienvenido al Sistema de Gestión de Tareas</h2>
-            <p>Plataforma interna del Área de Planeamiento diseñada para optimizar la distribución de trabajo, supervisión de flujos y trazabilidad de compromisos.</p>
-            <div style="margin-top: 1rem; display: flex; align-items: center; gap: 0.75rem;">
-                <span>Estado de la API Backend:</span>
-                <span id="api-status-badge" class="badge">Verificando...</span>
-            </div>
-            <p id="api-status-text" style="font-size: 0.8125rem; margin-top: 0.5rem;"></p>
-        </section>
+    <!-- Workspace Controls Bar (Pestañas de Alcance y Filtros) -->
+    <div id="workspace-controls-bar" class="workspace-bar" style="display: none;">
+        <div class="workspace-tabs">
+            <button class="tab-btn active" data-scope="area">
+                <span>📋 Mis Tareas del Área</span>
+            </button>
+            <button class="tab-btn" data-scope="personal">
+                <span>🔒 Mis Tareas Personales</span>
+            </button>
+            <button id="tab-team-board" class="tab-btn" data-scope="team">
+                <span>👥 Tablero General del Equipo</span>
+            </button>
+        </div>
 
-        <section id="app-root">
-            <!-- Contenedor dinámico de la SPA montado en la Fase 1 -->
-        </section>
+        <div class="workspace-actions">
+            <input type="text" id="task-search-input" class="search-input" placeholder="🔍 Buscar tarea o código...">
+
+            <select id="priority-filter-select" class="select-filter">
+                <option value="">Todas las prioridades</option>
+                <option value="URGENTE">🔥 Urgente</option>
+                <option value="ALTA">⚡ Alta</option>
+                <option value="MEDIA">📌 Media</option>
+                <option value="BAJA">☕ Baja</option>
+            </select>
+
+            <button id="btn-open-create-task" class="btn btn-primary">
+                <span>+ Nueva Tarea</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Contenedor Principal SPA -->
+    <main class="main-content">
+        <!-- Vista de Login (cuando no hay sesión activa) -->
+        <div id="login-view" style="display: none;">
+            <div class="login-box">
+                <div class="login-header">
+                    <span class="brand-badge" style="display: inline-block; margin-bottom: 0.75rem;">TAL S.A.</span>
+                    <h2>Iniciar Sesión</h2>
+                    <p>Ingresa al Sistema de Seguimiento de Tareas del Área de Planeamiento</p>
+                </div>
+
+                <form id="login-form">
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label class="form-label" for="login-email">Correo Electrónico</label>
+                        <input type="email" id="login-email" class="form-input" required placeholder="usuario@planeamiento.tal" value="mchumbes@planeamiento.tal">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                        <label class="form-label" for="login-password">Contraseña</label>
+                        <input type="password" id="login-password" class="form-input" required placeholder="••••••••" value="Planeamiento2026!">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <span>Ingresar a la Plataforma</span>
+                    </button>
+                </form>
+
+                <div class="quick-logins-group">
+                    <span class="quick-logins-title">Accesos Rápidos de Prueba (Roles)</span>
+                    <button class="quick-login-btn" onclick="quickLogin('mchumbes@planeamiento.tal')">
+                        <span>👤 Marco Chumbes (Asistente 1)</span>
+                        <span class="badge badge-tipo-area">ASISTENTE</span>
+                    </button>
+                    <button class="quick-login-btn" onclick="quickLogin('jefe.planeamiento@planeamiento.tal')">
+                        <span>👑 Elena Vega (Jefe Planeamiento)</span>
+                        <span class="badge badge-prioridad-ALTA">JEFE PLAN.</span>
+                    </button>
+                    <button class="quick-login-btn" onclick="quickLogin('jefe.personal@planeamiento.tal')">
+                        <span>👔 Roberto (Jefe Personal)</span>
+                        <span class="badge badge-prioridad-MEDIA">JEFE PERS.</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vista de Tablero Kanban -->
+        <div id="kanban-view" style="display: none;">
+            <div id="kanban-container" class="kanban-board">
+                <!-- Columnas montadas dinámicamente -->
+            </div>
+        </div>
     </main>
 
+    <!-- Modal de Creación de Tarea (MVP-03) -->
+    <div id="modal-create-task" class="modal-backdrop">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span class="badge badge-tipo-area">NUEVA TAREA</span>
+                    <h3 class="modal-title">Registrar Nueva Tarea</h3>
+                </div>
+                <button class="btn-close" onclick="closeModal('modal-create-task')">&times;</button>
+            </div>
+            <form id="create-task-form">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="task-title">Título de la Tarea *</label>
+                        <input type="text" id="task-title" class="form-input" required placeholder="Ej: Elaboración de reporte de mermas lote B">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="task-description">Descripción Detallada</label>
+                        <textarea id="task-description" class="form-textarea" rows="3" placeholder="Contexto, criterios clave o instrucciones..."></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="task-type">Tipo de Tarea *</label>
+                            <select id="task-type" class="form-select" required>
+                                <option value="AREA">📋 Oficial del Área</option>
+                                <option value="PERSONAL">🔒 Personal / Privada</option>
+                            </select>
+                            <span class="form-help">Tareas personales son privadas y solo visibles para ti.</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="task-priority">Prioridad *</label>
+                            <select id="task-priority" class="form-select" required>
+                                <option value="BAJA">☕ Baja</option>
+                                <option value="MEDIA" selected>📌 Media</option>
+                                <option value="ALTA">⚡ Alta</option>
+                                <option value="URGENTE">🔥 Urgente</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="task-assignee">Responsable Asignado *</label>
+                            <select id="task-assignee" class="form-select">
+                                <!-- Opciones cargadas según rol (autoasignación para asistentes, selector para jefes) -->
+                            </select>
+                            <span id="assignee-help" class="form-help"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="task-due-date">Fecha Límite</label>
+                            <input type="date" id="task-due-date" class="form-input">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 0.5rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="task-requires-approval">
+                            <span style="font-size: 0.85rem; font-weight: 600;">Requiere aprobación de Jefatura para su cierre formal (RN-10)</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modal-create-task')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Crear Tarea</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Detalle de Tarea con Subtareas y Comentarios (MVP-05) -->
+    <div id="modal-task-detail" class="modal-backdrop">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span id="detail-code" class="task-code" style="font-size: 0.95rem;">TAR-XXXX</span>
+                    <span id="detail-type-badge" class="badge">ÁREA</span>
+                    <span id="detail-priority-badge" class="badge">MEDIA</span>
+                    <h3 id="detail-title" class="modal-title" style="margin-left: 0.5rem;">Título</h3>
+                </div>
+                <button class="btn-close" onclick="closeModal('modal-task-detail')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="task-detail-grid">
+                    <!-- Columna Izquierda: Información y Subtareas (Checklist) -->
+                    <div>
+                        <p id="detail-desc" style="font-size: 0.875rem; color: var(--text-main); margin-bottom: 1rem; line-height: 1.5;"></p>
+
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1.25rem; font-size: 0.8rem; color: var(--text-muted);">
+                            <div><strong>Responsable:</strong> <span id="detail-assignee">-</span></div>
+                            <div><strong>Creador:</strong> <span id="detail-creator">-</span></div>
+                            <div><strong>Fecha Límite:</strong> <span id="detail-due-date">-</span></div>
+                        </div>
+
+                        <!-- Sección de Subtareas (Checklist MVP-05) -->
+                        <div class="section-box">
+                            <div class="section-box-title">
+                                <span>Checklist de Subtareas</span>
+                                <span id="detail-subtasks-count" class="badge badge-tipo-area">0/0</span>
+                            </div>
+
+                            <div class="progress-track" style="margin-bottom: 0.75rem;">
+                                <div id="detail-subtasks-progress" class="progress-fill" style="width: 0%;"></div>
+                            </div>
+
+                            <div id="detail-subtasks-list" class="subtasks-list">
+                                <!-- Lista de subtareas -->
+                            </div>
+
+                            <form id="add-subtask-form" class="subtask-add-row">
+                                <input type="text" id="subtask-title-input" class="form-input" placeholder="Añadir ítem al checklist..." style="flex: 1;" required>
+                                <button type="submit" class="btn btn-outline btn-sm">+ Agregar</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha: Comentarios y Evidencias Adjuntas (MVP-05) -->
+                    <div>
+                        <div class="section-box">
+                            <div class="section-box-title">
+                                <span>Historial y Evidencias</span>
+                                <span id="detail-comments-count" class="badge badge-tipo-area">0</span>
+                            </div>
+
+                            <div id="detail-comments-list" class="comments-list">
+                                <!-- Comentarios -->
+                            </div>
+
+                            <form id="add-comment-form">
+                                <div class="form-group" style="margin-bottom: 0.5rem;">
+                                    <textarea id="comment-text-input" class="form-textarea" rows="2" placeholder="Escribe un comentario o actualización..." required></textarea>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0.75rem;">
+                                    <label class="form-label" style="font-size: 0.75rem;">Adjuntar Evidencia (PDF, Excel, Imagen, etc.):</label>
+                                    <input type="file" id="comment-file-input" class="form-input" style="font-size: 0.75rem; padding: 0.3rem;">
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">
+                                    <span>Publicar Comentario / Evidencia</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div style="margin-right: auto; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 0.8rem; font-weight: 600;">Mover a Columna:</span>
+                    <select id="detail-column-select" class="select-filter" style="font-size: 0.8rem;">
+                        <!-- Columnas -->
+                    </select>
+                </div>
+                <button type="button" class="btn btn-outline" onclick="closeModal('modal-task-detail')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación de Cierre (RN-11) -->
+    <div id="modal-confirm-close" class="modal-backdrop">
+        <div class="modal-dialog" style="max-width: 480px;">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span class="badge badge-prioridad-ALTA">CONFIRMACIÓN REQUERIDA</span>
+                    <h3 class="modal-title">Finalizar Tarea</h3>
+                </div>
+                <button class="btn-close" onclick="closeModal('modal-confirm-close')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 0.9rem; line-height: 1.5; color: var(--text-main);">
+                    Estás a punto de marcar como <strong>Finalizada</strong> la tarea <span id="confirm-close-task-code" style="font-family: var(--font-mono); font-weight: 700;"></span>.
+                </p>
+                <div class="section-box" style="margin-top: 0.75rem; background-color: var(--status-review-bg); border-color: var(--status-review);">
+                    <p style="font-size: 0.8125rem; color: var(--text-main); line-height: 1.4;">
+                        ⚠️ De acuerdo con la regla <strong>RN-11</strong>, el cierre de tareas sin circuito de aprobación requiere ratificación consciente para evitar finalizaciones accidentales.
+                    </p>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem; font-weight: 600;">
+                        <input type="checkbox" id="confirm-close-checkbox">
+                        <span>Confirmo que el trabajo ha concluido satisfactoriamente.</span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeModal('modal-confirm-close')">Cancelar</button>
+                <button type="button" id="btn-submit-confirm-close" class="btn btn-success" disabled>Finalizar Tarea</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Footer -->
     <footer class="app-footer">
-        <p>&copy; 2026 TAL S.A. — Área de Planeamiento. Diseñado para DonWeb Ferozo.</p>
+        <p>&copy; 2026 TAL S.A. — Área de Planeamiento. Servidor DonWeb Ferozo / API PHP REST 8.2+.</p>
     </footer>
 
     <script src="assets/js/app.js"></script>

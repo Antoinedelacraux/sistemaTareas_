@@ -28,7 +28,10 @@
 1. Desarrollar **MVP-06**: Implementar controlador `ApprovalController.php` (`POST /api/tareas/{id}/solicitar-aprobacion`, `POST /api/tareas/{id}/resolver-aprobacion`, `GET /api/aprobaciones/pendientes`) y modelo `Approval.php` (`app/Models/Approval.php`). Validar resolución de aprobación (`APROBADA` -> `FINALIZADA` atómica / `DEVUELTA` -> `EN_PROCESO` obligando `observaciones_devolucion` no vacías) con permisos exclusivos para jefes y revisores asignados (**RF-13, RN-10**).
 
 ## Datos para la próxima sesión
-- Último commit verificado: `746990f` (más el commit de MVP-05).
+- Últimos commits verificados:
+  - `8d17cc5` (`feat(tasks): implement subtasks, comments and secure file attachments MVP-05`).
+  - Pendiente commit de UI & Servidor local (`feat(ui): implement interactive spa frontend and local development server`).
+- Servidor local activo en segundo plano: `http://127.0.0.1:8000` (despacha Front Controller de API y SPA con SQLite fallback).
 - Pruebas acumuladas: 106 pruebas automatizadas aprobadas con 100% PASS:
   - Suite de subtareas y comentarios: `php tests/subtasks_comments_test.php` -> 22/22 PASS (100%).
   - Suite de kanban: `php tests/kanban_test.php` -> 18/18 PASS (100%).
@@ -36,6 +39,6 @@
   - Suite de usuarios: `php tests/users_test.php` -> 23/23 PASS (100%).
   - Suite de autenticación: `php tests/auth_test.php` -> 19/19 PASS (100%).
   - Suite de salud: `php tests/healthcheck_test.php` -> PASS (100%).
-- Siguiente tarea: MVP-06 (Confirmación de cierre y aprobaciones).
+- Siguiente tarea: MVP-06 (Confirmación de cierre y circuito formal de aprobaciones).
 
 Actualizar este documento al FINAL de cada avance, sin prometer trabajo futuro automático.
