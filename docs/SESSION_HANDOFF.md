@@ -30,7 +30,7 @@
 ## Datos para la próxima sesión
 - Últimos commits verificados:
   - `8d17cc5` (`feat(tasks): implement subtasks, comments and secure file attachments MVP-05`).
-  - Pendiente commit de UI & Servidor local (`feat(ui): implement interactive spa frontend and local development server`).
+  - `e49c10f` (`feat(ui): implement interactive spa frontend and local development server`).
 - Servidor local activo en segundo plano: `http://127.0.0.1:8000` (despacha Front Controller de API y SPA con SQLite fallback).
 - Pruebas acumuladas: 106 pruebas automatizadas aprobadas con 100% PASS:
   - Suite de subtareas y comentarios: `php tests/subtasks_comments_test.php` -> 22/22 PASS (100%).

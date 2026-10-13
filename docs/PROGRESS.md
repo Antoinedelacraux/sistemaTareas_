@@ -163,6 +163,6 @@
   - Endpoint `/api/health` respondiendo 200 OK con JSON Envelope.
   - Endpoint `/api/auth/login` validado y emitiendo tokens de sesión.
   - Batería de regresión automatizada: 106 de 106 pruebas aprobadas (100% PASS).
-- **Documentación actualizada:** `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`.
-- **Git:** Pendiente checkpoint de este incremento (`feat(ui): implement interactive spa frontend and local development server`).
-- **Siguiente paso verificable:** Proceder con MVP-06 (Confirmación de cierre y aprobaciones).
+- **Documentación actualizada:** `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
+- **Git:** Commit `e49c10f` (`feat(ui): implement interactive spa frontend and local development server`).
+- **Siguiente paso verificable:** Proceder con MVP-06 (Confirmación de cierre y circuito formal de aprobaciones).

@@ -1,7 +1,17 @@
 # Changelog
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
-## [Sin versión - Subtareas, Comentarios y Adjuntos] - 2026-10-13 (MVP-05)
+## [Sin versión - Interfaz SPA y Servidor Local de Desarrollo] - 2026-10-13 (Commit `e49c10f`)
+### Añadido
+- Interfaz gráfica Single Page Application (SPA) completa e interactiva con soporte para modo claro/oscuro persistente y estética TAL S.A.
+- Servidor de desarrollo integrado PHP `server.php` para ejecución local en puerto 8000 con soporte para API REST y activos estáticos MIME.
+- Fallback automático y transparente a SQLite local (`storage/database.sqlite`) en entorno de desarrollo si MySQL no está levantado, con inicialización y semillas automáticas.
+- Tablero Kanban dinámico de 5 columnas con filtros por alcance, texto de búsqueda, prioridad y menú de transiciones rápidas.
+- Selector de cambio rápido de usuarios/roles para pruebas inmediatas de políticas RBAC y alcance (Asistente 1, Asistente 2, Jefe Planeamiento, Jefe Personal).
+- Modal de detalle de tarea integrado con checklist de subtareas dinámico (`PATCH /api/subtareas/{id}`), timeline de comentarios y carga/descarga de evidencias adjuntas.
+- Modal de confirmación de cierre obligatorio con ratificación consciente por checkbox (**RN-11**).
+
+## [Sin versión - Subtareas, Comentarios y Adjuntos] - 2026-10-13 (Commit `8d17cc5`)
 ### Añadido
 - Módulo de subtareas, comentarios y subida/descarga segura de evidencias (**Fase 1: MVP-05**).
 - Servicio `app/Core/UploadHandler.php` para almacenamiento sanitizado de adjuntos en `storage/uploads/` con nombres hasheados únicos, validación estricta de extensiones (PDF, imágenes, hojas de cálculo, documentos, texto), bloqueo de scripts maliciosos (.php) y cuota máxima de 10 MB.
