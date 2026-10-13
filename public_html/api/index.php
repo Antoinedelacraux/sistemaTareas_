@@ -28,11 +28,19 @@ $router->get('/api/health', function () {
 // Rutas de Autenticación y Sesión (MVP-01)
 // -----------------------------------------------------------------------------
 use App\Controllers\AuthController;
+use App\Controllers\UserController;
 use App\Core\Middleware\AuthMiddleware;
 
 $router->post('/api/auth/login', [AuthController::class, 'login']);
 $router->post('/api/auth/logout', [AuthController::class, 'logout'], [AuthMiddleware::class]);
 $router->get('/api/auth/me', [AuthController::class, 'me'], [AuthMiddleware::class]);
+
+// -----------------------------------------------------------------------------
+// Rutas de Usuarios y Ámbitos de Asignación (MVP-02)
+// -----------------------------------------------------------------------------
+$router->get('/api/usuarios', [UserController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/api/usuarios/{id}', [UserController::class, 'show'], [AuthMiddleware::class]);
+$router->post('/api/usuarios/validar-asignacion', [UserController::class, 'validateAssignment'], [AuthMiddleware::class]);
 
 // Rutas base informativas
 $router->get('/api', function () {
@@ -44,6 +52,11 @@ $router->get('/api', function () {
                 'login'  => 'POST /api/auth/login',
                 'logout' => 'POST /api/auth/logout',
                 'me'     => 'GET /api/auth/me'
+            ],
+            'usuarios' => [
+                'list'    => 'GET /api/usuarios',
+                'detail'  => 'GET /api/usuarios/{id}',
+                'validar' => 'POST /api/usuarios/validar-asignacion'
             ],
             'tareas' => '/api/tareas'
         ]

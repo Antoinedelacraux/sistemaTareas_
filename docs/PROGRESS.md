@@ -69,6 +69,24 @@
   2. `php tests/healthcheck_test.php`: PASS (regresión sin fallos).
   3. `php tests/auth_test.php`: 19 de 19 pruebas unitarias, de integración y negativas superadas con 100% PASS (login asistente, login jefe, contraseñas erróneas, emails inexistentes, campos vacíos, cuentas inactivas, verificación de middleware por token y por rol, logout y revocación, y trazabilidad en auditoría).
 - **Documentación actualizada:** `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
-- **Git:** Pendiente checkpoint de este incremento (`feat(auth): implement authentication, session management and rbac with negative tests MVP-01`).
+- **Git:** Commit `7431530` (`feat(auth): implement authentication, session management and rbac with negative tests MVP-01`).
 - **Deuda técnica / riesgos:** Ninguna. Cobertura completa de casos positivos y negativos en backend.
 - **Siguiente paso verificable:** MVP-02 (Usuarios, ámbitos y permisos de asignación).
+
+### 2026-10-13 — MVP-02: Usuarios, ámbitos y permisos de asignación
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-02, RF-05, RF-06, RF-07, RN-03, RN-04, RN-05. Implementar gestión y consulta de usuarios con control estricto de visibilidad por alcance en backend. Asistentes únicamente pueden listarse a sí mismos y asignarse tareas a sí mismos; cualquier intento de listar o consultar perfiles de otros compañeros es bloqueado con 403 Forbidden (`ERR_FORBIDDEN_USER_ACCESS`, protección anti-IDOR/BOLA). Jefes pueden listar y consultar a todo el personal activo del área para asignaciones y supervisión oficial.
+- **Archivos creados/modificados:** `app/Models/User.php`, `app/Controllers/UserController.php`, `app/Core/Response.php`, `app/Core/Router.php`, `public_html/api/index.php`, `tests/users_test.php`, `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
+- **Decisiones y motivo:**
+  - `User::listForUser`: si el usuario es asistente, retorna únicamente su propio perfil en selectores de asignación para prevenir fuga de información y accesos no autorizados. Si es jefe, lista a todo el equipo con soporte para filtros `?rol=` y `?buscar=`.
+  - `User::canViewUser`: rechaza con 403 Forbidden intentos de asistentes de examinar datos de otros usuarios por ID (`/api/usuarios/{id}`).
+  - `User::validateAssignment`: verifica formalmente que asistentes solo se autoasignen y que jefes asignen únicamente a usuarios activos existentes.
+  - `Router` y `Response`: integración de flag `$hasSentResponse` para interrumpir limpiamente la cadena de despacho cuando un middleware o handler emite una respuesta de error.
+- **Pruebas ejecutadas:**
+  1. `php tests/healthcheck_test.php`: PASS (200 OK).
+  2. `php tests/auth_test.php`: 19/19 PASS (100%).
+  3. `php tests/users_test.php`: 23 de 23 pruebas automatizadas superadas al 100% (autenticación requerida, visibilidad asistente vs jefe, filtros de búsqueda, protección IDOR para asistentes 403, 404 para IDs inexistentes, validación de asignaciones por rol y despacho HTTP real del Router).
+- **Documentación actualizada:** `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
+- **Git:** Pendiente checkpoint de este incremento (`feat(users): implement scoped user listing, assignment authorization and anti-idor protection MVP-02`).
+- **Deuda técnica / riesgos:** Ninguna.
+- **Siguiente paso verificable:** MVP-03 (CRUD tareas personales y oficiales).

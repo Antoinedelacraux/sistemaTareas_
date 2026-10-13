@@ -1,7 +1,18 @@
 # Changelog
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
-## [Sin versión - Autenticación y RBAC] - 2026-10-13
+## [Sin versión - Usuarios, Ámbitos y Asignación] - 2026-10-13 (MVP-02)
+### Añadido
+- Módulo de consulta de usuarios y validación de asignaciones por rol (**Fase 1: MVP-02**).
+- Endpoints en `app/Controllers/UserController.php`:
+  - `GET /api/usuarios`: Retorna únicamente al propio usuario autenticado si es asistente (**RF-05, RN-03, RN-05**); retorna a todos los usuarios activos del área si es jefe (**RF-06, RN-04**) con soporte para filtros `?rol=` y `?buscar=`.
+  - `GET /api/usuarios/{id}`: Retorna el perfil seguro del usuario si es el propio solicitante o si el solicitante es jefe. Bloquea con `403 Forbidden` (`ERR_FORBIDDEN_USER_ACCESS`) cualquier intento de un asistente de inspeccionar perfiles ajenos (protección anti-IDOR/BOLA).
+  - `POST /api/usuarios/validar-asignacion`: Valida formalmente si el solicitante puede asignar tareas a un responsable específico, impidiendo que asistentes asignen tareas a compañeros o jefes.
+- Métodos en modelo `app/Models/User.php`: `listAll`, `listForUser`, `canViewUser`, `canAssignTo`, `validateAssignment`.
+- Mecanismo en `Response.php` y `Router.php` (`$hasSentResponse`) para cancelar limpiamente la cadena de ejecución cuando un middleware o handler emite una respuesta de error.
+- Suite de pruebas automatizadas `tests/users_test.php` con 23 casos positivos y negativos (100% PASS).
+
+## [Sin versión - Autenticación y RBAC] - 2026-10-13 (Commit `7431530`)
 ### Añadido
 - Módulo de autenticación y sesiones de la **Fase 1 (MVP-01)**.
 - Modelos `User`, `Session` y `Audit` en `app/Models/`.

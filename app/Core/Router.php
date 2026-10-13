@@ -104,8 +104,15 @@ class Router
                     'body'   => $body
                 ];
 
+                // Resetear flag de respuesta antes de iniciar la cadena de ejecución
+                Response::$hasSentResponse = false;
+
                 // Ejecutar middlewares
                 foreach ($route['middlewares'] as $middleware) {
+                    if (Response::$hasSentResponse) {
+                        return;
+                    }
+
                     if (is_callable($middleware)) {
                         $middleware($request);
                     } elseif (is_string($middleware) && class_exists($middleware)) {
@@ -113,6 +120,10 @@ class Router
                         if (method_exists($instance, 'handle')) {
                             $instance->handle($request);
                         }
+                    }
+
+                    if (Response::$hasSentResponse) {
+                        return;
                     }
                 }
 

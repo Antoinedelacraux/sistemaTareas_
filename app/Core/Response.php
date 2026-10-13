@@ -15,6 +15,11 @@ class Response
     public static bool $exitOnSend = true;
 
     /**
+     * Indica si ya se ha emitido una respuesta en la petición actual.
+     */
+    public static bool $hasSentResponse = false;
+
+    /**
      * Guarda el último código de estado HTTP emitido.
      */
     public static int $lastStatusCode = 200;
@@ -24,6 +29,7 @@ class Response
      */
     public static function json(mixed $data = null, int $statusCode = 200, array $meta = []): void
     {
+        self::$hasSentResponse = true;
         self::$lastStatusCode = $statusCode;
         if (!headers_sent()) {
             http_response_code($statusCode);
@@ -51,6 +57,7 @@ class Response
      */
     public static function error(string $message, int $statusCode = 400, ?string $errorCode = null, mixed $details = null): void
     {
+        self::$hasSentResponse = true;
         self::$lastStatusCode = $statusCode;
         if (!headers_sent()) {
             http_response_code($statusCode);
