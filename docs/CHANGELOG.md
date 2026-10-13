@@ -1,7 +1,14 @@
 # Changelog
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
-## [Sin versión - Arquitectura Ferozo] - 2026-10-13
+## [Sin versión - Diseño UI/UX] - 2026-10-13
+### Añadido
+- Especificación formal de UI/UX, arquitectura de información y wireframes estructurales en `docs/UX_WIREFRAMES.md` (SETUP-03).
+- Definición de Design Tokens para modo claro y oscuro (paleta cromática, elevaciones, bordes y tipografía).
+- Wireframes de alta fidelidad para Vista Asistente (tareas personales vs. área), Vista Jefe (tablero general y bandeja de aprobaciones) y modales clave (confirmación explícita de cierre, devolución con observaciones, creación adaptativa).
+- Mecanismo accesible de navegación por teclado y menú rápido como alternativa al Drag & Drop.
+
+## [Sin versión - Arquitectura Ferozo] - 2026-10-13 (Commit `d0df541`)
 ### Modificado
 - Aprobada decisión **D-011** y **ADR-0001**: Consolidación del stack tecnológico en PHP 8.2+ REST API, MySQL/MariaDB y SPA frontend sobre DonWeb Web Hosting tradicional (Ferozo).
 - Sustituida propuesta P-004 (FastAPI + PostgreSQL descartados por incompatibilidad operativa con hosting Ferozo compartido sin demonios).
