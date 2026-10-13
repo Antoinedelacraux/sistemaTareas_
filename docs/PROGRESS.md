@@ -107,6 +107,25 @@
   3. `php tests/users_test.php`: 23/23 PASS (100%).
   4. `php tests/tasks_test.php`: 24 de 24 pruebas automatizadas superadas al 100% (autenticación obligatoria, creación personal, bloqueo de asignación asistente a compañero 403, asignación por jefe 201, filtros de alcance por servidor, protección anti-IDOR 403, privacidad de tarea personal ante jefe 403, validación de títulos y prioridades 422, reasignación por jefe, control de eliminación y despacho Router HTTP real).
 - **Documentación actualizada:** `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
-- **Git:** Pendiente checkpoint de este incremento (`feat(tasks): implement crud for personal and area tasks with scope and assignment rules MVP-03`).
+- **Git:** Commit `09ab9a0` (`feat(tasks): implement crud for personal and area tasks with scope and assignment rules MVP-03`).
 - **Deuda técnica / riesgos:** Ninguna. Cobertura del 100% en backend.
 - **Siguiente paso verificable:** MVP-04 (Kanban individual/general y transiciones).
+
+### 2026-10-13 — MVP-04: Kanban individual/general y transiciones
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-08, RF-11, RF-12, RN-06, RN-10, RN-11, RN-12, RN-13. Implementar vistas agrupadas del tablero Kanban (individual y general) y el motor de transiciones de estado de tareas entre columnas respetando la integridad funcional de los 5 estados nucleares (`PENDIENTE`, `EN_PROCESO`, `BLOQUEADA`, `EN_REVISION`, `FINALIZADA`). Reglas críticas blindadas: requerimiento obligatorio de confirmación explícita (`confirmacion_cierre: true`) para cerrar tareas sin aprobación (422 si falta o es false); bloqueo con 409 Conflict ante cualquier intento de mover directamente a Finalizada una tarea que exige aprobación previa; reseteo automático de `fecha_finalizada` en reaperturas; y registro detallado en auditoría inmutable.
+- **Archivos creados/modificados:** `app/Models/BoardColumn.php`, `app/Models/Task.php`, `app/Controllers/BoardController.php`, `public_html/api/index.php`, `tests/kanban_test.php`, `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
+- **Decisiones y motivo:**
+  - `BoardColumn`: encapsula la configuración de columnas activas y la resolución por tipo funcional de estado (RN-06).
+  - `BoardController::kanban`: agrupa tareas en columnas bajo el estricto alcance del solicitante (asistente solo ve sus tareas; jefe ve las de área del equipo) y computa métricas de resumen en tiempo real.
+  - `Task::transition`: aplica validaciones atómicas; rechaza saltos no autorizados a Finalizada (409 Conflict para tareas con aprobación; 422 para tareas sin aprobación no confirmadas). Registra fecha de finalización y evento de auditoría.
+- **Pruebas ejecutadas:**
+  1. `php tests/healthcheck_test.php`: PASS (200 OK).
+  2. `php tests/auth_test.php`: 19/19 PASS (100%).
+  3. `php tests/users_test.php`: 23/23 PASS (100%).
+  4. `php tests/tasks_test.php`: 24/24 PASS (100%).
+  5. `php tests/kanban_test.php`: 18 de 18 pruebas automatizadas superadas al 100% (listado de columnas, agrupación Kanban individual vs general por alcance, transiciones básicas, bloqueo de transiciones en tareas ajenas 403, rechazo de cierre sin confirmación 422, estado intacto tras rechazo, cierre confirmado 200 con fecha, rechazo de cierre directo en tareas con aprobación 409, transición a revisión 200, reapertura con reseteo de fecha, supervisión de jefatura y despacho Router HTTP). Total acumulado: 84 pruebas superadas.
+- **Documentación actualizada:** `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
+- **Git:** Pendiente checkpoint de este incremento (`feat(kanban): implement grouped board views and task state transitions with closing confirmation MVP-04`).
+- **Deuda técnica / riesgos:** Ninguna.
+- **Siguiente paso verificable:** MVP-05 (Subtareas, comentarios, adjuntos seguros).

@@ -46,11 +46,20 @@ $router->post('/api/usuarios/validar-asignacion', [UserController::class, 'valid
 // -----------------------------------------------------------------------------
 // Rutas de Tareas CRUD y Ámbito por Servidor (MVP-03)
 // -----------------------------------------------------------------------------
+use App\Controllers\BoardController;
+
 $router->get('/api/tareas', [TaskController::class, 'index'], [AuthMiddleware::class]);
 $router->get('/api/tareas/{id}', [TaskController::class, 'show'], [AuthMiddleware::class]);
 $router->post('/api/tareas', [TaskController::class, 'create'], [AuthMiddleware::class]);
 $router->put('/api/tareas/{id}', [TaskController::class, 'update'], [AuthMiddleware::class]);
 $router->delete('/api/tareas/{id}', [TaskController::class, 'delete'], [AuthMiddleware::class]);
+
+// -----------------------------------------------------------------------------
+// Rutas de Tablero Kanban y Transiciones de Estado (MVP-04)
+// -----------------------------------------------------------------------------
+$router->get('/api/tableros/columnas', [BoardController::class, 'columns'], [AuthMiddleware::class]);
+$router->get('/api/tableros/kanban', [BoardController::class, 'kanban'], [AuthMiddleware::class]);
+$router->post('/api/tareas/{id}/transicion', [BoardController::class, 'transition'], [AuthMiddleware::class]);
 
 // Rutas base informativas
 $router->get('/api', function () {
@@ -69,11 +78,16 @@ $router->get('/api', function () {
                 'validar' => 'POST /api/usuarios/validar-asignacion'
             ],
             'tareas' => [
-                'list'   => 'GET /api/tareas',
-                'detail' => 'GET /api/tareas/{id}',
-                'create' => 'POST /api/tareas',
-                'update' => 'PUT /api/tareas/{id}',
-                'delete' => 'DELETE /api/tareas/{id}'
+                'list'       => 'GET /api/tareas',
+                'detail'     => 'GET /api/tareas/{id}',
+                'create'     => 'POST /api/tareas',
+                'update'     => 'PUT /api/tareas/{id}',
+                'delete'     => 'DELETE /api/tareas/{id}',
+                'transicion' => 'POST /api/tareas/{id}/transicion'
+            ],
+            'tableros' => [
+                'columnas' => 'GET /api/tableros/columnas',
+                'kanban'   => 'GET /api/tableros/kanban'
             ]
         ]
     ]);

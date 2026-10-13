@@ -399,6 +399,138 @@ class Task
     }
 
     /**
+     * Ejecuta la transición de una tarea a otra columna del tablero Kanban (RF-11, RF-12, RN-06, RN-10, RN-11, RN-12, RN-13).
+     * Aplica validaciones atómicas para confirmación de cierre y requerimiento de aprobación.
+     *
+     * @param int $id ID de la tarea
+     * @param int $nuevaColumnaId ID de la columna destino
+     * @param array $options ['confirmacion_cierre' => bool, 'motivo' => string]
+     * @param array $currentUser Usuario autenticado en sesión
+     * @return array
+     */
+    public static function transition(int $id, int $nuevaColumnaId, array $options, array $currentUser): array
+    {
+        $task = self::findById($id);
+        if (!$task) {
+            return [
+                'success' => false,
+                'status'  => 404,
+                'code'    => 'ERR_TASK_NOT_FOUND',
+                'message' => 'Tarea no encontrada.'
+            ];
+        }
+
+        // Validar permisos de edición/movimiento sobre la tarea
+        if (!self::canEdit($currentUser, $task)) {
+            return [
+                'success' => false,
+                'status'  => 403,
+                'code'    => 'ERR_FORBIDDEN_ACTION',
+                'message' => 'No posee permisos para modificar el estado de esta tarea.'
+            ];
+        }
+
+        // Obtener la columna de destino
+        $nuevaColumna = BoardColumn::findById($nuevaColumnaId);
+        if (!$nuevaColumna || !$nuevaColumna['activo']) {
+            return [
+                'success' => false,
+                'status'  => 404,
+                'code'    => 'ERR_COLUMN_NOT_FOUND',
+                'message' => 'La columna de destino no existe o se encuentra desactivada.'
+            ];
+        }
+
+        // Si ya está en esa columna, no hay cambio necesario
+        if ((int)$task['columna_id'] === $nuevaColumnaId) {
+            return [
+                'success' => true,
+                'tarea'   => $task,
+                'mensaje' => 'La tarea ya se encuentra en la columna indicada.'
+            ];
+        }
+
+        $estadoDestino = $nuevaColumna['tipo_estado'];
+        $fechaFinalizada = $task['fecha_finalizada'];
+
+        // REGLAS PARA TRANSICIÓN HACIA ESTADO FINALIZADA (RN-10, RN-11, RN-12)
+        if ($estadoDestino === BoardColumn::ESTADO_FINALIZADA) {
+            // Caso 1: La tarea requiere aprobación previa
+            if ($task['requiere_aprobacion']) {
+                return [
+                    'success' => false,
+                    'status'  => 409,
+                    'code'    => 'ERR_APPROVAL_REQUIRED',
+                    'message' => 'Esta tarea exige aprobación previa por parte de jefatura. Debe solicitar revisión.'
+                ];
+            }
+
+            // Caso 2: Tarea sin aprobación -> Requiere confirmación explícita (RN-11)
+            $confirmacion = !empty($options['confirmacion_cierre']);
+            if (!$confirmacion) {
+                return [
+                    'success' => false,
+                    'status'  => 422,
+                    'code'    => 'ERR_CONFIRMATION_REQUIRED',
+                    'message' => 'Se requiere confirmación explícita para finalizar tareas sin aprobación (RN-11).'
+                ];
+            }
+
+            // Registrar fecha de finalización efectiva
+            $fechaFinalizada = gmdate('Y-m-d H:i:s');
+        } else {
+            // Si sale de finalizada a otro estado (reapertura), resetear fecha_finalizada
+            if ($task['columna_tipo_estado'] === BoardColumn::ESTADO_FINALIZADA) {
+                $fechaFinalizada = null;
+            }
+        }
+
+        $db = Database::getConnection();
+        $now = gmdate('Y-m-d H:i:s');
+
+        $stmt = $db->prepare("
+            UPDATE tareas
+            SET columna_id = :columna_id,
+                fecha_finalizada = :fecha_finalizada,
+                updated_at = :updated_at
+            WHERE id = :id
+        ");
+
+        $stmt->execute([
+            ':columna_id'       => $nuevaColumnaId,
+            ':fecha_finalizada' => $fechaFinalizada,
+            ':updated_at'       => $now,
+            ':id'               => $id
+        ]);
+
+        // Registrar en auditoría de eventos inmutable (RN-13)
+        $userId = (int)$currentUser['id'];
+        Audit::log(
+            $userId,
+            'TAREA',
+            $id,
+            'TRANSICION',
+            $task['columna_tipo_estado'],
+            $estadoDestino,
+            [
+                'columna_anterior_id'     => $task['columna_id'],
+                'columna_anterior_nombre' => $task['columna_nombre'],
+                'columna_destino_id'      => $nuevaColumnaId,
+                'columna_destino_nombre'  => $nuevaColumna['nombre'],
+                'motivo'                  => $options['motivo'] ?? null
+            ]
+        );
+
+        $tareaActualizada = self::findById($id);
+
+        return [
+            'success' => true,
+            'tarea'   => $tareaActualizada,
+            'mensaje' => "Tarea transicionada a '{$nuevaColumna['nombre']}' exitosamente."
+        ];
+    }
+
+    /**
      * Formatea un registro de tarea para salida JSON estandarizada.
      */
     public static function format(array $row): array

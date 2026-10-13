@@ -14,7 +14,7 @@
 - [x] MVP-01 Autenticación, RBAC y pruebas negativas de acceso (19/19 tests PASS). [COMPLETADO]
 - [x] MVP-02 Usuarios, ámbitos y permisos de asignación (23/23 tests PASS, anti-IDOR validado). [COMPLETADO]
 - [x] MVP-03 CRUD tareas personales y oficiales (24/24 tests PASS, anti-IDOR y reasignación blindada). [COMPLETADO]
-- [ ] MVP-04 Kanban individual/general y transiciones. [PENDIENTE]
+- [x] MVP-04 Kanban individual/general y transiciones (18/18 tests PASS, confirmación y aprobación blindadas). [COMPLETADO]
 - [ ] MVP-05 Subtareas, comentarios, adjuntos seguros. [PENDIENTE]
 - [ ] MVP-06 Confirmación de cierre y aprobaciones. [PENDIENTE]
 - [ ] MVP-07 Dependencias secuenciales/paralelas y DAG. [PENDIENTE]

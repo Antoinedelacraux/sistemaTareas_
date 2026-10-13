@@ -1,7 +1,18 @@
 # Changelog
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
-## [Sin versión - CRUD de Tareas y Alcance] - 2026-10-13 (MVP-03)
+## [Sin versión - Tablero Kanban y Transiciones] - 2026-10-13 (MVP-04)
+### Añadido
+- Módulo de tablero Kanban y motor de transiciones de estado (**Fase 1: MVP-04**).
+- Modelo `app/Models/BoardColumn.php` para gestión de columnas y mapeo de estados funcionales (`PENDIENTE`, `EN_PROCESO`, `BLOQUEADA`, `EN_REVISION`, `FINALIZADA`).
+- Controlador `app/Controllers/BoardController.php` con endpoints:
+  - `GET /api/tableros/columnas`: Listado de columnas activas ordenadas por secuencia visual.
+  - `GET /api/tableros/kanban`: Vista Kanban completa con tareas agrupadas por columna bajo alcance estricto de usuario (asistente vs jefatura) y métricas de resumen en tiempo real.
+  - `POST /api/tareas/{id}/transicion`: Transición de tareas entre columnas aplicando validaciones atómicas: exige confirmación explícita (`confirmacion_cierre: true`) para cerrar tareas sin aprobación (422 si falta), bloquea cierre directo para tareas con aprobación (409 Conflict), gestiona fecha de finalización y registra eventos en auditoría.
+- Método `Task::transition` en `app/Models/Task.php`.
+- Suite de pruebas automatizadas `tests/kanban_test.php` con 18 casos positivos, negativos y de integración HTTP (100% PASS).
+
+## [Sin versión - CRUD de Tareas y Alcance] - 2026-10-13 (Commit `09ab9a0`)
 ### Añadido
 - Módulo integral de gestión de tareas personales y del área (**Fase 1: MVP-03**).
 - Modelo `app/Models/Task.php` con generación de códigos correlativos `TAR-YYYY-NNNN`, alcance en consultas SQL por rol, reglas de visibilidad y métodos de persistencia con auditoría.
