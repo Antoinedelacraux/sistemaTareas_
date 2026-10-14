@@ -95,6 +95,16 @@ $router->get('/api/tareas/{id}/dependencias', [DependencyController::class, 'ind
 $router->post('/api/tareas/{id}/dependencias', [DependencyController::class, 'store'], [AuthMiddleware::class]);
 $router->delete('/api/tareas/{id}/dependencias/{pred_id}', [DependencyController::class, 'destroy'], [AuthMiddleware::class]);
 
+// -----------------------------------------------------------------------------
+// Rutas de Notificaciones y Automatizaciones (MVP-08)
+// -----------------------------------------------------------------------------
+use App\Controllers\NotificationController;
+
+$router->get('/api/notificaciones', [NotificationController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/api/notificaciones/resumen', [NotificationController::class, 'unreadCount'], [AuthMiddleware::class]);
+$router->patch('/api/notificaciones/{id}/leer', [NotificationController::class, 'markAsRead'], [AuthMiddleware::class]);
+$router->post('/api/notificaciones/marcar-todas-leidas', [NotificationController::class, 'markAllAsRead'], [AuthMiddleware::class]);
+
 // Rutas base informativas
 $router->get('/api', function () {
     Response::json([
@@ -130,6 +140,22 @@ $router->get('/api', function () {
             'comentarios' => [
                 'list_or_create' => 'GET|POST /api/tareas/{id}/comentarios',
                 'archivo'        => 'GET /api/comentarios/{id}/archivo'
+            ],
+            'aprobaciones' => [
+                'solicitar'  => 'POST /api/tareas/{id}/solicitar-aprobacion',
+                'resolver'   => 'POST /api/tareas/{id}/resolver-aprobacion',
+                'pendientes' => 'GET /api/aprobaciones/pendientes',
+                'historial'  => 'GET /api/tareas/{id}/aprobaciones'
+            ],
+            'dependencias' => [
+                'list_or_create' => 'GET|POST /api/tareas/{id}/dependencias',
+                'delete'         => 'DELETE /api/tareas/{id}/dependencias/{pred_id}'
+            ],
+            'notificaciones' => [
+                'list'           => 'GET /api/notificaciones',
+                'resumen'        => 'GET /api/notificaciones/resumen',
+                'marcar_leida'   => 'PATCH /api/notificaciones/{id}/leer',
+                'marcar_todas'   => 'POST /api/notificaciones/marcar-todas-leidas'
             ]
         ]
     ]);

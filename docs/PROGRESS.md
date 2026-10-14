@@ -267,4 +267,66 @@
 - **Deuda técnica / riesgos:** Ninguna.
 - **Siguiente paso verificable:** MVP-08 (Automatizaciones y notificaciones idempotentes).
 
+### 2026-10-13 — MVP-08: Automatizaciones y notificaciones idempotentes
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-17, RN-15. Implementar el subsistema de eventos automatizados y notificaciones internas con garantía estricta de idempotencia:
+  1. Modelo y tabla `notificaciones` con columnas:
+     - `usuario_id`, `tipo_evento`, `titulo`, `mensaje`, `entidad_tipo`, `entidad_id`, `enlace`, `leida`, `idempotency_key`, `created_at`, `leida_at`.
+     - Índice optimizado `idx_notif_usuario_leida(usuario_id, leida)`.
+     - Restricción de unicidad en `idempotency_key` con manejo de carreras concurrentes (RN-15).
+  2. Motor de automatización `AutomationEngine` con disparadores para 5 eventos clave:
+     - `TAREA_ASIGNADA`: Notificación al nuevo responsable al crear o reasignar una tarea.
+     - `APROBACION_SOLICITADA`: Notificación a la jefatura/revisor cuando una tarea pasa a revisión formal.
+     - `TAREA_APROBADA`: Notificación al responsable y creador al emitirse dictamen favorable.
+     - `TAREA_DEVUELTA`: Notificación al responsable con observaciones obligatorias de subsanación.
+     - `TAREA_DESBLOQUEADA`: Notificación al responsable cuando se libera una tarea por conclusión de todas sus predecesoras DAG (RF-16).
+     - `NUEVO_COMENTARIO`: Notificación al responsable asignado ante nuevas notas o evidencias adjuntas (sin auto-notificar al autor).
+  3. API REST y Endpoints en `NotificationController`:
+     - `GET /api/notificaciones`: Listado paginado de alertas del usuario autenticado.
+     - `GET /api/notificaciones/resumen`: Conteo de no leídas y notificaciones recientes para la cabecera.
+     - `PATCH /api/notificaciones/{id}/leer`: Marcado individual como leída con validación anti-IDOR (403 Forbidden para usuarios ajenos).
+     - `POST /api/notificaciones/marcar-todas-leidas`: Marcado masivo atómico de todas las pendientes del usuario.
+  4. Interfaz SPA Frontend:
+     - Botón de campana `#notif-bell-btn` en la barra superior con contador badge flotante `#notif-badge`.
+     - Panel desplegable `#notif-dropdown` con listado scrolleable, iconos temáticos por tipo de evento, tiempos relativos y navegación directa a la tarea al hacer clic.
+     - Acción rápida para "Marcar todas leídas".
+     - Sondeo pasivo en segundo plano cada 30 segundos y actualización reactiva tras acciones del usuario.
+- **Archivos creados/modificados:**
+  - `app/Config/Database.php`
+  - `app/Models/Notification.php` (nuevo)
+  - `app/Services/AutomationEngine.php` (nuevo)
+  - `app/Controllers/NotificationController.php` (nuevo)
+  - `app/Models/Task.php`
+  - `app/Models/Approval.php`
+  - `app/Models/TaskDependency.php`
+  - `app/Models/Comment.php`
+  - `public_html/api/index.php`
+  - `public_html/index.html`
+  - `public_html/assets/css/app.css`
+  - `public_html/assets/js/app.js`
+  - `tests/notifications_automation_test.php` (nuevo)
+  - `docs/ROADMAP.md`
+  - `docs/PROGRESS.md`
+  - `docs/SESSION_HANDOFF.md`
+  - `docs/CHANGELOG.md`
+- **Decisiones y motivo:**
+  - Garantía de idempotencia a doble capa: verificación preventiva por pre-consulta y captura atómica de excepción de integridad (`UNIQUE` / SQLSTATE `23000`) para evitar cualquier duplicación o error 500 ante disparos concurrentes o reintentos de red.
+  - Ejecución defensiva desacoplada (`try...catch`) para que ningún fallo secundario en notificaciones bloquee transacciones atómicas críticas de negocio.
+- **Pruebas ejecutadas:**
+  1. `php tests/healthcheck_test.php`: PASS (200 OK).
+  2. `php tests/auth_test.php`: 19/19 PASS (100%).
+  3. `php tests/users_test.php`: 23/23 PASS (100%).
+  4. `php tests/tasks_test.php`: 24/24 PASS (100%).
+  5. `php tests/kanban_test.php`: 18/18 PASS (100%).
+  6. `php tests/subtasks_comments_test.php`: 22/22 PASS (100%).
+  7. `php tests/approvals_test.php`: 23/23 PASS (100%).
+  8. `php tests/dependencies_test.php`: 26/26 PASS (100%).
+  9. `php tests/notifications_automation_test.php`: 33/33 PASS (100%).
+  - Total acumulado: 188 pruebas automatizadas superadas con 100% PASS, 0 fallos, 0 regresiones.
+- **Documentación actualizada:** `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
+- **Git:** Checkpoint pendiente de confirmación.
+- **Deuda técnica / riesgos:** Ninguna.
+- **Siguiente paso verificable:** MVP-09 (Historial, auditoría, dashboard básico y métricas de cierre).
+
+
 

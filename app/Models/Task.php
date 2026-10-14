@@ -287,7 +287,16 @@ class Task
             ]
         );
 
-        return self::findById($newId);
+        $createdTask = self::findById($newId);
+
+        // Automatización: Notificar asignación (MVP-08)
+        try {
+            if (class_exists(\App\Services\AutomationEngine::class)) {
+                \App\Services\AutomationEngine::notifyTaskAssigned($createdTask, $currentUser);
+            }
+        } catch (\Throwable $e) {}
+
+        return $createdTask;
     }
 
     /**
@@ -364,7 +373,18 @@ class Task
             ['cambios' => array_keys($data)]
         );
 
-        return self::findById($id);
+        $updatedTask = self::findById($id);
+
+        // Automatización: Notificar reasignación si el responsable cambió (MVP-08)
+        if (isset($data['responsable_id']) && (int)$data['responsable_id'] !== (int)$currentTask['responsable_id']) {
+            try {
+                if (class_exists(\App\Services\AutomationEngine::class)) {
+                    \App\Services\AutomationEngine::notifyTaskAssigned($updatedTask, $currentUser);
+                }
+            } catch (\Throwable $e) {}
+        }
+
+        return $updatedTask;
     }
 
     /**

@@ -119,7 +119,20 @@ class Comment
             ]
         );
 
-        return self::findById($newId);
+        $comentarioObj = self::findById($newId);
+
+        // Disparo de notificación automática (MVP-08 / RF-17 / RN-15)
+        try {
+            if (class_exists(\App\Services\AutomationEngine::class)) {
+                $task = Task::findById($taskId);
+                $autor = User::findById($usuarioId);
+                if ($task && $autor) {
+                    \App\Services\AutomationEngine::notifyNewComment($task, $comentarioObj, $autor);
+                }
+            }
+        } catch (\Throwable $e) {}
+
+        return $comentarioObj;
     }
 
     /**

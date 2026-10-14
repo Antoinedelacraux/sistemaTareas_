@@ -1,6 +1,29 @@
 # Changelog
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
+## [Sin versión - Automatizaciones y Notificaciones Idempotentes] - 2026-10-13 (MVP-08)
+### Añadido
+- Módulo completo de eventos automatizados y notificaciones internas con garantía estricta de idempotencia (**Fase 1: MVP-08**).
+- Modelo relacional `app/Models/Notification.php` y tabla `notificaciones` con tracking de alertas para usuarios, tipos de evento, metadatos JSON y clave única de idempotencia `idempotency_key` (**RN-15**).
+- Motor de automatización `app/Services/AutomationEngine.php` con disparadores para 5 eventos críticos del sistema:
+  - `TAREA_ASIGNADA`: Notificación al nuevo responsable al crear o reasignar una tarea.
+  - `APROBACION_SOLICITADA`: Notificación a la jefatura/revisor cuando una tarea pasa a revisión formal.
+  - `TAREA_APROBADA`: Notificación al responsable y creador al emitirse dictamen favorable.
+  - `TAREA_DEVUELTA`: Notificación al responsable con observaciones de devolución obligatorias para subsanación.
+  - `TAREA_DESBLOQUEADA`: Notificación al responsable cuando una tarea sucesora es liberada por conclusión de dependencias DAG (**RF-16**).
+  - `NUEVO_COMENTARIO`: Notificación al responsable asignado ante nuevas notas o evidencias (sin auto-notificar al autor).
+- Controlador `app/Controllers/NotificationController.php` con 4 endpoints:
+  - `GET /api/notificaciones`: Listado de notificaciones con soporte para filtro de no leídas y paginación.
+  - `GET /api/notificaciones/resumen`: Conteo de no leídas y notificaciones recientes para la campana de cabecera.
+  - `PATCH /api/notificaciones/{id}/leer`: Marcado individual como leída con protección anti-IDOR (**403 Forbidden** para otros usuarios).
+  - `POST /api/notificaciones/marcar-todas-leidas`: Marcado masivo atómico de todas las pendientes del usuario.
+- Interfaz gráfica SPA (`index.html`, `app.css`, `app.js`):
+  - Botón de campana interactivo con contador badge dinámico en tiempo real (`#notif-badge`).
+  - Dropdown desplegable `#notif-dropdown` con scroll, iconos por tipo de evento, tiempos relativos ("Hace 5 min") y enlace a la tarea.
+  - Botón de marcado masivo "Marcar todas leídas".
+  - Polling pasivo suave en segundo plano y actualización reactiva tras acciones del usuario.
+- Suite de pruebas automatizadas `tests/notifications_automation_test.php` con 33 casos de prueba unitarios, de integración y de idempotencia estricta (100% PASS).
+
 ## [Sin versión - Dependencias entre Tareas y Motor DAG] - 2026-10-13 (MVP-07)
 ### Añadido
 - Módulo completo de dependencias secuenciales, ramas en paralelo y validación de Grafo Acíclico Dirigido (**Fase 1: MVP-07**).

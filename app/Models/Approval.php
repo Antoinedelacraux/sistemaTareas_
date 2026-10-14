@@ -127,7 +127,17 @@ class Approval
 
             $db->commit();
 
-            return self::findById($aprobacionId);
+            $aprobacion = self::findById($aprobacionId);
+
+            // Disparo de notificación automática (MVP-08 / RF-17 / RN-15)
+            try {
+                if (class_exists(\App\Services\AutomationEngine::class)) {
+                    $solicitante = User::findById($solicitanteId);
+                    \App\Services\AutomationEngine::notifyApprovalRequested($tarea, $aprobacion, $solicitante);
+                }
+            } catch (\Throwable $e) {}
+
+            return $aprobacion;
         } catch (\Throwable $e) {
             $db->rollBack();
             throw $e;
@@ -263,7 +273,16 @@ class Approval
                     }
                 } catch (\Throwable $e) {}
 
-                return self::findById($aprobacionId);
+                $aprobacion = self::findById($aprobacionId);
+
+                // Disparo de notificación automática (MVP-08 / RF-17 / RN-15)
+                try {
+                    if (class_exists(\App\Services\AutomationEngine::class)) {
+                        \App\Services\AutomationEngine::notifyApprovalResolved($tarea, $aprobacion, 'APROBAR', $resolutor);
+                    }
+                } catch (\Throwable $e) {}
+
+                return $aprobacion;
             } catch (\Throwable $e) {
                 $db->rollBack();
                 throw $e;
@@ -364,7 +383,16 @@ class Approval
                     }
                 } catch (\Throwable $e) {}
 
-                return self::findById($aprobacionId);
+                $aprobacion = self::findById($aprobacionId);
+
+                // Disparo de notificación automática (MVP-08 / RF-17 / RN-15)
+                try {
+                    if (class_exists(\App\Services\AutomationEngine::class)) {
+                        \App\Services\AutomationEngine::notifyApprovalResolved($tarea, $aprobacion, 'DEVOLVER', $resolutor);
+                    }
+                } catch (\Throwable $e) {}
+
+                return $aprobacion;
             } catch (\Throwable $e) {
                 $db->rollBack();
                 throw $e;

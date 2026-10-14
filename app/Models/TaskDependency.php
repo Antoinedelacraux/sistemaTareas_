@@ -228,6 +228,13 @@ class TaskDependency
                         'PENDIENTE',
                         ['motivo' => 'Desbloqueo tras eliminación de dependencia bloqueante']
                     );
+
+                    // Notificación automática al responsable si la tarea se desbloquea
+                    try {
+                        if (class_exists(\App\Services\AutomationEngine::class)) {
+                            \App\Services\AutomationEngine::notifyTaskUnlocked($tarea, $predecesoraId);
+                        }
+                    } catch (\Throwable $e) {}
                 }
             }
         }
@@ -511,6 +518,13 @@ class TaskDependency
                     );
 
                     $desbloqueadas[] = $succId;
+
+                    // Notificación automática al responsable de la tarea desbloqueada (MVP-08 / RF-17 / RN-15)
+                    try {
+                        if (class_exists(\App\Services\AutomationEngine::class)) {
+                            \App\Services\AutomationEngine::notifyTaskUnlocked($succTask, $completedTaskId);
+                        }
+                    } catch (\Throwable $e) {}
                 }
             }
         }

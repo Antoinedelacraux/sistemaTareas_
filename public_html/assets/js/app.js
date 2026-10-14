@@ -187,6 +187,41 @@ function initEventListeners() {
     if (addDepForm) {
         addDepForm.addEventListener('submit', handleAddDependency);
     }
+
+    // Campana y Menú de Notificaciones (MVP-08)
+    const notifBellBtn = document.getElementById('notif-bell-btn');
+    const notifDropdown = document.getElementById('notif-dropdown');
+    const notifMarkAllBtn = document.getElementById('notif-mark-all-btn');
+
+    if (notifBellBtn && notifDropdown) {
+        notifBellBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = notifDropdown.style.display !== 'none';
+            if (isOpen) {
+                notifDropdown.style.display = 'none';
+                notifBellBtn.setAttribute('aria-expanded', 'false');
+            } else {
+                notifDropdown.style.display = 'block';
+                notifBellBtn.setAttribute('aria-expanded', 'true');
+                loadNotifications();
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            const wrapper = document.getElementById('notifications-menu-container');
+            if (wrapper && !wrapper.contains(e.target)) {
+                notifDropdown.style.display = 'none';
+                notifBellBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+
+    if (notifMarkAllBtn) {
+        notifMarkAllBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            await markAllNotificationsRead();
+        });
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -250,6 +285,10 @@ async function onLoginSuccess() {
     renderUserBar();
     await loadInitialData();
     showKanbanView();
+    fetchNotificationsSummary();
+    if (!window._notifPollTimer) {
+        window._notifPollTimer = setInterval(fetchNotificationsSummary, 30000);
+    }
 }
 
 function showLoginView() {
@@ -257,6 +296,8 @@ function showLoginView() {
     document.getElementById('kanban-view').style.display = 'none';
     document.getElementById('workspace-controls-bar').style.display = 'none';
     document.getElementById('user-profile-container').style.display = 'none';
+    const notifContainer = document.getElementById('notifications-menu-container');
+    if (notifContainer) notifContainer.style.display = 'none';
     document.getElementById('quick-role-select').style.display = 'none';
     document.getElementById('logout-btn').style.display = 'none';
 }
@@ -266,6 +307,8 @@ function showKanbanView() {
     document.getElementById('kanban-view').style.display = 'block';
     document.getElementById('workspace-controls-bar').style.display = 'flex';
     document.getElementById('user-profile-container').style.display = 'flex';
+    const notifContainer = document.getElementById('notifications-menu-container');
+    if (notifContainer) notifContainer.style.display = 'inline-flex';
     document.getElementById('quick-role-select').style.display = 'inline-block';
     document.getElementById('logout-btn').style.display = 'inline-flex';
 }
@@ -562,6 +605,7 @@ async function executeTaskTransition(taskId, newColId, confirmation) {
             if (STATE.activeTaskDetail && parseInt(STATE.activeTaskDetail.id, 10) === parseInt(taskId, 10)) {
                 await loadTaskDetail(taskId);
             }
+            fetchNotificationsSummary();
         } else {
             showToast(result.error?.message || 'Error en la transición', 'error');
             renderKanban();
@@ -646,6 +690,7 @@ async function handleCreateTask(e) {
             closeModal('modal-create-task');
             showToast(`¡Tarea ${result.data.codigo} creada exitosamente!`, 'success');
             await fetchTasks();
+            fetchNotificationsSummary();
         } else {
             showToast(result.error?.message || 'Error al crear tarea', 'error');
         }
@@ -902,6 +947,7 @@ async function handleAddComment(e) {
             showToast('Comentario publicado', 'success');
             await loadTaskDetail(STATE.activeTaskDetail.id);
             await fetchTasks();
+            fetchNotificationsSummary();
         } else {
             showToast(result.error?.message || 'Error al publicar comentario', 'error');
         }
@@ -1153,6 +1199,7 @@ window.requestApproval = async function(taskId) {
             showToast('¡Tarea enviada a revisión formal con éxito!', 'success');
             await fetchTasks();
             await fetchPendingApprovalsCount();
+            fetchNotificationsSummary();
             if (STATE.activeTaskDetail && parseInt(STATE.activeTaskDetail.id, 10) === parseInt(taskId, 10)) {
                 await loadTaskDetail(taskId);
             }
@@ -1176,6 +1223,7 @@ window.approveTask = async function(taskId) {
             showToast('✅ Tarea Aprobada y Finalizada formalmente', 'success');
             await fetchTasks();
             await fetchPendingApprovalsCount();
+            fetchNotificationsSummary();
             if (STATE.currentScope === 'approvals') {
                 await fetchPendingApprovals();
             }
@@ -1228,6 +1276,7 @@ async function handleReturnTaskSubmit(e) {
             STATE.pendingReturnTaskId = null;
             await fetchTasks();
             await fetchPendingApprovalsCount();
+            fetchNotificationsSummary();
             if (STATE.currentScope === 'approvals') {
                 await fetchPendingApprovals();
             }
@@ -1392,5 +1441,165 @@ window.removeDependency = async function(taskId, predId) {
         showToast('Error de red al eliminar dependencia', 'error');
     }
 };
+
+// -----------------------------------------------------------------------------
+// Notificaciones y Automatizaciones (MVP-08)
+// -----------------------------------------------------------------------------
+async function fetchNotificationsSummary() {
+    if (!STATE.currentUser) return;
+    try {
+        const res = await apiFetch('/api/notificaciones/resumen');
+        if (!res.ok) return;
+        const result = await res.json();
+        if (result.success && result.data) {
+            updateNotificationBadge(result.data.no_leidas || 0);
+        }
+    } catch (err) {
+        console.warn('Error al consultar resumen de notificaciones:', err);
+    }
+}
+
+function updateNotificationBadge(count) {
+    const badge = document.getElementById('notif-badge');
+    if (!badge) return;
+    if (count > 0) {
+        badge.textContent = count > 99 ? '99+' : count;
+        badge.style.display = 'inline-block';
+    } else {
+        badge.textContent = '0';
+        badge.style.display = 'none';
+    }
+}
+
+async function loadNotifications() {
+    const listContainer = document.getElementById('notif-items-list');
+    if (!listContainer) return;
+
+    listContainer.innerHTML = '<div class="notif-empty-state">Cargando notificaciones...</div>';
+
+    try {
+        const res = await apiFetch('/api/notificaciones');
+        const result = await res.json();
+
+        if (result.success && result.data && Array.isArray(result.data.notificaciones)) {
+            renderNotifications(result.data.notificaciones);
+            updateNotificationBadge(result.data.no_leidas || 0);
+        } else {
+            listContainer.innerHTML = '<div class="notif-empty-state">No se pudieron cargar las alertas</div>';
+        }
+    } catch (err) {
+        listContainer.innerHTML = '<div class="notif-empty-state">Error de red al cargar notificaciones</div>';
+    }
+}
+
+function renderNotifications(notifs) {
+    const listContainer = document.getElementById('notif-items-list');
+    if (!listContainer) return;
+
+    if (!notifs || notifs.length === 0) {
+        listContainer.innerHTML = '<div class="notif-empty-state">No tienes notificaciones pendientes</div>';
+        return;
+    }
+
+    listContainer.innerHTML = '';
+    notifs.forEach(notif => {
+        const item = document.createElement('div');
+        const isUnread = parseInt(notif.leida, 10) === 0;
+        item.className = `notif-item ${isUnread ? 'unread' : 'read'}`;
+        item.dataset.id = notif.id;
+
+        const icon = getNotificationIcon(notif.tipo_evento);
+        const timeAgo = formatRelativeTime(notif.created_at);
+
+        item.innerHTML = `
+            <div class="notif-item-icon" aria-hidden="true">${icon}</div>
+            <div class="notif-item-content">
+                <div class="notif-item-title">${escapeHtml(notif.titulo || 'Notificación')}</div>
+                <div class="notif-item-msg">${escapeHtml(notif.mensaje || '')}</div>
+                <div class="notif-item-time">${escapeHtml(timeAgo)}</div>
+            </div>
+        `;
+
+        item.addEventListener('click', async () => {
+            if (isUnread) {
+                await markNotificationRead(notif.id);
+                item.classList.remove('unread');
+                item.classList.add('read');
+            }
+            // Navegar a la tarea asociada si aplica
+            const tareaId = notif.entidad_tipo === 'TAREA' ? notif.entidad_id : null;
+            if (tareaId) {
+                const notifDropdown = document.getElementById('notif-dropdown');
+                if (notifDropdown) notifDropdown.style.display = 'none';
+                await openTaskDetailModal(tareaId);
+            }
+        });
+
+        listContainer.appendChild(item);
+    });
+}
+
+function getNotificationIcon(tipo) {
+    switch (tipo) {
+        case 'TAREA_ASIGNADA': return '📋';
+        case 'APROBACION_SOLICITADA': return '⏳';
+        case 'TAREA_APROBADA': return '✅';
+        case 'TAREA_DEVUELTA': return '⚠️';
+        case 'TAREA_DESBLOQUEADA': return '🔓';
+        case 'NUEVO_COMENTARIO': return '💬';
+        default: return '🔔';
+    }
+}
+
+function formatRelativeTime(dateStr) {
+    if (!dateStr) return '';
+    try {
+        const date = new Date(dateStr.replace(' ', 'T') + 'Z');
+        const now = new Date();
+        const diffSecs = Math.max(0, Math.floor((now - date) / 1000));
+
+        if (diffSecs < 60) return 'Hace un momento';
+        const diffMins = Math.floor(diffSecs / 60);
+        if (diffMins < 60) return `Hace ${diffMins} min`;
+        const diffHours = Math.floor(diffMins / 60);
+        if (diffHours < 24) return `Hace ${diffHours} h`;
+        const diffDays = Math.floor(diffHours / 24);
+        return `Hace ${diffDays} d`;
+    } catch (e) {
+        return dateStr;
+    }
+}
+
+async function markNotificationRead(notifId) {
+    try {
+        const res = await apiFetch(`/api/notificaciones/${notifId}/leer`, {
+            method: 'PATCH'
+        });
+        if (res.ok) {
+            fetchNotificationsSummary();
+        }
+    } catch (e) {
+        console.warn('Error al marcar leída:', e);
+    }
+}
+
+async function markAllNotificationsRead() {
+    try {
+        const res = await apiFetch('/api/notificaciones/marcar-todas-leidas', {
+            method: 'POST'
+        });
+        const result = await res.json();
+        if (result.success) {
+            showToast('Todas las notificaciones fueron marcadas como leídas', 'success');
+            updateNotificationBadge(0);
+            loadNotifications();
+        } else {
+            showToast(result.error?.message || 'Error al actualizar notificaciones', 'error');
+        }
+    } catch (e) {
+        showToast('Error de red al marcar notificaciones', 'error');
+    }
+}
+
 
 

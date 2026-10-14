@@ -39,6 +39,23 @@
                 <option value="jefe.personal@planeamiento.tal">👔 Roberto (Jefe Personal)</option>
             </select>
 
+            <!-- Campana de Notificaciones Idempotentes (MVP-08) -->
+            <div id="notifications-menu-container" class="notifications-wrapper" style="display: none;">
+                <button id="notif-bell-btn" class="btn btn-outline btn-sm notif-bell-btn" title="Notificaciones" aria-label="Notificaciones del sistema" aria-expanded="false">
+                    <span class="notif-icon" aria-hidden="true">🔔</span>
+                    <span id="notif-badge" class="notif-badge" style="display: none;">0</span>
+                </button>
+                <div id="notif-dropdown" class="notif-dropdown" style="display: none;" role="region" aria-label="Bandeja de notificaciones">
+                    <div class="notif-dropdown-header">
+                        <span class="notif-dropdown-title">🔔 Notificaciones</span>
+                        <button id="notif-mark-all-btn" class="notif-mark-all-btn" title="Marcar todas como leídas">Marcar todas leídas</button>
+                    </div>
+                    <div id="notif-items-list" class="notif-items-list">
+                        <div class="notif-empty-state">No tienes notificaciones pendientes</div>
+                    </div>
+                </div>
+            </div>
+
             <button id="theme-toggle-btn" class="btn btn-outline btn-sm" aria-label="Cambiar modo claro y oscuro">
                 <span id="theme-icon" aria-hidden="true">🌙</span>
                 <span id="theme-text">Modo</span>

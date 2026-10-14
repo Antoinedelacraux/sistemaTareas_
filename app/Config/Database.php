@@ -221,6 +221,24 @@ class Database
                 FOREIGN KEY (predecesora_id) REFERENCES tareas(id) ON DELETE CASCADE,
                 UNIQUE(tarea_id, predecesora_id)
             );
+
+            CREATE TABLE IF NOT EXISTS notificaciones (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                usuario_id INTEGER NOT NULL,
+                tipo_evento TEXT NOT NULL,
+                titulo TEXT NOT NULL,
+                mensaje TEXT NOT NULL,
+                entidad_tipo TEXT NOT NULL DEFAULT 'TAREA',
+                entidad_id INTEGER NOT NULL,
+                enlace TEXT,
+                leida INTEGER NOT NULL DEFAULT 0,
+                idempotency_key TEXT UNIQUE,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                leida_at TEXT,
+                FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_notif_usuario_leida ON notificaciones(usuario_id, leida);
         ");
 
         // Semilla de columnas si no existen

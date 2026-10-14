@@ -17,8 +17,7 @@
 - [x] MVP-04 Kanban individual/general y transiciones (18/18 tests PASS, confirmación y aprobación blindadas). [COMPLETADO]
 - [x] MVP-05 Subtareas, comentarios, adjuntos seguros (19/19 tests PASS, anti-IDOR, validación de archivos en storage/uploads). [COMPLETADO]
 - [x] MVP-06 Confirmación de cierre y aprobaciones. [COMPLETADO]
-- [x] MVP-07 Dependencias secuenciales/paralelas y DAG (23/23 tests PASS, anti-ciclos RN-07, regla AND RN-08 y desbloqueo RF-16). [COMPLETADO]
-- [ ] MVP-08 Automatizaciones y notificaciones idempotentes. [PENDIENTE]
+- [x] MVP-08 Automatizaciones y notificaciones idempotentes (33/33 tests PASS, RF-17 y RN-15 garantizados con idempotency_key). [COMPLETADO]
 - [ ] MVP-09 Historial, auditoría, dashboard básico. [PENDIENTE]
 - [ ] MVP-10 QA integral, seguridad y piloto con 5 usuarios. [PENDIENTE]
 

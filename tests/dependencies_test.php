@@ -151,7 +151,7 @@ $pdo->exec("
 ");
 
 // Inyectar conexión de prueba
-Database::setTestConnection($pdo);
+Database::setConnection($pdo);
 
 // -----------------------------------------------------------------------------
 // 2. Insertar Datos de Prueba (Usuarios y Columnas)
@@ -178,13 +178,9 @@ $pdo->exec("
 ");
 
 // Crear sesiones y tokens
-$asist1Token = 'token_asistente_1_' . bin2hex(random_bytes(16));
-$asist2Token = 'token_asistente_2_' . bin2hex(random_bytes(16));
-$jefeToken   = 'token_jefe_plan_' . bin2hex(random_bytes(16));
-
-Session::create(1, $asist1Token);
-Session::create(2, $asist2Token);
-Session::create(3, $jefeToken);
+$asist1Token = Session::create(1);
+$asist2Token = Session::create(2);
+$jefeToken   = Session::create(3);
 
 $userAsist1 = User::findById(1);
 $userAsist2 = User::findById(2);
@@ -218,7 +214,7 @@ function captureResponse(callable $callback): array
     $output = ob_get_clean();
     $data = json_decode($output, true);
     return [
-        'status' => http_response_code(),
+        'status' => Response::$lastStatusCode,
         'json'   => $data,
         'raw'    => $output
     ];
@@ -353,7 +349,7 @@ TaskDependency::add((int)$tDepAppr['id'], (int)$tAppr['id'], $userJefe);
 
 // Enviar tAppr a aprobación y resolver
 Approval::solicitar((int)$tAppr['id'], (int)$userJefe['id'], 'Listo para revisión formal');
-Approval::resolve((int)$tAppr['id'], (int)$userJefe['id'], 'APROBAR');
+Approval::resolver((int)$tAppr['id'], (int)$userJefe['id'], 'APROBAR');
 
 $tDepApprAfter = Task::findById((int)$tDepAppr['id']);
 assertTest(
@@ -383,8 +379,9 @@ assertTest($res['status'] === 401 && $res['json']['success'] === false, "GET /ap
 $_SERVER['HTTP_AUTHORIZATION'] = "Bearer {$jefeToken}";
 $res = captureResponse(fn() => $router->dispatch('GET', '/api/tareas/' . $t3['id'] . '/dependencias'));
 assertTest(
-    $res['status'] === 200 && $res['json']['success'] === true && isset($res['json']['data']['predecesoras']),
-    "GET /api/tareas/{id}/dependencias retorna 200 OK con estructura DAG"
+    $res['status'] === 200 && ($res['json']['success'] ?? false) === true && isset($res['json']['data']['predecesoras']),
+    "GET /api/tareas/{id}/dependencias retorna 200 OK con estructura DAG",
+    json_encode($res)
 );
 
 // Test 15: POST dependencia con falta de body o parámetro inválido (422)
