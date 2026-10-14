@@ -58,6 +58,26 @@
   letter-spacing: -0.01em;
 }
 
+.btn-column-lock {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  color: #475569;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.btn-column-lock:hover,
+.btn-column-lock:focus-visible {
+  color: var(--primary-700);
+  border-color: var(--primary-400);
+  outline: none;
+}
+
 .column-badge {
   background-color: var(--bg-surface-subtle);
   border: 1px solid var(--border-subtle);

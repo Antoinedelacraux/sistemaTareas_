@@ -1,4 +1,13 @@
 # Changelog
+
+## [Sin version] - 2026-10-14
+### Agregado
+- Boton **Borrar todo** en la Vista Personal. Requiere confirmacion y la API elimina exclusivamente tareas personales propias del usuario autenticado.
+- Indicador de candado profesional en la cabecera de columnas `FINALIZADA`; al seleccionarlo explica el cierre de solo lectura.
+
+### Modificado
+- Una tarea en una columna `FINALIZADA` queda disponible solo para visualizacion, sin etiquetas ni avisos repetidos dentro de la tarjeta o el modal.
+- Sustituidos emojis visibles por SVG o texto profesional.
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
 ## [V1.5.7 - Modularización Frontend, Separación de Responsabilidades y Aislamiento Estricto del Login] - 2026-10-14

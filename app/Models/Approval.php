@@ -120,7 +120,7 @@ class Approval
                 Comment::create(
                     $tareaId,
                     $solicitanteId,
-                    "📤 Solicitud de Aprobación enviada a revisión: \"{$comentarioLimpio}\"",
+                    "Solicitud de aprobación enviada a revisión: \"{$comentarioLimpio}\"",
                     false
                 );
             }
@@ -260,7 +260,7 @@ class Approval
                 Comment::create(
                     $tareaId,
                     $resolutorId,
-                    "✅ Tarea Aprobada formalmente por {$resolutor['nombre']} ({$resolutor['cargo']}). Estado finalizado exitosamente.",
+                    "Tarea aprobada formalmente por {$resolutor['nombre']} ({$resolutor['cargo']}). Estado finalizado exitosamente.",
                     false
                 );
 
@@ -370,7 +370,7 @@ class Approval
                 Comment::create(
                     $tareaId,
                     $resolutorId,
-                    "⚠️ Tarea Devuelta por {$resolutor['nombre']}. Observaciones de subsanación: \"{$observacionesLimpias}\". La tarea regresa a 'En proceso'.",
+                    "Tarea devuelta por {$resolutor['nombre']}. Observaciones de subsanación: \"{$observacionesLimpias}\". La tarea regresa a 'En proceso'.",
                     false
                 );
 

@@ -93,6 +93,26 @@ export async function fetchTasks() {
     }
 }
 
+/** Elimina en bloque las tareas de la Vista Personal del usuario actual. */
+export async function deleteAllPersonalTasks() {
+    if (STATE.currentScope !== 'personal') return;
+
+    if (!window.confirm('Se eliminarán permanentemente todas tus tareas de la Vista Personal. Esta acción no se puede deshacer. ¿Deseas continuar?')) return;
+
+    try {
+        const response = await apiFetch('/api/tareas/personales', { method: 'DELETE' });
+        const result = await response.json();
+        if (!result.success) {
+            showToast(result.error?.message || 'No fue posible eliminar las tareas personales.', 'error');
+            return;
+        }
+        showToast(result.data?.mensaje || 'Las tareas personales fueron eliminadas.', 'success');
+        await fetchTasks();
+    } catch {
+        showToast('Error de conexión al eliminar las tareas personales.', 'error');
+    }
+}
+
 /**
  * Renderiza el tablero Kanban y sus columnas.
  */
@@ -154,6 +174,7 @@ export function renderKanban() {
         const colDiv = document.createElement('div');
         colDiv.className = 'kanban-column';
         colDiv.style.borderTop = `4px solid ${col.color_hex || '#3b82f6'}`;
+        const isClosedColumn = col.tipo_estado === 'FINALIZADA';
         colDiv.innerHTML = `
             <div class="column-header">
                 <div class="column-title-group">
@@ -162,6 +183,10 @@ export function renderKanban() {
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.35rem;">
                     <span class="column-badge" aria-label="${colTasks.length} tareas">${colTasks.length}</span>
+                    ${isClosedColumn ? `
+                    <button type="button" class="btn-column-lock" aria-label="Columna de cierre: ver información" title="Columna de cierre: ver información">
+                        <svg class="icon-svg icon-svg-xs" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    </button>` : ''}
                     ${isJefe ? `
                     <button type="button" class="btn-col-action" title="Personalizar columna" onclick="openEditColumnModal(${col.id})">
                         <svg class="icon-svg icon-svg-xs" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
@@ -174,6 +199,12 @@ export function renderKanban() {
         `;
 
         const cardsContainer = colDiv.querySelector('.column-cards-container');
+        const lockButton = colDiv.querySelector('.btn-column-lock');
+        if (lockButton) {
+            lockButton.addEventListener('click', () => {
+                showToast('Las tareas movidas a esta columna se cierran y quedan disponibles únicamente para visualización.', 'info');
+            });
+        }
 
         // Soporte Drag & Drop nativo en columna
         cardsContainer.addEventListener('dragover', (e) => {
@@ -232,7 +263,7 @@ export function renderKanban() {
 export function createTaskCardElement(task) {
     const isJefe = isCurrentUserJefe();
     const isFinalizada = (task.columna_tipo_estado === 'FINALIZADA');
-    const isClosedForAssistant = (!isJefe && isFinalizada);
+    const isClosedForAssistant = isFinalizada;
 
     const card = document.createElement('div');
     card.className = `task-card ${isClosedForAssistant ? 'task-card-closed' : ''}`;
@@ -263,10 +294,6 @@ export function createTaskCardElement(task) {
         : `<span class="badge badge-tipo-area">ÁREA</span>`;
 
     const prioBadge = `<span class="badge badge-prioridad-${task.prioridad}">${task.prioridad}</span>`;
-    const closedBadge = isClosedForAssistant
-        ? `<span class="badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;" title="Tarea cerrada para asistentes. Solo interactúan Jefes.">🔒 CERRADA</span>`
-        : '';
-
     let subtasksHtml = '';
     const totalSub = parseInt(task.total_subtareas || 0, 10);
     const compSub = parseInt(task.subtareas_completadas || 0, 10);
@@ -302,7 +329,6 @@ export function createTaskCardElement(task) {
             <div class="task-badges">
                 ${tipoBadge}
                 ${prioBadge}
-                ${closedBadge}
             </div>
         </div>
         <h4 class="task-title">${escapeHtml(task.titulo)}</h4>

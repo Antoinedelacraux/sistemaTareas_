@@ -2,6 +2,12 @@
 
 ## Registro de avances
 
+### 2026-10-14 — VISTAS-02: Limpieza personal y cierre de columna
+- **Estado:** implementado, pendiente de validacion visual del usuario.
+- **Objetivo y RF/RN:** RF-05, RF-07, RN-01, RN-04, RN-07.
+- **Cambios:** API segura `DELETE /api/tareas/personales`; boton confirmado `Borrar todo` visible solo en Vista Personal; candado SVG en columnas `FINALIZADA`; tareas finalizadas en modo solo lectura; retiro de avisos/badges de cierre dentro de tarjeta y modal; reemplazo de emojis visibles por SVG o texto profesional.
+- **Pruebas:** lint PHP de archivos afectados: PASS; `tests/auth_test.php`: 19/19 PASS; diagnostico web: 10/10 PASS (254.53 ms); `git diff --check`: PASS. `tests/tasks_test.php` conserva 4 fallos de alcance heredados de la separacion de columnas anterior (T07, T14, T15, T17). Node.js no esta disponible para un chequeo sintactico automatico de modulos JS. El borrado masivo no se ejecuto contra los datos locales existentes durante QA.
+
 ### 2026-10-14 — REFACTOR-MODULAR: Separación de Responsabilidades en Archivos Extensos, Aislamiento Estricto de Login y Creación de Skill
 - **Estado:** completado
 - **Objetivo y RF/RN:** RF-01, RF-02, RF-03, RN-01, RN-03, D-022. Descomponer archivos monolíticos extensos (>740 líneas HTML, >2850 líneas CSS) en componentes atómicos de responsabilidad única para mejorar escalabilidad, facilidad de edición futura y visualización predecible. Aislar completamente la vista de autenticación (Login) para evitar solapamientos con el tablero Kanban.

@@ -33,6 +33,8 @@
   4. Aislamiento estricto de la vista de autenticación: `login.css` desacoplado y eliminación de bloqueos `!important` en display, garantizando que el Login y el Tablero Kanban sean estados visualmente mutuamente excluyentes.
   5. Creación de la Skill `.agents/skills/modularizar-archivos-grandes/SKILL.md` para estandarizar el proceso en el repositorio.
 
+- D-023 Cierre visible por columna y limpieza personal: las columnas `FINALIZADA` muestran un candado informativo; una tarea movida a ellas queda solo para consulta. La Vista Personal incluye una eliminación masiva confirmada, acotada en servidor a las tareas personales del usuario autenticado. La interfaz evita emojis y usa iconografía SVG profesional.
+
 ## Propuestas pendientes de validación
 - P-001 Privacidad de tareas personales también ante jefes, exclusión de KPIs oficiales.
 - P-002 Motor de dependencias AND para habilitar sucesores; OR futuro si lo requiere el proceso.

@@ -219,7 +219,7 @@ export async function loadTaskDetail(taskId) {
         const user = STATE.currentUser;
         const isJefe = isCurrentUserJefe();
         const isFinalizada = (task.columna_tipo_estado === 'FINALIZADA');
-        const isClosedForAssistant = (!isJefe && isFinalizada);
+        const isClosedForAssistant = isFinalizada;
 
         const colSelect = document.getElementById('detail-column-select');
         colSelect.innerHTML = STATE.columns.map(c => `
@@ -242,23 +242,10 @@ export async function loadTaskDetail(taskId) {
         }
 
         const addCommentForm = document.getElementById('add-comment-form');
-        let closedNotice = document.getElementById('detail-closed-notice');
         if (isClosedForAssistant) {
             if (addCommentForm) addCommentForm.style.display = 'none';
-            if (!closedNotice) {
-                closedNotice = document.createElement('div');
-                closedNotice.id = 'detail-closed-notice';
-                closedNotice.style.cssText = 'background: rgba(100, 116, 139, 0.08); border: 1px dashed var(--border-subtle); border-radius: var(--radius-sm); padding: 0.65rem; text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 0.75rem;';
-                closedNotice.innerHTML = '🔒 <strong>Tarea Finalizada:</strong> Cerrada para modificaciones por parte de Asistentes. Solo Jefatura puede interactuar.';
-                if (addCommentForm && addCommentForm.parentNode) {
-                    addCommentForm.parentNode.appendChild(closedNotice);
-                }
-            } else {
-                closedNotice.style.display = 'block';
-            }
         } else {
             if (addCommentForm) addCommentForm.style.display = 'block';
-            if (closedNotice) closedNotice.style.display = 'none';
         }
 
         // Configurar botones de acción según rol y tipo de tarea (Jefes: total; Asistentes: solo personal)

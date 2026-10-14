@@ -26,7 +26,7 @@ export function renderApprovalBox(task, approvals) {
         box.className = 'approval-detail-box';
         box.innerHTML = `
             <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
-                <span aria-hidden="true">ℹ️</span>
+                <svg class="icon-svg icon-svg-sm" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                 <span>Esta tarea no requiere circuito formal de aprobación (cierre directo con confirmación de finalización).</span>
             </div>
         `;

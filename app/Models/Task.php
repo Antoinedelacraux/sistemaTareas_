@@ -306,7 +306,7 @@ class Task
 
     /**
      * Valida si un usuario tiene autorización para editar una tarea.
-     * - Si la tarea está FINALIZADA y el usuario no es jefe, la tarea está cerrada (no modificable).
+     * - Si la tarea está FINALIZADA, queda cerrada y disponible solo para consulta.
      * - Jefes: pueden editar cualquier tarea del área y sus propias tareas personales.
      * - Asistentes: en Vista Área NO pueden editar. En Vista Personal tienen todos los permisos.
      */
@@ -317,8 +317,7 @@ class Task
         $respId = (int)$task['responsable_id'];
         $creadorId = (int)$task['creador_id'];
 
-        // Tarea finalizada se cierra completamente para Asistentes (solo Jefes pueden interactuar)
-        if (!$isJefe && ($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
+        if (($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
             return false;
         }
 
@@ -336,7 +335,7 @@ class Task
 
     /**
      * Valida si un usuario tiene autorización para eliminar una tarea.
-     * - Si la tarea está FINALIZADA y el usuario no es jefe, queda bloqueada.
+     * - Si la tarea está FINALIZADA, queda bloqueada para edición individual.
      * - Jefes: pueden eliminar cualquier tarea del área y sus propias tareas personales.
      * - Asistentes: en Vista Área NO pueden eliminar. En Vista Personal pueden eliminar sus tareas personales.
      */
@@ -347,8 +346,7 @@ class Task
         $respId = (int)$task['responsable_id'];
         $creadorId = (int)$task['creador_id'];
 
-        // Tarea finalizada se cierra completamente para Asistentes
-        if (!$isJefe && ($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
+        if (($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
             return false;
         }
 
@@ -366,7 +364,7 @@ class Task
 
     /**
      * Valida si un usuario puede transicionar una tarea en el tablero Kanban.
-     * Si la tarea está FINALIZADA y el usuario es Asistente, la tarea está cerrada (no se puede mover).
+     * Si la tarea está FINALIZADA, la tarea está cerrada (no se puede mover).
      */
     public static function canTransition(array $currentUser, array $task): bool
     {
@@ -375,8 +373,7 @@ class Task
         $respId = (int)$task['responsable_id'];
         $creadorId = (int)$task['creador_id'];
 
-        // Tarea finalizada se cierra completamente para Asistentes
-        if (!$isJefe && ($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
+        if (($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
             return false;
         }
 
@@ -390,7 +387,7 @@ class Task
     /**
      * Valida si un usuario puede gestionar checklist/subtareas en una tarea.
      * Asistentes pueden gestionar checklist en tareas asignadas o creadas por ellos,
-     * EXCEPTO si la tarea está FINALIZADA (se cierra para Asistentes; solo Jefes interactúan).
+     * EXCEPTO si la tarea está FINALIZADA, estado que solo permite consulta.
      */
     public static function canManageChecklist(array $currentUser, array $task): bool
     {
@@ -400,7 +397,7 @@ class Task
         $creadorId = (int)$task['creador_id'];
 
         if (($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
-            return $isJefe;
+            return false;
         }
 
         if ($isJefe) {
@@ -412,12 +409,11 @@ class Task
 
     /**
      * Valida si un usuario puede interactuar con una tarea (comentarios, evidencias, transiciones).
-     * Si la tarea está FINALIZADA, solo los roles de Jefes pueden interactuar con ella.
+     * Si la tarea está FINALIZADA, solo se permite su visualización.
      */
     public static function canInteract(array $currentUser, array $task): bool
     {
-        $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true) || User::isJefe($currentUser);
-        if (!$isJefe && ($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
+        if (($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
             return false;
         }
         return true;
@@ -650,6 +646,40 @@ class Task
         }
 
         return $deleted;
+    }
+
+    /**
+     * Elimina todas las tareas personales pertenecientes al usuario autenticado.
+     * Nunca incluye tareas de Área ni tareas personales de otros usuarios.
+     */
+    public static function deleteAllPersonalForUser(array $currentUser): int
+    {
+        $db = Database::getConnection();
+        $userId = (int)$currentUser['id'];
+
+        $scope = "t.tipo_tarea = 'PERSONAL'
+            AND (t.responsable_id = :user_id OR t.creador_id = :user_id)";
+
+        $db->beginTransaction();
+        try {
+            $countStmt = $db->prepare("SELECT COUNT(*) FROM tareas t WHERE {$scope}");
+            $countStmt->execute([':user_id' => $userId]);
+            $total = (int)$countStmt->fetchColumn();
+
+            if ($total > 0) {
+                $deleteStmt = $db->prepare("DELETE FROM tareas WHERE tipo_tarea = 'PERSONAL' AND (responsable_id = :user_id OR creador_id = :user_id)");
+                $deleteStmt->execute([':user_id' => $userId]);
+                Audit::log($userId, 'TAREA', 0, 'ELIMINAR_MASIVO_PERSONAL', null, 'ELIMINADAS', ['total' => $total]);
+            }
+
+            $db->commit();
+            return $total;
+        } catch (\Throwable $exception) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            throw $exception;
+        }
     }
 
     /**

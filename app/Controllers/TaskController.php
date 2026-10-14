@@ -282,4 +282,29 @@ class TaskController
             'mensaje' => 'Tarea eliminada exitosamente.'
         ]);
     }
+
+    /**
+     * Elimina en bloque únicamente las tareas personales del usuario autenticado.
+     * DELETE /api/tareas/personales
+     */
+    public function deleteAllPersonal(array $request): void
+    {
+        $currentUser = $request['user'] ?? null;
+        if (!$currentUser) {
+            Response::error('Autenticación requerida.', 401, 'ERR_UNAUTHORIZED');
+            return;
+        }
+
+        try {
+            $total = Task::deleteAllPersonalForUser($currentUser);
+            Response::json([
+                'eliminadas' => $total,
+                'mensaje' => $total === 1
+                    ? 'Se eliminó 1 tarea personal.'
+                    : "Se eliminaron {$total} tareas personales."
+            ]);
+        } catch (\Throwable $exception) {
+            Response::error('No fue posible eliminar las tareas personales.', 500, 'ERR_PERSONAL_BULK_DELETE');
+        }
+    }
 }

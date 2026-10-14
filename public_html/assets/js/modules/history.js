@@ -100,7 +100,7 @@ export function renderHistoryTable(tasks) {
         tbody.innerHTML = `
             <tr>
                 <td colspan="7" style="text-align: center; padding: 3rem 1.5rem; color: var(--text-muted);">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;" aria-hidden="true">📂</div>
+                    <div style="margin-bottom: 0.5rem;"><svg class="icon-svg" style="width: 2rem; height: 2rem; color: var(--text-muted);" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></div>
                     <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.35rem;">
                         No hay tareas archivadas en el historial
                     </div>

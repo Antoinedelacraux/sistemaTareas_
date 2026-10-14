@@ -355,7 +355,7 @@ class TestRunnerController
             <div class="container">
                 <header class="header-card">
                     <div class="header-top">
-                        <h1 class="title">🧪 Diagnóstico Integral de Funcionalidades — TAL S.A.</h1>
+                        <h1 class="title">Diagnóstico Integral de Funcionalidades — TAL S.A.</h1>
                         <span class="badge <?= $allPassed ? 'badge-pass' : 'badge-fail' ?>">
                             <?= $passedCount ?> / <?= $totalCount ?> Superadas
                         </span>
@@ -374,7 +374,7 @@ class TestRunnerController
                     <?php foreach ($results as $res): ?>
                         <article class="test-card <?= $res['pass'] ? 'test-pass' : 'test-fail' ?>">
                             <div>
-                                <h3 class="test-name"><?= $res['pass'] ? '✅' : '❌' ?> <?= htmlspecialchars($res['name']) ?></h3>
+                                <h3 class="test-name"><?= $res['pass'] ? 'APROBADA' : 'FALLIDA' ?> — <?= htmlspecialchars($res['name']) ?></h3>
                                 <p class="test-msg"><?= htmlspecialchars($res['message']) ?></p>
                             </div>
                             <span class="test-duration"><?= $res['duration'] ?></span>
