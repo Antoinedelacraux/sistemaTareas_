@@ -71,6 +71,13 @@ class TaskController
             return;
         }
 
+        try {
+            $aprobacion = \App\Models\Approval::findPendienteByTaskId($id);
+            $task['aprobacion_pendiente'] = $aprobacion;
+        } catch (\Throwable $e) {
+            $task['aprobacion_pendiente'] = null;
+        }
+
         Response::json([
             'tarea' => $task
         ]);

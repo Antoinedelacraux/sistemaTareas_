@@ -41,6 +41,26 @@ class User
     }
 
     /**
+     * Busca el primer usuario activo con un rol específico.
+     */
+    public static function findByRol(string $rol): ?array
+    {
+        $db = Database::getConnection();
+        $stmt = $db->prepare("SELECT * FROM usuarios WHERE rol = :rol AND activo = 1 ORDER BY id ASC LIMIT 1");
+        $stmt->execute([':rol' => $rol]);
+        $user = $stmt->fetch();
+        return $user ?: null;
+    }
+
+    /**
+     * Comprueba si un usuario tiene rol de jefatura.
+     */
+    public static function isJefe(array $user): bool
+    {
+        return in_array($user['rol'] ?? '', [self::ROL_JEFE_PERSONAL, self::ROL_JEFE_PLANEAMIENTO], true);
+    }
+
+    /**
      * Verifica la contraseña usando password_verify de PHP.
      */
     public static function verifyPassword(string $password, string $hash): bool

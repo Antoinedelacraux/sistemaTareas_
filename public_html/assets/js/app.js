@@ -12,7 +12,9 @@ const STATE = {
     searchQuery: '',
     priorityFilter: '',
     activeTaskDetail: null,
-    pendingCloseTaskId: null
+    pendingCloseTaskId: null,
+    pendingReturnTaskId: null,
+    pendingApprovals: []
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -173,6 +175,18 @@ function initEventListeners() {
             }
         });
     }
+
+    // Formulario de Devolución de Tarea (RN-12)
+    const returnTaskForm = document.getElementById('return-task-form');
+    if (returnTaskForm) {
+        returnTaskForm.addEventListener('submit', handleReturnTaskSubmit);
+    }
+
+    // Formulario de Agregar Dependencia (DAG MVP-07)
+    const addDepForm = document.getElementById('add-dependency-form');
+    if (addDepForm) {
+        addDepForm.addEventListener('submit', handleAddDependency);
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -268,13 +282,19 @@ function renderUserBar() {
     else if (user.rol === 'JEFE_PERSONAL') roleText = 'Jefe Personal';
     document.getElementById('user-role').textContent = roleText;
 
-    // Ajustar visibilidad de pestaña de equipo según rol
+    // Ajustar visibilidad de pestañas según rol
     const tabTeam = document.getElementById('tab-team-board');
+    const tabApprovals = document.getElementById('tab-approvals-board');
     if (user.rol === 'ASISTENTE') {
-        tabTeam.style.display = 'none';
-        if (STATE.currentScope === 'team') STATE.currentScope = 'area';
+        if (tabTeam) tabTeam.style.display = 'none';
+        if (tabApprovals) tabApprovals.style.display = 'none';
+        if (STATE.currentScope === 'team' || STATE.currentScope === 'approvals') {
+            setScope('area');
+        }
     } else {
-        tabTeam.style.display = 'inline-flex';
+        if (tabTeam) tabTeam.style.display = 'inline-flex';
+        if (tabApprovals) tabApprovals.style.display = 'inline-flex';
+        fetchPendingApprovalsCount();
     }
 
     // Sincronizar selector rápido
@@ -335,7 +355,19 @@ function setScope(scope) {
         if (btn.getAttribute('data-scope') === scope) btn.classList.add('active');
         else btn.classList.remove('active');
     });
-    renderKanban();
+
+    const kanbanView = document.getElementById('kanban-view');
+    const approvalsView = document.getElementById('approvals-view');
+
+    if (scope === 'approvals') {
+        if (kanbanView) kanbanView.style.display = 'none';
+        if (approvalsView) approvalsView.style.display = 'block';
+        fetchPendingApprovals();
+    } else {
+        if (kanbanView) kanbanView.style.display = 'block';
+        if (approvalsView) approvalsView.style.display = 'none';
+        renderKanban();
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -496,8 +528,8 @@ async function requestTaskTransition(taskId, newColId) {
 
     if (targetCol.tipo_estado === 'FINALIZADA') {
         const task = STATE.tasks.find(t => parseInt(t.id, 10) === parseInt(taskId, 10));
-        if (task && task.requiere_aprobacion && STATE.currentUser.rol === 'ASISTENTE') {
-            showToast('Esta tarea requiere aprobación de jefatura. Debe pasar a "En revisión".', 'error');
+        if (task && task.requiere_aprobacion) {
+            showToast('⚠️ Regla RN-10: Tareas con circuito de aprobación deben ser resueltas por Jefatura. Solicita la aprobación en el detalle.', 'error');
             renderKanban();
             return;
         }
@@ -677,6 +709,30 @@ async function loadTaskDetail(taskId) {
 
         const comments = comJson.success ? comJson.data : [];
         renderCommentsList(comments);
+
+        // Cargar historial de aprobaciones si aplica (MVP-06)
+        let approvals = [];
+        if (task.requiere_aprobacion) {
+            try {
+                const appRes = await apiFetch(`/api/tareas/${taskId}/aprobaciones`);
+                const appJson = await appRes.json();
+                if (appJson.success) approvals = appJson.data;
+            } catch (e) {
+                console.warn('Error al cargar historial de aprobaciones', e);
+            }
+        }
+        renderApprovalBox(task, approvals);
+
+        // Cargar dependencias (DAG MVP-07)
+        try {
+            const depRes = await apiFetch(`/api/tareas/${taskId}/dependencias`);
+            const depJson = await depRes.json();
+            if (depJson.success) {
+                renderDependenciesSection(task, depJson.data);
+            }
+        } catch (e) {
+            console.warn('Error al cargar dependencias', e);
+        }
 
     } catch (err) {
         showToast('Error al cargar detalle de la tarea', 'error');
@@ -906,3 +962,435 @@ function formatDate(isoStr) {
         return isoStr;
     }
 }
+
+// -----------------------------------------------------------------------------
+// Flujo y Bandeja de Aprobaciones (MVP-06)
+// -----------------------------------------------------------------------------
+function renderApprovalBox(task, approvals) {
+    const box = document.getElementById('detail-approval-box');
+    if (!box) return;
+
+    if (!task.requiere_aprobacion) {
+        box.style.display = 'block';
+        box.className = 'approval-detail-box';
+        box.innerHTML = `
+            <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
+                <span>ℹ️</span>
+                <span>Esta tarea no requiere circuito formal de aprobación (cierre directo con confirmación de usuario, RN-11).</span>
+            </div>
+        `;
+        return;
+    }
+
+    box.style.display = 'block';
+    const user = STATE.currentUser;
+    const isJefe = user && (user.rol === 'JEFE_PLANEAMIENTO' || user.rol === 'JEFE_PERSONAL');
+    const isOwnerOrCreator = user && (parseInt(task.responsable_id, 10) === parseInt(user.id, 10) || parseInt(task.creador_id, 10) === parseInt(user.id, 10));
+
+    const devueltas = approvals && Array.isArray(approvals) ? approvals.filter(a => a.estado === 'DEVUELTA') : [];
+    const ultimaDevuelta = devueltas.length > 0 ? devueltas[0] : null;
+
+    let html = `
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <span style="font-weight: 700; font-size: 0.85rem; color: var(--text-main);">Circuito de Aprobación Formal (RN-10)</span>
+            </div>
+            <span class="badge ${task.estado === 'FINALIZADA' ? 'badge-prioridad-BAJA' : (task.estado === 'EN_REVISION' ? 'badge-prioridad-ALTA' : 'badge-tipo-area')}">
+                ${task.estado === 'FINALIZADA' ? 'APROBADA Y CERRADA' : (task.estado === 'EN_REVISION' ? 'EN REVISIÓN' : 'REQUIERE APROBACIÓN')}
+            </span>
+        </div>
+    `;
+
+    // Regla RN-12: Si fue devuelta previamente, visibilizar observaciones de forma prominente
+    if (ultimaDevuelta && task.estado !== 'FINALIZADA') {
+        html += `
+            <div style="background-color: #fee2e2; border: 1px solid #f87171; border-radius: var(--radius-sm); padding: 0.6rem 0.75rem; margin-bottom: 0.75rem;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #b91c1c; margin-bottom: 0.25rem;">
+                    ⚠️ Observaciones de Devolución (${formatDate(ultimaDevuelta.resolved_at)}):
+                </div>
+                <div style="font-size: 0.8rem; color: #7f1d1d; white-space: pre-wrap;">${escapeHtml(ultimaDevuelta.observaciones)}</div>
+            </div>
+        `;
+    }
+
+    if (task.estado === 'EN_REVISION') {
+        box.className = 'approval-detail-box pending';
+        html += `
+            <p style="font-size: 0.8rem; color: var(--text-main); margin-bottom: 0.75rem;">
+                Esta tarea ha concluido su ejecución y está pendiente del dictamen técnico de Jefatura.
+            </p>
+        `;
+
+        if (isJefe) {
+            html += `
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="btn btn-success btn-sm" onclick="approveTask(${task.id})">✅ Aprobar y Finalizar</button>
+                    <button class="btn btn-danger btn-sm" onclick="openReturnModal(${task.id}, '${task.codigo}')">↩️ Devolver con Observaciones</button>
+                </div>
+            `;
+        } else {
+            html += `
+                <div style="font-size: 0.775rem; color: var(--text-muted); font-style: italic;">
+                    Esperando resolución formal de Jefatura.
+                </div>
+            `;
+        }
+    } else if (task.estado === 'FINALIZADA') {
+        box.className = 'approval-detail-box approved';
+        html += `
+            <p style="font-size: 0.8rem; color: #065f46; margin: 0;">
+                ✅ Tarea validada y aprobada formalmente. Ciclo completado satisfactoriamente.
+            </p>
+        `;
+    } else {
+        box.className = 'approval-detail-box';
+        if (isOwnerOrCreator || isJefe) {
+            html += `
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.65rem;">
+                    Al concluir el desarrollo y checklist, envía la tarea a Jefatura para su evaluación formal.
+                </p>
+                <button class="btn btn-primary btn-sm" onclick="requestApproval(${task.id})">
+                    🚀 Enviar a Aprobación (Jefatura)
+                </button>
+            `;
+        } else {
+            html += `
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">
+                    Esta tarea pasará a revisión formal cuando el responsable solicite su aprobación.
+                </p>
+            `;
+        }
+    }
+
+    box.innerHTML = html;
+}
+
+async function fetchPendingApprovalsCount() {
+    try {
+        const res = await apiFetch('/api/aprobaciones/pendientes');
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+            STATE.pendingApprovals = json.data;
+            const badge = document.getElementById('approvals-badge');
+            if (badge) {
+                const count = json.data.length;
+                badge.textContent = count;
+                badge.style.display = count > 0 ? 'inline-block' : 'none';
+            }
+        }
+    } catch (e) {
+        console.warn('Error al consultar contador de aprobaciones pendientes', e);
+    }
+}
+
+window.fetchPendingApprovals = async function() {
+    try {
+        const res = await apiFetch('/api/aprobaciones/pendientes');
+        const json = await res.json();
+        if (json.success) {
+            STATE.pendingApprovals = json.data;
+            renderApprovalsList(json.data);
+            const badge = document.getElementById('approvals-badge');
+            if (badge) {
+                badge.textContent = json.data.length;
+                badge.style.display = json.data.length > 0 ? 'inline-block' : 'none';
+            }
+        } else {
+            showToast(json.error?.message || 'Error al cargar aprobaciones', 'error');
+        }
+    } catch (e) {
+        showToast('Error de red al consultar aprobaciones', 'error');
+    }
+};
+
+function renderApprovalsList(approvals) {
+    const container = document.getElementById('approvals-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!approvals || approvals.length === 0) {
+        container.innerHTML = `
+            <div style="grid-column: 1 / -1; padding: 3rem; text-align: center; background-color: var(--bg-surface); border-radius: var(--radius-md); border: 1px dashed var(--border-strong);">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">✨</div>
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main);">Sin aprobaciones pendientes</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Todas las tareas enviadas a revisión han sido dictaminadas satisfactoriamente.</p>
+            </div>
+        `;
+        return;
+    }
+
+    approvals.forEach(appr => {
+        const card = document.createElement('div');
+        card.className = 'approval-card';
+        card.innerHTML = `
+            <div class="approval-card-header">
+                <span class="task-code">${escapeHtml(appr.tarea_codigo)}</span>
+                <span class="badge badge-prioridad-ALTA">PENDIENTE REVISIÓN</span>
+            </div>
+            <h4 class="approval-card-title">${escapeHtml(appr.tarea_titulo)}</h4>
+            <div class="approval-meta-row">
+                <span><strong>Solicitante:</strong> ${escapeHtml(appr.solicitante_nombre || 'Usuario')}</span>
+                <span>${formatDate(appr.created_at)}</span>
+            </div>
+            <div class="approval-actions">
+                <button class="btn btn-outline btn-sm" onclick="openTaskDetailModal(${appr.tarea_id})">🔍 Ver Detalle</button>
+                <button class="btn btn-success btn-sm" onclick="approveTask(${appr.tarea_id})">✅ Aprobar</button>
+                <button class="btn btn-danger btn-sm" onclick="openReturnModal(${appr.tarea_id}, '${appr.tarea_codigo}')">↩️ Devolver</button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+window.requestApproval = async function(taskId) {
+    try {
+        const res = await apiFetch(`/api/tareas/${taskId}/solicitar-aprobacion`, {
+            method: 'POST'
+        });
+        const result = await res.json();
+        if (result.success) {
+            showToast('¡Tarea enviada a revisión formal con éxito!', 'success');
+            await fetchTasks();
+            await fetchPendingApprovalsCount();
+            if (STATE.activeTaskDetail && parseInt(STATE.activeTaskDetail.id, 10) === parseInt(taskId, 10)) {
+                await loadTaskDetail(taskId);
+            }
+        } else {
+            showToast(result.error?.message || 'Error al solicitar aprobación', 'error');
+        }
+    } catch (e) {
+        showToast('Error de red al solicitar aprobación', 'error');
+    }
+};
+
+window.approveTask = async function(taskId) {
+    try {
+        const res = await apiFetch(`/api/tareas/${taskId}/resolver-aprobacion`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ accion: 'APROBAR' })
+        });
+        const result = await res.json();
+        if (result.success) {
+            showToast('✅ Tarea Aprobada y Finalizada formalmente', 'success');
+            await fetchTasks();
+            await fetchPendingApprovalsCount();
+            if (STATE.currentScope === 'approvals') {
+                await fetchPendingApprovals();
+            }
+            if (STATE.activeTaskDetail && parseInt(STATE.activeTaskDetail.id, 10) === parseInt(taskId, 10)) {
+                await loadTaskDetail(taskId);
+            }
+        } else {
+            showToast(result.error?.message || 'Error al aprobar tarea', 'error');
+        }
+    } catch (e) {
+        showToast('Error de red al aprobar tarea', 'error');
+    }
+};
+
+window.openReturnModal = function(taskId, taskCode) {
+    STATE.pendingReturnTaskId = taskId;
+    const codeEl = document.getElementById('return-task-code');
+    if (codeEl) codeEl.textContent = taskCode;
+    const obsEl = document.getElementById('return-observations');
+    if (obsEl) obsEl.value = '';
+    openModal('modal-return-task');
+};
+
+async function handleReturnTaskSubmit(e) {
+    e.preventDefault();
+    if (!STATE.pendingReturnTaskId) return;
+
+    const obsEl = document.getElementById('return-observations');
+    const observaciones = obsEl ? obsEl.value.trim() : '';
+
+    if (!observaciones) {
+        showToast('⚠️ Regla RN-12: Las observaciones de devolución son obligatorias.', 'error');
+        return;
+    }
+
+    try {
+        const res = await apiFetch(`/api/tareas/${STATE.pendingReturnTaskId}/resolver-aprobacion`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                accion: 'DEVOLVER',
+                observaciones: observaciones
+            })
+        });
+        const result = await res.json();
+        if (result.success) {
+            closeModal('modal-return-task');
+            showToast('↩️ Tarea devuelta con observaciones registradas (RN-12)', 'success');
+            const taskId = STATE.pendingReturnTaskId;
+            STATE.pendingReturnTaskId = null;
+            await fetchTasks();
+            await fetchPendingApprovalsCount();
+            if (STATE.currentScope === 'approvals') {
+                await fetchPendingApprovals();
+            }
+            if (STATE.activeTaskDetail && parseInt(STATE.activeTaskDetail.id, 10) === parseInt(taskId, 10)) {
+                await loadTaskDetail(taskId);
+            }
+        } else {
+            showToast(result.error?.message || 'Error al devolver tarea', 'error');
+        }
+    } catch (e) {
+        showToast('Error de red al devolver tarea', 'error');
+    }
+}
+
+// -----------------------------------------------------------------------------
+// Dependencias entre Tareas - DAG (MVP-07)
+// -----------------------------------------------------------------------------
+function renderDependenciesSection(task, depData) {
+    if (!depData) return;
+
+    // Contador y alerta de bloqueo (RN-08)
+    const countBadge = document.getElementById('detail-deps-count');
+    if (countBadge) countBadge.textContent = depData.total_predecesoras || 0;
+
+    const alertBox = document.getElementById('detail-deps-blocked-alert');
+    if (alertBox) {
+        alertBox.style.display = depData.bloqueada_por_dependencias ? 'block' : 'none';
+    }
+
+    // 1. Renderizar lista de predecesoras
+    const predList = document.getElementById('detail-predecessors-list');
+    if (predList) {
+        predList.innerHTML = '';
+        const predecesoras = depData.predecesoras || [];
+
+        if (predecesoras.length === 0) {
+            predList.innerHTML = `<div style="font-size: 0.775rem; color: var(--text-muted); font-style: italic; padding: 0.25rem 0;">No tiene dependencias previas requeridas.</div>`;
+        } else {
+            predecesoras.forEach(p => {
+                const isFinalizada = !!p.finalizada;
+                const item = document.createElement('div');
+                item.className = `dependency-item ${isFinalizada ? 'completed' : 'pending'}`;
+                item.innerHTML = `
+                    <div class="dependency-info">
+                        <span class="dependency-code">${escapeHtml(p.codigo)}</span>
+                        <span class="dependency-title">${escapeHtml(p.titulo)}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.4rem;">
+                        <span class="badge ${isFinalizada ? 'badge-prioridad-BAJA' : 'badge-prioridad-ALTA'}" style="font-size: 0.7rem; padding: 0.15rem 0.4rem;">
+                            ${isFinalizada ? '✓ FINALIZADA' : '⏳ PENDIENTE'}
+                        </span>
+                        <button class="btn-close" style="font-size: 0.9rem; color: #ef4444;" onclick="removeDependency(${task.id}, ${p.id})" title="Desvincular dependencia">&times;</button>
+                    </div>
+                `;
+                predList.appendChild(item);
+            });
+        }
+    }
+
+    // 2. Llenar el selector de predecesoras elegibles
+    const select = document.getElementById('dependency-predecessor-select');
+    if (select) {
+        select.innerHTML = '<option value="" disabled selected>Vincular tarea predecesora...</option>';
+        const predIds = new Set((depData.predecesoras || []).map(p => parseInt(p.id, 10)));
+        const currentTaskId = parseInt(task.id, 10);
+
+        const candidates = STATE.tasks.filter(t => {
+            const tid = parseInt(t.id, 10);
+            return tid !== currentTaskId && !predIds.has(tid);
+        });
+
+        if (candidates.length === 0) {
+            const opt = document.createElement('option');
+            opt.disabled = true;
+            opt.textContent = 'No hay otras tareas disponibles para vincular';
+            select.appendChild(opt);
+        } else {
+            candidates.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = `${c.codigo} — ${c.titulo}`;
+                select.appendChild(opt);
+            });
+        }
+    }
+
+    // 3. Renderizar lista de sucesoras
+    const succContainer = document.getElementById('detail-successors-container');
+    const succList = document.getElementById('detail-successors-list');
+    const sucesoras = depData.sucesoras || [];
+
+    if (succContainer && succList) {
+        if (sucesoras.length > 0) {
+            succContainer.style.display = 'block';
+            succList.innerHTML = '';
+            sucesoras.forEach(s => {
+                const isFinalizada = !!s.finalizada;
+                const item = document.createElement('div');
+                item.className = `dependency-item ${isFinalizada ? 'completed' : 'pending'}`;
+                item.innerHTML = `
+                    <div class="dependency-info">
+                        <span class="dependency-code">${escapeHtml(s.codigo)}</span>
+                        <span class="dependency-title">${escapeHtml(s.titulo)}</span>
+                    </div>
+                    <span class="badge ${isFinalizada ? 'badge-prioridad-BAJA' : 'badge-tipo-area'}" style="font-size: 0.7rem; padding: 0.15rem 0.4rem;">
+                        ${escapeHtml(s.columna_nombre || s.tipo_estado)}
+                    </span>
+                `;
+                succList.appendChild(item);
+            });
+        } else {
+            succContainer.style.display = 'none';
+        }
+    }
+}
+
+async function handleAddDependency(e) {
+    e.preventDefault();
+    if (!STATE.activeTaskDetail) return;
+
+    const select = document.getElementById('dependency-predecessor-select');
+    const predId = parseInt(select.value, 10);
+    if (!predId) return;
+
+    try {
+        const res = await apiFetch(`/api/tareas/${STATE.activeTaskDetail.id}/dependencias`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ predecesora_id: predId })
+        });
+        const result = await res.json();
+        if (result.success) {
+            showToast('Predecesora vinculada exitosamente (DAG)', 'success');
+            await fetchTasks();
+            await loadTaskDetail(STATE.activeTaskDetail.id);
+        } else {
+            showToast(result.error?.message || 'Error al vincular dependencia', 'error');
+        }
+    } catch (err) {
+        showToast('Error de red al agregar dependencia', 'error');
+    }
+}
+
+window.removeDependency = async function(taskId, predId) {
+    if (!confirm('¿Deseas desvincular esta tarea predecesora?')) return;
+
+    try {
+        const res = await apiFetch(`/api/tareas/${taskId}/dependencias/${predId}`, {
+            method: 'DELETE'
+        });
+        const result = await res.json();
+        if (result.success) {
+            showToast('Dependencia desvinculada', 'success');
+            await fetchTasks();
+            if (STATE.activeTaskDetail && parseInt(STATE.activeTaskDetail.id, 10) === parseInt(taskId, 10)) {
+                await loadTaskDetail(taskId);
+            }
+        } else {
+            showToast(result.error?.message || 'Error al desvincular dependencia', 'error');
+        }
+    } catch (err) {
+        showToast('Error de red al eliminar dependencia', 'error');
+    }
+};
+
+

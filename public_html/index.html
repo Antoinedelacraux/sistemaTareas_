@@ -62,6 +62,10 @@
             <button id="tab-team-board" class="tab-btn" data-scope="team">
                 <span>👥 Tablero General del Equipo</span>
             </button>
+            <button id="tab-approvals-board" class="tab-btn" data-scope="approvals" style="display: none;">
+                <span>⚖️ Bandeja de Aprobaciones</span>
+                <span id="approvals-badge" class="badge badge-prioridad-ALTA" style="margin-left: 0.35rem; display: none;">0</span>
+            </button>
         </div>
 
         <div class="workspace-actions">
@@ -128,6 +132,20 @@
         <div id="kanban-view" style="display: none;">
             <div id="kanban-container" class="kanban-board">
                 <!-- Columnas montadas dinámicamente -->
+            </div>
+        </div>
+
+        <!-- Vista de Bandeja de Aprobaciones (MVP-06) -->
+        <div id="approvals-view" style="display: none;">
+            <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main);">Bandeja de Aprobaciones Pendientes</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Tareas enviadas a revisión formal que requieren dictamen de Jefatura (RN-10, RN-12).</p>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="fetchPendingApprovals()">🔄 Actualizar Lista</button>
+            </div>
+            <div id="approvals-container" class="approvals-grid">
+                <!-- Tarjetas de aprobación cargadas dinámicamente -->
             </div>
         </div>
     </main>
@@ -229,6 +247,11 @@
                             <div><strong>Fecha Límite:</strong> <span id="detail-due-date">-</span></div>
                         </div>
 
+                        <!-- Bloque de Circuito de Aprobación (MVP-06) -->
+                        <div id="detail-approval-box" class="approval-detail-box" style="display: none;">
+                            <!-- Renderizado dinámicamente -->
+                        </div>
+
                         <!-- Sección de Subtareas (Checklist MVP-05) -->
                         <div class="section-box">
                             <div class="section-box-title">
@@ -248,6 +271,52 @@
                                 <input type="text" id="subtask-title-input" class="form-input" placeholder="Añadir ítem al checklist..." style="flex: 1;" required>
                                 <button type="submit" class="btn btn-outline btn-sm">+ Agregar</button>
                             </form>
+                        </div>
+
+                        <!-- Sección de Dependencias entre Tareas (DAG MVP-07) -->
+                        <div class="section-box" style="margin-top: 1.25rem;">
+                            <div class="section-box-title">
+                                <span>🔗 Dependencias (Predecesoras y DAG)</span>
+                                <span id="detail-deps-count" class="badge badge-tipo-area">0</span>
+                            </div>
+
+                            <!-- Alerta si la tarea está bloqueada por dependencias pendientes (RN-08) -->
+                            <div id="detail-deps-blocked-alert" style="display: none; background-color: var(--status-blocked-bg); border: 1px solid var(--status-blocked); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; margin-bottom: 0.75rem;">
+                                <div style="font-size: 0.8rem; font-weight: 700; color: #b91c1c; display: flex; align-items: center; gap: 0.4rem;">
+                                    <span>🔒 Tarea Bloqueada</span>
+                                </div>
+                                <p style="font-size: 0.775rem; color: #7f1d1d; margin-top: 0.25rem; line-height: 1.4;">
+                                    Esta tarea no puede iniciarse ni finalizarse hasta que todas sus tareas predecesoras alcancen el estado Finalizada (Regla RN-08).
+                                </p>
+                            </div>
+
+                            <!-- Predecesoras (Requisitos previos) -->
+                            <div style="margin-bottom: 0.75rem;">
+                                <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">
+                                    Predecesoras (Deben finalizar primero):
+                                </span>
+                                <div id="detail-predecessors-list" style="margin-top: 0.4rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                                    <!-- Lista dinámica de predecesoras -->
+                                </div>
+                            </div>
+
+                            <!-- Formulario para agregar predecesora -->
+                            <form id="add-dependency-form" style="display: flex; gap: 0.5rem; margin-top: 0.65rem; align-items: center;">
+                                <select id="dependency-predecessor-select" class="form-select" style="flex: 1; font-size: 0.8rem;" required>
+                                    <option value="" disabled selected>Vincular tarea predecesora...</option>
+                                </select>
+                                <button type="submit" class="btn btn-outline btn-sm">+ Vincular</button>
+                            </form>
+
+                            <!-- Sucesoras (Tareas que esperan por esta) -->
+                            <div id="detail-successors-container" style="margin-top: 1rem; border-top: 1px dashed var(--border-subtle); padding-top: 0.65rem; display: none;">
+                                <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">
+                                    Tareas Sucesoras (Esperan por esta tarea):
+                                </span>
+                                <div id="detail-successors-list" style="margin-top: 0.4rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                                    <!-- Lista dinámica de sucesoras -->
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -321,6 +390,35 @@
                 <button type="button" class="btn btn-outline" onclick="closeModal('modal-confirm-close')">Cancelar</button>
                 <button type="button" id="btn-submit-confirm-close" class="btn btn-success" disabled>Finalizar Tarea</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal de Devolución de Tarea con Observaciones (RN-12) -->
+    <div id="modal-return-task" class="modal-backdrop">
+        <div class="modal-dialog" style="max-width: 500px;">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span class="badge badge-prioridad-URGENTE">DICTAMEN: DEVOLVER</span>
+                    <h3 class="modal-title">Devolver Tarea</h3>
+                </div>
+                <button class="btn-close" onclick="closeModal('modal-return-task')">&times;</button>
+            </div>
+            <form id="return-task-form">
+                <div class="modal-body">
+                    <p style="font-size: 0.875rem; color: var(--text-main); margin-bottom: 0.75rem;">
+                        Estás a punto de devolver la tarea <strong id="return-task-code"></strong> al responsable.
+                    </p>
+                    <div class="form-group">
+                        <label class="form-label" for="return-observations">Observaciones de Devolución (Obligatorio) *</label>
+                        <textarea id="return-observations" class="form-textarea" rows="4" required placeholder="Indica detalladamente los ajustes, correcciones o evidencias faltantes requeridas (Regla RN-12)..."></textarea>
+                        <span class="form-help">⚠️ RN-12: La devolución exige observaciones no vacías y retornará la tarea a estado 'En Proceso'.</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modal-return-task')">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Confirmar Devolución</button>
+                </div>
+            </form>
         </div>
     </div>
 

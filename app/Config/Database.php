@@ -197,6 +197,30 @@ class Database
                 ip_address TEXT,
                 created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
             );
+
+            CREATE TABLE IF NOT EXISTS tarea_aprobaciones (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                tarea_id INTEGER NOT NULL,
+                revisor_id INTEGER NOT NULL,
+                estado TEXT NOT NULL DEFAULT 'PENDIENTE',
+                comentario_entrega TEXT,
+                observaciones_devolucion TEXT,
+                fecha_solicitud TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                fecha_resolucion TEXT,
+                FOREIGN KEY (tarea_id) REFERENCES tareas(id) ON DELETE CASCADE,
+                FOREIGN KEY (revisor_id) REFERENCES usuarios(id)
+            );
+
+            CREATE TABLE IF NOT EXISTS tarea_dependencias (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                tarea_id INTEGER NOT NULL,
+                predecesora_id INTEGER NOT NULL,
+                tipo_dependencia TEXT NOT NULL DEFAULT 'AND_FINISH_TO_START',
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (tarea_id) REFERENCES tareas(id) ON DELETE CASCADE,
+                FOREIGN KEY (predecesora_id) REFERENCES tareas(id) ON DELETE CASCADE,
+                UNIQUE(tarea_id, predecesora_id)
+            );
         ");
 
         // Semilla de columnas si no existen

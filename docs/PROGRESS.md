@@ -166,3 +166,105 @@
 - **Documentación actualizada:** `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
 - **Git:** Commit `e49c10f` (`feat(ui): implement interactive spa frontend and local development server`).
 - **Siguiente paso verificable:** Proceder con MVP-06 (Confirmación de cierre y circuito formal de aprobaciones).
+
+### 2026-10-13 — MVP-06: Confirmación de cierre y circuito formal de aprobaciones
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-13, RN-10, RN-11, RN-12. Implementar el circuito formal de aprobaciones para el cierre de tareas críticas y la confirmación explícita para el cierre de tareas regulares:
+  1. Modelo y tabla relacional `tarea_aprobaciones` con endpoints dedicados:
+     - `POST /api/tareas/{id}/solicitar-aprobacion`: envía una tarea que requiere aprobación a revisión formal (`EN_REVISION`), asignando revisor por defecto a la jefatura de planeamiento o revisor específico.
+     - `POST /api/tareas/{id}/resolver-aprobacion`: dictamina la aprobación (`APROBAR` o `DEVOLVER`), protegido para jefes y revisores asignados (403 para asistentes).
+     - `GET /api/aprobaciones/pendientes`: bandeja centralizada de aprobaciones pendientes para jefatura (403 para asistentes).
+     - `GET /api/tareas/{id}/aprobaciones`: historial completo de aprobaciones asociadas a la tarea con dictámenes, fechas y observaciones.
+  2. Cumplimiento estricto de reglas de negocio:
+     - **RN-10:** Tareas con bandera `requiere_aprobacion` no pueden cerrarse directamente (409 Conflict); transicionan a `EN_REVISION` y solo tras dictamen de aprobación formal pasan a `FINALIZADA` con timestamp de finalización.
+     - **RN-11:** Confirmación explícita obligatoria (`confirmacion_cierre: true`) para tareas sin aprobación para evitar cierres accidentales.
+     - **RN-12:** Dictamen `DEVOLVER` exige obligatoriamente observaciones no vacías (422 Unprocessable Entity `ERR_VALIDATION_FAILED` si faltan o son solo espacios en blanco); devuelve la tarea a `EN_PROCESO`, resetea `fecha_finalizada` y preserva la traza en auditoría.
+  3. Integración en SPA Frontend:
+     - Pestaña "⚖️ Bandeja de Aprobaciones" visible exclusivamente para roles de jefatura con badge contador de pendientes en tiempo real.
+     - Vista `#approvals-view` con tarjetas de aprobación y acciones rápidas ("Ver Detalle", "Aprobar", "Devolver").
+     - Bloque `#detail-approval-box` en el modal de detalle con estado, botón para solicitar aprobación para el responsable, y botones de dictamen para jefes.
+     - Modal `#modal-return-task` con textarea requerido para capturar observaciones de devolución conforme a RN-12.
+- **Archivos creados/modificados:**
+  - `app/Models/Approval.php` (nuevo)
+  - `app/Controllers/ApprovalController.php` (nuevo)
+  - `app/Models/User.php`
+  - `app/Controllers/TaskController.php`
+  - `app/Core/Router.php`
+  - `app/Config/Database.php`
+  - `public_html/api/index.php`
+  - `public_html/index.html`
+  - `public_html/assets/css/app.css`
+  - `public_html/assets/js/app.js`
+  - `tests/approvals_test.php` (nuevo)
+  - `docs/ROADMAP.md`
+  - `docs/PROGRESS.md`
+  - `docs/SESSION_HANDOFF.md`
+  - `docs/CHANGELOG.md`
+- **Decisiones y motivo:**
+  - `Approval::canResolve`: evalúa el rol de jefatura (`isJefe`) o revisor asignado explícito, bloqueando a asistentes con 403 Forbidden.
+  - Validación atómica de observaciones en RN-12 tanto en modelo como en controlador (`trim($observaciones) === ''` gatilla error 422).
+  - Manejo defensivo en `TaskController::show` para consultar `aprobacion_pendiente` asegurando compatibilidad hacia atrás en tests aislados.
+  - Soporte en `Router.php` para middlewares provistos como instancias de objetos o nombres de clase.
+- **Pruebas ejecutadas:**
+  1. `php tests/healthcheck_test.php`: PASS (200 OK).
+  2. `php tests/auth_test.php`: 19/19 PASS (100%).
+  3. `php tests/users_test.php`: 23/23 PASS (100%).
+  4. `php tests/tasks_test.php`: 24/24 PASS (100%).
+  5. `php tests/kanban_test.php`: 18/18 PASS (100%).
+  6. `php tests/subtasks_comments_test.php`: 22/22 PASS (100%).
+  7. `tests/approvals_test.php`: 23 de 23 pruebas automatizadas superadas al 100% (autenticación obligatoria, solicitud de aprobación, cambio a EN_REVISION, bloqueo 403 para asistentes al resolver, bandeja de pendientes restringida a jefes, aprobación exitosa con pase a FINALIZADA y timestamp, rechazo de devolución sin observaciones 422 RN-12, devolución exitosa con retorno a EN_PROCESO, historial de aprobaciones, protección anti-IDOR en tareas ajenas y despacho HTTP completo del Router). Total acumulado: 129 pruebas superadas sin fallos.
+- **Documentación actualizada:** `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
+- **Git:** Commit pendiente de cierre.
+- **Deuda técnica / riesgos:** Ninguna.
+- **Siguiente paso verificable:** MVP-07 (Dependencias secuenciales/paralelas y DAG).
+
+### 2026-10-13 — MVP-07: Dependencias secuenciales/paralelas y grafo DAG
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-14, RF-15, RF-16, RN-07, RN-08, RN-09, RN-14. Implementar el motor de dependencias de tareas basadas en Grafo Acíclico Dirigido (DAG):
+  1. Modelo y tabla `tarea_dependencias` con endpoints dedicados:
+     - `GET /api/tareas/{id}/dependencias`: Listado estructurado de predecesoras (requisitos previos) y sucesoras (tareas que esperan por esta), indicando estado actual y si la tarea se encuentra bloqueada por dependencias abiertas.
+     - `POST /api/tareas/{id}/dependencias`: Vinculación de una predecesora con validación estricta de grafo acíclico dirigido (anti-ciclos RN-07) y auto-bloqueo preventivo (RN-08).
+     - `DELETE /api/tareas/{id}/dependencias/{pred_id}`: Desvinculación de dependencia con desbloqueo automático a `PENDIENTE` si ya no tiene predecesoras pendientes.
+  2. Cumplimiento de reglas de negocio:
+     - **RN-07 (Anti-ciclos DAG):** Algoritmo de alcance que detecta si agregar una relación formaría un ciclo directo o indirecto, rechazando con `409 Conflict` `ERR_CYCLIC_DEPENDENCY`.
+     - **RN-08 (Regla AND & Bloqueo):** Si una predecesora no está en `FINALIZADA`, la tarea sucesora se mueve automáticamente a `BLOQUEADA`. Cualquier intento de transicionar una tarea bloqueada hacia `EN_PROCESO` o `FINALIZADA` es rechazado con `409 Conflict` `ERR_TASK_BLOCKED_BY_DEPENDENCIES`.
+     - **RF-16 & RN-09 (Desbloqueo en Cascada):** Cuando una tarea pasa a `FINALIZADA` (sea por transición manual o aprobación formal de jefatura), se evalúan en cascada todas sus sucesoras; si TODAS sus predecesoras alcanzaron el cierre efectivo (regla AND: 3/3), la sucesora pasa automáticamente a `PENDIENTE`.
+     - **RN-14 (Reapertura):** Si una tarea finalizada se reabre o devuelve, sus sucesoras no finalizadas son re-bloqueadas preventivamente para preservar la integridad del proceso.
+  3. Integración en SPA Frontend:
+     - Sección de dependencias en el modal de detalle con alerta destacada de tarea bloqueada (`#detail-deps-blocked-alert`).
+     - Lista de predecesoras con insignias de estado y botón de eliminación.
+     - Selector dinámico de tareas candidatas elegibles.
+     - Lista de tareas sucesoras que dependen de la tarea activa.
+- **Archivos creados/modificados:**
+  - `app/Config/Database.php`
+  - `app/Models/TaskDependency.php` (nuevo)
+  - `app/Controllers/DependencyController.php` (nuevo)
+  - `app/Models/Task.php`
+  - `app/Models/Approval.php`
+  - `public_html/api/index.php`
+  - `public_html/index.html`
+  - `public_html/assets/css/app.css`
+  - `public_html/assets/js/app.js`
+  - `tests/dependencies_test.php` (nuevo)
+  - `docs/ROADMAP.md`
+  - `docs/PROGRESS.md`
+  - `docs/SESSION_HANDOFF.md`
+  - `docs/CHANGELOG.md`
+- **Decisiones y motivo:**
+  - Algoritmo BFS en `TaskDependency::wouldCreateCycle` para verificar alcanzabilidad dirigida y prevenir deadlocks lógicos.
+  - Interceptación en `Task::transition` y `Approval::resolve` para automatizar atómicamente el desbloqueo y re-bloqueo sin intervención manual.
+- **Pruebas ejecutadas:**
+  1. `php tests/healthcheck_test.php`: PASS (200 OK).
+  2. `php tests/auth_test.php`: 19/19 PASS (100%).
+  3. `php tests/users_test.php`: 23/23 PASS (100%).
+  4. `php tests/tasks_test.php`: 24/24 PASS (100%).
+  5. `php tests/kanban_test.php`: 18/18 PASS (100%).
+  6. `php tests/subtasks_comments_test.php`: 22/22 PASS (100%).
+  7. `php tests/approvals_test.php`: 23/23 PASS (100%).
+  8. `tests/dependencies_test.php`: 23 de 23 pruebas automatizadas superadas al 100% (auto-dependencia rechazada 422, duplicados 409, ciclo directo e indirecto 409 RN-07, auto-bloqueo RN-08, bloqueo de transiciones 409, ramas paralelas y regla AND 2/2, desbloqueo en cascada RF-16, desbloqueo tras eliminación, desbloqueo post-aprobación formal, anti-IDOR 403 y despacho HTTP de Router). Total acumulado: 152 pruebas superadas sin fallos.
+- **Documentación actualizada:** `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
+- **Git:** Commit pendiente de cierre.
+- **Deuda técnica / riesgos:** Ninguna.
+- **Siguiente paso verificable:** MVP-08 (Automatizaciones y notificaciones idempotentes).
+
+

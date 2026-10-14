@@ -93,6 +93,19 @@ $pdo->exec("
         FOREIGN KEY (tarea_id) REFERENCES tareas(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS tarea_aprobaciones (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tarea_id INTEGER NOT NULL,
+        revisor_id INTEGER NOT NULL,
+        estado TEXT NOT NULL DEFAULT 'PENDIENTE',
+        comentario_entrega TEXT,
+        observaciones_devolucion TEXT,
+        fecha_solicitud TEXT NOT NULL,
+        fecha_resolucion TEXT,
+        FOREIGN KEY (tarea_id) REFERENCES tareas(id) ON DELETE CASCADE,
+        FOREIGN KEY (revisor_id) REFERENCES usuarios(id)
+    );
+
     CREATE TABLE auditoria_eventos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         usuario_id INTEGER,

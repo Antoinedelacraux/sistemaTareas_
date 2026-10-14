@@ -76,6 +76,25 @@ $router->get('/api/tareas/{id}/comentarios', [CommentController::class, 'index']
 $router->post('/api/tareas/{id}/comentarios', [CommentController::class, 'create'], [AuthMiddleware::class]);
 $router->get('/api/comentarios/{id}/archivo', [CommentController::class, 'download'], [AuthMiddleware::class]);
 
+// -----------------------------------------------------------------------------
+// Rutas de Aprobaciones y Circuito Formal de Revisión (MVP-06)
+// -----------------------------------------------------------------------------
+use App\Controllers\ApprovalController;
+
+$router->post('/api/tareas/{id}/solicitar-aprobacion', [ApprovalController::class, 'solicitar'], [AuthMiddleware::class]);
+$router->post('/api/tareas/{id}/resolver-aprobacion', [ApprovalController::class, 'resolver'], [AuthMiddleware::class]);
+$router->get('/api/aprobaciones/pendientes', [ApprovalController::class, 'pendientes'], [AuthMiddleware::class]);
+$router->get('/api/tareas/{id}/aprobaciones', [ApprovalController::class, 'historial'], [AuthMiddleware::class]);
+
+// -----------------------------------------------------------------------------
+// Rutas de Dependencias entre Tareas - DAG (MVP-07)
+// -----------------------------------------------------------------------------
+use App\Controllers\DependencyController;
+
+$router->get('/api/tareas/{id}/dependencias', [DependencyController::class, 'index'], [AuthMiddleware::class]);
+$router->post('/api/tareas/{id}/dependencias', [DependencyController::class, 'store'], [AuthMiddleware::class]);
+$router->delete('/api/tareas/{id}/dependencias/{pred_id}', [DependencyController::class, 'destroy'], [AuthMiddleware::class]);
+
 // Rutas base informativas
 $router->get('/api', function () {
     Response::json([

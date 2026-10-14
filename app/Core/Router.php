@@ -115,6 +115,8 @@ class Router
 
                     if (is_callable($middleware)) {
                         $middleware($request);
+                    } elseif (is_object($middleware) && method_exists($middleware, 'handle')) {
+                        $middleware->handle($request);
                     } elseif (is_string($middleware) && class_exists($middleware)) {
                         $instance = new $middleware();
                         if (method_exists($instance, 'handle')) {

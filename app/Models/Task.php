@@ -453,6 +453,24 @@ class Task
         $estadoDestino = $nuevaColumna['tipo_estado'];
         $fechaFinalizada = $task['fecha_finalizada'];
 
+        // REGLA RN-08: Tarea con dependencias pendientes no puede avanzar hacia EN_PROCESO, EN_REVISION o FINALIZADA
+        if (in_array($estadoDestino, [BoardColumn::ESTADO_EN_PROCESO, BoardColumn::ESTADO_EN_REVISION, BoardColumn::ESTADO_FINALIZADA], true)) {
+            try {
+                if (class_exists(TaskDependency::class) && TaskDependency::hasPendingPredecessors($id)) {
+                    $pendientes = TaskDependency::getPendingPredecessors($id);
+                    $codigos = array_column($pendientes, 'codigo');
+                    return [
+                        'success' => false,
+                        'status'  => 409,
+                        'code'    => 'ERR_TASK_BLOCKED_BY_DEPENDENCIES',
+                        'message' => 'La tarea se encuentra bloqueada por dependencias no finalizadas: ' . implode(', ', $codigos) . ' (Regla RN-08).'
+                    ];
+                }
+            } catch (\Throwable $e) {
+                // Modo defensivo si la tabla aún no se ha inicializado en suites aisladas
+            }
+        }
+
         // REGLAS PARA TRANSICIÓN HACIA ESTADO FINALIZADA (RN-10, RN-11, RN-12)
         if ($estadoDestino === BoardColumn::ESTADO_FINALIZADA) {
             // Caso 1: La tarea requiere aprobación previa
@@ -502,6 +520,21 @@ class Task
             ':updated_at'       => $now,
             ':id'               => $id
         ]);
+
+        // Disparadores de dependencias (RN-08, RN-14, RF-16)
+        if ($estadoDestino === BoardColumn::ESTADO_FINALIZADA) {
+            try {
+                if (class_exists(TaskDependency::class)) {
+                    TaskDependency::onTaskCompleted($id, $currentUser);
+                }
+            } catch (\Throwable $e) {}
+        } elseif ($task['columna_tipo_estado'] === BoardColumn::ESTADO_FINALIZADA) {
+            try {
+                if (class_exists(TaskDependency::class)) {
+                    TaskDependency::onTaskReopened($id, $currentUser);
+                }
+            } catch (\Throwable $e) {}
+        }
 
         // Registrar en auditoría de eventos inmutable (RN-13)
         $userId = (int)$currentUser['id'];

@@ -1,6 +1,38 @@
 # Changelog
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
+## [Sin versión - Dependencias entre Tareas y Motor DAG] - 2026-10-13 (MVP-07)
+### Añadido
+- Módulo completo de dependencias secuenciales, ramas en paralelo y validación de Grafo Acíclico Dirigido (**Fase 1: MVP-07**).
+- Modelo relacional `app/Models/TaskDependency.php` y tabla `tarea_dependencias` con tracking de relaciones de precedencia.
+- Algoritmo de detección de ciclos en grafos dirigidos para salvaguardar la regla **RN-07** (evita deadlocks directos e indirectos).
+- Controlador `app/Controllers/DependencyController.php` con 3 endpoints:
+  - `GET /api/tareas/{id}/dependencias`: Listado de predecesoras y sucesoras con estado y métricas de bloqueo.
+  - `POST /api/tareas/{id}/dependencias`: Vinculación de predecesora con comprobación anti-ciclos y auto-bloqueo preventivo (**RN-08**).
+  - `DELETE /api/tareas/{id}/dependencias/{pred_id}`: Eliminación de precedencia con auto-desbloqueo a `PENDIENTE`.
+- Motor de desbloqueo en cascada integrado en `Task::transition` y `Approval::resolve`: al finalizarse una tarea, sus sucesoras se habilitan atómicamente cuando TODAS sus predecesoras hayan concluido (**RN-08, RF-16**).
+- Protección de transiciones en `Task::transition`: deniega movimientos hacia `EN_PROCESO` o `FINALIZADA` si la tarea tiene dependencias pendientes (`409 Conflict`).
+- Interfaz gráfica SPA:
+  - Sección de dependencias en el modal de detalle con alerta visual de tarea bloqueada.
+  - Listas interactivas de predecesoras y sucesoras con badges de estado y desvinculación.
+  - Selector dinámico de tareas predecesoras disponibles.
+- Suite de pruebas automatizadas `tests/dependencies_test.php` con 23 casos positivos, negativos y de integración HTTP (100% PASS).
+
+## [Sin versión - Circuito Formal de Aprobaciones y Cierre] - 2026-10-13 (MVP-06)
+### Añadido
+- Módulo completo de circuito formal de aprobaciones y confirmación de cierre (**Fase 1: MVP-06**).
+- Modelo relacional `app/Models/Approval.php` y tabla `tarea_aprobaciones` con tracking de solicitudes, revisiones y dictámenes (`PENDIENTE`, `APROBADA`, `DEVUELTA`).
+- Controlador `app/Controllers/ApprovalController.php` con 4 endpoints:
+  - `POST /api/tareas/{id}/solicitar-aprobacion`: Pasa la tarea a `EN_REVISION` y asigna revisor de jefatura (**RN-10**).
+  - `POST /api/tareas/{id}/resolver-aprobacion`: Emite dictamen `APROBAR` o `DEVOLVER`. `APROBAR` marca la tarea como `FINALIZADA` con timestamp; `DEVOLVER` exige obligatoriamente observaciones no vacías (**RN-12**, 422 si falta), retorna la tarea a `EN_PROCESO` y resetea fecha de finalización.
+  - `GET /api/aprobaciones/pendientes`: Bandeja centralizada de tareas en espera de dictamen para roles de jefatura (**RF-13**, 403 Forbidden para asistentes).
+  - `GET /api/tareas/{id}/aprobaciones`: Historial completo de dictámenes, fechas y observaciones de la tarea.
+- Integración en frontend SPA (`index.html`, `app.css`, `app.js`):
+  - Pestaña "⚖️ Bandeja de Aprobaciones" exclusiva para jefatura con contador de pendientes.
+  - Vista `#approvals-view` con tarjetas de aprobación interactiva.
+  - Bloque contextual de aprobación en modal de detalle de tarea y modal `#modal-return-task` para observaciones requeridas.
+- Suite de pruebas automatizadas `tests/approvals_test.php` con 23 casos positivos, negativos y de integración HTTP (100% PASS).
+
 ## [Sin versión - Interfaz SPA y Servidor Local de Desarrollo] - 2026-10-13 (Commit `e49c10f`)
 ### Añadido
 - Interfaz gráfica Single Page Application (SPA) completa e interactiva con soporte para modo claro/oscuro persistente y estética TAL S.A.
