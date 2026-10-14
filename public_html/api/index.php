@@ -17,12 +17,15 @@ $router->get('/api/health', function () {
     Response::json([
         'status'      => 'ok',
         'sistema'     => 'Sistema de Gestión y Seguimiento de Tareas - Planeamiento TAL',
-        'version'     => '1.2.0',
+        'version'     => '1.4.0',
         'php_version' => PHP_VERSION,
         'environment' => \App\Config\Env::get('APP_ENV', 'development'),
         'timestamp'   => gmdate('Y-m-d\TH:i:s\Z')
     ]);
 });
+
+// Endpoint de Diagnóstico y Pruebas Web Autónomas (sin necesidad de PowerShell)
+$router->get('/api/test-runner', [\App\Controllers\TestRunnerController::class, 'run']);
 
 // -----------------------------------------------------------------------------
 // Rutas de Autenticación y Sesión (MVP-01)
@@ -41,6 +44,7 @@ $router->get('/api/auth/me', [AuthController::class, 'me'], [AuthMiddleware::cla
 // -----------------------------------------------------------------------------
 $router->get('/api/usuarios', [UserController::class, 'index'], [AuthMiddleware::class]);
 $router->get('/api/usuarios/{id}', [UserController::class, 'show'], [AuthMiddleware::class]);
+$router->post('/api/usuarios', [UserController::class, 'create'], [AuthMiddleware::class]);
 $router->post('/api/usuarios/validar-asignacion', [UserController::class, 'validateAssignment'], [AuthMiddleware::class]);
 
 // -----------------------------------------------------------------------------
@@ -52,14 +56,21 @@ $router->get('/api/tareas', [TaskController::class, 'index'], [AuthMiddleware::c
 $router->get('/api/tareas/{id}', [TaskController::class, 'show'], [AuthMiddleware::class]);
 $router->post('/api/tareas', [TaskController::class, 'create'], [AuthMiddleware::class]);
 $router->put('/api/tareas/{id}', [TaskController::class, 'update'], [AuthMiddleware::class]);
+$router->patch('/api/tareas/{id}', [TaskController::class, 'update'], [AuthMiddleware::class]);
 $router->delete('/api/tareas/{id}', [TaskController::class, 'delete'], [AuthMiddleware::class]);
 
 // -----------------------------------------------------------------------------
 // Rutas de Tablero Kanban y Transiciones de Estado (MVP-04)
 // -----------------------------------------------------------------------------
 $router->get('/api/tableros/columnas', [BoardController::class, 'columns'], [AuthMiddleware::class]);
+$router->post('/api/tableros/columnas', [BoardController::class, 'createColumn'], [AuthMiddleware::class]);
+$router->put('/api/tableros/columnas/{id}', [BoardController::class, 'updateColumn'], [AuthMiddleware::class]);
+$router->delete('/api/tableros/columnas/{id}', [BoardController::class, 'deleteColumn'], [AuthMiddleware::class]);
 $router->get('/api/tableros/kanban', [BoardController::class, 'kanban'], [AuthMiddleware::class]);
 $router->post('/api/tareas/{id}/transicion', [BoardController::class, 'transition'], [AuthMiddleware::class]);
+$router->patch('/api/tareas/{id}/transicion', [BoardController::class, 'transition'], [AuthMiddleware::class]);
+$router->post('/api/tareas/{id}/transicionar', [BoardController::class, 'transition'], [AuthMiddleware::class]);
+$router->patch('/api/tareas/{id}/transicionar', [BoardController::class, 'transition'], [AuthMiddleware::class]);
 
 // -----------------------------------------------------------------------------
 // Rutas de Subtareas, Comentarios y Evidencias Seguras (MVP-05)
@@ -70,6 +81,7 @@ use App\Controllers\CommentController;
 $router->get('/api/tareas/{id}/subtareas', [SubtaskController::class, 'index'], [AuthMiddleware::class]);
 $router->post('/api/tareas/{id}/subtareas', [SubtaskController::class, 'create'], [AuthMiddleware::class]);
 $router->patch('/api/subtareas/{id}', [SubtaskController::class, 'update'], [AuthMiddleware::class]);
+$router->put('/api/subtareas/{id}', [SubtaskController::class, 'update'], [AuthMiddleware::class]);
 $router->delete('/api/subtareas/{id}', [SubtaskController::class, 'delete'], [AuthMiddleware::class]);
 
 $router->get('/api/tareas/{id}/comentarios', [CommentController::class, 'index'], [AuthMiddleware::class]);
@@ -103,17 +115,18 @@ use App\Controllers\NotificationController;
 $router->get('/api/notificaciones', [NotificationController::class, 'index'], [AuthMiddleware::class]);
 $router->get('/api/notificaciones/resumen', [NotificationController::class, 'unreadCount'], [AuthMiddleware::class]);
 $router->patch('/api/notificaciones/{id}/leer', [NotificationController::class, 'markAsRead'], [AuthMiddleware::class]);
+$router->post('/api/notificaciones/{id}/leer', [NotificationController::class, 'markAsRead'], [AuthMiddleware::class]);
 $router->post('/api/notificaciones/marcar-todas-leidas', [NotificationController::class, 'markAllAsRead'], [AuthMiddleware::class]);
 
 // -----------------------------------------------------------------------------
-// Rutas de Historial, Auditoría y Dashboard (MVP-09)
+// Rutas de Historial y Auditoría (Historial archivado > 24h)
 // -----------------------------------------------------------------------------
 use App\Controllers\AuditController;
-use App\Controllers\DashboardController;
+use App\Controllers\HistoryController;
 
 $router->get('/api/tareas/{id}/historial', [AuditController::class, 'taskHistory'], [AuthMiddleware::class]);
 $router->get('/api/auditoria', [AuditController::class, 'index'], [AuthMiddleware::class]);
-$router->get('/api/dashboard/metricas', [DashboardController::class, 'metrics'], [AuthMiddleware::class]);
+$router->get('/api/historial', [HistoryController::class, 'index'], [AuthMiddleware::class]);
 
 // Rutas base informativas
 $router->get('/api', function () {
@@ -171,8 +184,8 @@ $router->get('/api', function () {
                 'historial_tarea'=> 'GET /api/tareas/{id}/historial',
                 'eventos'        => 'GET /api/auditoria'
             ],
-            'dashboard' => [
-                'metricas'       => 'GET /api/dashboard/metricas'
+            'historial' => [
+                'archivadas'     => 'GET /api/historial'
             ]
         ]
     ]);

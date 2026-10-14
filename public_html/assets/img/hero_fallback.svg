@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="50%" stop-color="#1e1b4b" />
+      <stop offset="100%" stop-color="#0b0f19" />
+    </linearGradient>
+    <linearGradient id="cardGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.95" />
+    </linearGradient>
+    <linearGradient id="cardGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#3730a3" stop-opacity="0.95" />
+    </linearGradient>
+    <linearGradient id="cardGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#047857" stop-opacity="0.95" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Fondo Tecnológico -->
+  <rect width="800" height="450" fill="url(#bgGrad)" rx="16" />
+  <circle cx="200" cy="150" r="180" fill="url(#glowGrad)" />
+  <circle cx="650" cy="300" r="150" fill="url(#glowGrad)" />
+
+  <!-- Líneas de Malla Geométrica -->
+  <g stroke="#ffffff" stroke-opacity="0.06" stroke-width="1">
+    <line x1="50" y1="50" x2="750" y2="50" />
+    <line x1="50" y1="150" x2="750" y2="150" />
+    <line x1="50" y1="250" x2="750" y2="250" />
+    <line x1="50" y1="350" x2="750" y2="350" />
+    <line x1="150" y1="30" x2="150" y2="420" />
+    <line x1="300" y1="30" x2="300" y2="420" />
+    <line x1="450" y1="30" x2="450" y2="420" />
+    <line x1="600" y1="30" x2="600" y2="420" />
+  </g>
+
+  <!-- Tablero Kanban Isométrico -->
+  <!-- Columna 1: Backlog -->
+  <rect x="70" y="80" width="200" height="290" rx="10" fill="#1e293b" fill-opacity="0.6" stroke="#334155" stroke-width="1.5" />
+  <rect x="85" y="95" width="80" height="12" rx="4" fill="#64748b" />
+  <rect x="235" y="95" width="20" height="12" rx="6" fill="#334155" />
+  <!-- Tarjetas Columna 1 -->
+  <rect x="85" y="125" width="170" height="65" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1" />
+  <rect x="98" y="138" width="50" height="8" rx="3" fill="#38bdf8" />
+  <rect x="98" y="153" width="130" height="6" rx="2" fill="#94a3b8" />
+  <rect x="98" y="165" width="90" height="6" rx="2" fill="#64748b" />
+
+  <rect x="85" y="202" width="170" height="65" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1" />
+  <rect x="98" y="215" width="45" height="8" rx="3" fill="#f59e0b" />
+  <rect x="98" y="230" width="120" height="6" rx="2" fill="#94a3b8" />
+  <rect x="98" y="242" width="80" height="6" rx="2" fill="#64748b" />
+
+  <!-- Columna 2: En Proceso (Activa) -->
+  <rect x="295" y="80" width="210" height="290" rx="10" fill="#1e293b" fill-opacity="0.8" stroke="#3b82f6" stroke-width="2" />
+  <rect x="310" y="95" width="90" height="12" rx="4" fill="#3b82f6" />
+  <rect x="470" y="95" width="22" height="12" rx="6" fill="#2563eb" />
+  <!-- Tarjetas Columna 2 -->
+  <rect x="310" y="125" width="180" height="80" rx="8" fill="url(#cardGrad1)" filter="drop-shadow(0 6px 12px rgba(37,99,235,0.3))" />
+  <rect x="325" y="140" width="55" height="9" rx="3" fill="#ffffff" fill-opacity="0.9" />
+  <rect x="325" y="157" width="140" height="7" rx="2" fill="#ffffff" fill-opacity="0.95" />
+  <rect x="325" y="171" width="100" height="7" rx="2" fill="#bfdbfe" />
+  <!-- Barra de progreso interna -->
+  <rect x="325" y="188" width="150" height="5" rx="2.5" fill="#1e3a8a" />
+  <rect x="325" y="188" width="105" height="5" rx="2.5" fill="#60a5fa" />
+
+  <rect x="310" y="218" width="180" height="70" rx="8" fill="#0f172a" stroke="#3b82f6" stroke-width="1" />
+  <rect x="325" y="233" width="60" height="8" rx="3" fill="#ec4899" />
+  <rect x="325" y="248" width="130" height="6" rx="2" fill="#94a3b8" />
+  <rect x="325" y="260" width="85" height="6" rx="2" fill="#64748b" />
+
+  <!-- Columna 3: Finalizadas / Aprobadas -->
+  <rect x="530" y="80" width="200" height="290" rx="10" fill="#1e293b" fill-opacity="0.6" stroke="#334155" stroke-width="1.5" />
+  <rect x="545" y="95" width="85" height="12" rx="4" fill="#10b981" />
+  <rect x="695" y="95" width="20" height="12" rx="6" fill="#065f46" />
+  <!-- Tarjetas Columna 3 -->
+  <rect x="545" y="125" width="170" height="65" rx="8" fill="url(#cardGrad3)" filter="drop-shadow(0 4px 10px rgba(5,150,105,0.25))" />
+  <circle cx="565" cy="145" r="7" fill="#ffffff" fill-opacity="0.9" />
+  <path d="M562 145 l2 2 l4 -4" stroke="#065f46" stroke-width="1.5" stroke-linecap="round" fill="none" />
+  <rect x="580" y="141" width="90" height="7" rx="2" fill="#ffffff" />
+  <rect x="560" y="160" width="130" height="6" rx="2" fill="#a7f3d0" />
+
+  <rect x="545" y="202" width="170" height="65" rx="8" fill="#0f172a" stroke="#059669" stroke-width="1" />
+  <circle cx="565" cy="222" r="7" fill="#10b981" />
+  <path d="M562 222 l2 2 l4 -4" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" fill="none" />
+  <rect x="580" y="218" width="80" height="7" rx="2" fill="#f8fafc" />
+  <rect x="560" y="238" width="120" height="6" rx="2" fill="#6ee7b7" />
+
+  <!-- Badge Flotante Superior -->
+  <g filter="drop-shadow(0 10px 20px rgba(0,0,0,0.4))">
+    <rect x="250" y="380" width="300" height="42" rx="21" fill="#1e293b" stroke="#4f46e5" stroke-width="1.5" />
+    <circle cx="272" cy="401" r="9" fill="#22c55e" />
+    <text x="290" y="406" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#f8fafc">TAL S.A. • Área de Planeamiento Operativo</text>
+  </g>
+</svg>

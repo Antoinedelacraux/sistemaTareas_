@@ -83,8 +83,86 @@ class BoardColumn
             'nombre'      => $row['nombre'],
             'orden'       => (int)$row['orden'],
             'tipo_estado' => $row['tipo_estado'],
-            'color_hex'   => $row['color_hex'],
+            'color_hex'   => $row['color_hex'] ?? '#3b82f6',
             'activo'      => (bool)$row['activo']
         ];
+    }
+
+    /**
+     * Crea una nueva columna en el tablero.
+     */
+    public static function create(array $data): array
+    {
+        $db = Database::getConnection();
+        $stmtMax = $db->query("SELECT MAX(orden) AS max_orden FROM tableros_columnas");
+        $maxOrden = (int)($stmtMax->fetchColumn() ?: 0);
+
+        $color = !empty($data['color_hex']) ? trim((string)$data['color_hex']) : '#2563eb';
+        $tipo = !empty($data['tipo_estado']) ? strtoupper(trim((string)$data['tipo_estado'])) : self::ESTADO_EN_PROCESO;
+        if (!in_array($tipo, [self::ESTADO_PENDIENTE, self::ESTADO_EN_PROCESO, self::ESTADO_BLOQUEADA, self::ESTADO_EN_REVISION, self::ESTADO_FINALIZADA], true)) {
+            $tipo = self::ESTADO_EN_PROCESO;
+        }
+
+        $stmt = $db->prepare("
+            INSERT INTO tableros_columnas (nombre, orden, tipo_estado, color_hex, activo)
+            VALUES (:nombre, :orden, :tipo_estado, :color_hex, 1)
+        ");
+        $stmt->execute([
+            ':nombre'      => trim((string)$data['nombre']),
+            ':orden'       => (int)($data['orden'] ?? ($maxOrden + 1)),
+            ':tipo_estado' => $tipo,
+            ':color_hex'   => $color
+        ]);
+
+        $id = (int)$db->lastInsertId();
+        return self::findById($id);
+    }
+
+    /**
+     * Actualiza el nombre, color o estado funcional de una columna.
+     */
+    public static function update(int $id, array $data): ?array
+    {
+        $db = Database::getConnection();
+        $col = self::findById($id);
+        if (!$col) return null;
+
+        $nombre = isset($data['nombre']) ? trim((string)$data['nombre']) : $col['nombre'];
+        $color = isset($data['color_hex']) ? trim((string)$data['color_hex']) : $col['color_hex'];
+        $tipo = isset($data['tipo_estado']) ? strtoupper(trim((string)$data['tipo_estado'])) : $col['tipo_estado'];
+        $orden = isset($data['orden']) ? (int)$data['orden'] : $col['orden'];
+
+        $stmt = $db->prepare("
+            UPDATE tableros_columnas
+            SET nombre = :nombre, color_hex = :color_hex, tipo_estado = :tipo_estado, orden = :orden
+            WHERE id = :id
+        ");
+        $stmt->execute([
+            ':nombre'      => $nombre,
+            ':color_hex'   => $color,
+            ':tipo_estado' => $tipo,
+            ':orden'       => $orden,
+            ':id'          => $id
+        ]);
+
+        return self::findById($id);
+    }
+
+    /**
+     * Desactiva una columna siempre que no contenga tareas activas.
+     */
+    public static function delete(int $id): bool
+    {
+        $db = Database::getConnection();
+        $stmtCheck = $db->prepare("SELECT COUNT(*) FROM tareas WHERE columna_id = :id");
+        $stmtCheck->execute([':id' => $id]);
+        $count = (int)$stmtCheck->fetchColumn();
+
+        if ($count > 0) {
+            throw new \RuntimeException("No se puede eliminar la columna porque contiene {$count} tarea(s) asociada(s). Mueva las tareas a otra columna primero.", 409);
+        }
+
+        $stmt = $db->prepare("UPDATE tableros_columnas SET activo = 0 WHERE id = :id");
+        return $stmt->execute([':id' => $id]);
     }
 }

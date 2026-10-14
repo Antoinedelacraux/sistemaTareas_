@@ -1,6 +1,95 @@
 # Changelog
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
+## [V1.5.1 - Separación Estricta de Vista Área vs Vista Personal y Creación Adaptativa] - 2026-10-14
+### Añadido
+- **Separación en Dos Vistas Dedicadas en Navegación Principal (`VISTAS-01`):**
+  - **Vista Área (`#tab-area-tasks`, `scope=area`):** Agrupa exclusivamente las tareas oficiales del área (`tipo_tarea = 'AREA'`). A estas tareas les aplica la regla de expiración de 24h, tras la cual pasan al Historial de Jefatura.
+  - **Vista Personal (`#tab-personal-tasks`, `scope=personal`):** Tablero individual privado para que cada usuario (asistentes y jefes) organice sus tareas y pendientes cotidianos (`tipo_tarea = 'PERSONAL'`).
+  - **Banner Explicativo de Vista Personal:** Elemento informativo `#personal-board-banner` en la parte superior del tablero que aclara que las tareas personales no se transfieren al historial y se limpian mediante el botón de eliminación manual.
+- **Creación Adaptativa de Tareas:**
+  - El modal de creación `#modal-create-task` detecta la vista activa y preselecciona automáticamente el tipo de tarea (`AREA` o `PERSONAL`).
+  - Si se selecciona o crea una tarea personal, el responsable se autoasigna obligatoriamente a la persona autenticada y se desactiva el circuito formal de aprobación (RN-10).
+  - Al crear una tarea de tipo alternativo al alcance activo, el sistema conmuta automáticamente a la pestaña correspondiente para visualización inmediata.
+- **Aislamiento Estricto en Backend (`Task.php`):**
+  - `Task::listForUser` aísla por completo tareas `AREA` de `PERSONAL` según el scope solicitado. En la Vista Personal no se aplica el cutoff de 24 horas.
+  - `Task::listArchived` garantiza de forma estricta que únicamente las tareas de tipo `AREA` ingresan al módulo de Historial de Jefatura.
+
+## [V1.5.0 - Retiro de Dashboard, Regla 24h y Módulo de Historial para Jefatura] - 2026-10-14
+### Eliminado
+- **Módulo Dashboard & Métricas:**
+  - Retirada la vista `#dashboard-view`, tarjetas de KPIs y tabla de balance de equipo a solicitud del usuario.
+  - Vaciados y deprecados los servicios de cálculo analítico (`app/Services/DashboardService.php`, `app/Controllers/DashboardController.php`, `public_html/assets/js/modules/dashboard.js`).
+  - Removido el endpoint `/api/dashboard/metricas`.
+
+### Añadido
+- **Regla de Expiración de 24 Horas en Columna Finalizada:**
+  - Modificación en `Task::listForUser` para que las tareas en estado `FINALIZADA` únicamente permanezcan visibles en el tablero Kanban activo por un periodo máximo de 24 horas (`t.fecha_finalizada > gmdate('Y-m-d H:i:s', time() - 86400)`).
+  - Al superar las 24 horas, las tareas finalizadas se retiran de manera automática del flujo activo de trabajo sin requerir cron jobs ni scripts externos.
+- **Módulo de Historial de Tareas Archivadas (`HISTORIAL-01`):**
+  - Nuevo endpoint protegido `GET /api/historial` en `app/Controllers/HistoryController.php` conectado al método `Task::listArchived`.
+  - Control de acceso RBAC de doble capa: asistentes reciben `403 Forbidden` (`ERR_FORBIDDEN_HISTORY_ACCESS`); solo roles de Jefatura (`JEFE_PLANEAMIENTO`, `JEFE_PERSONAL`) tienen autorización.
+  - Módulo cliente `public_html/assets/js/modules/history.js` con listado reactivo, barra de búsqueda en tiempo real, filtros combinados por miembro asignado y prioridad.
+  - Tabla responsiva con código de tarea, título, descripción abreviada, responsable con avatar, creador, badge de prioridad, badge de tipo, fecha de finalización con tiempo relativo transcurrido ("Hace X horas/días") y botón de acceso "Expediente".
+  - Apertura del expediente completo mediante el modal de detalle existente (`openTaskDetailModal`), permitiendo consultar el historial inmutable de auditoría, evidencias adjuntas para descarga, checklist de subtareas y comentarios registrados.
+- **Test Runner Web Actualizado:**
+  - Caso de prueba 10 adaptado en `TestRunnerController.php` para validar en memoria: exclusión de tareas >24h del Kanban activo, retención de tareas <24h en Kanban, consulta del historial por jefatura y denegación estricta de acceso al historial para asistentes (10/10 PASS).
+
+## [V1.4.1 - Corrección de Interacciones, Edición In-Modal, Gestión de Usuarios, Columnas Trello y Test Runner Autónomo] - 2026-10-14
+### Añadido
+- **Test Runner Web Autónomo en Memoria (`TestRunnerController`):**
+  - Endpoint `/api/test-runner` ejecutable directamente desde el navegador vía HTTP sin necesidad de consola de comandos, terminal ni privilegios de administrador para PowerShell.
+  - Ejecuta y valida en memoria los 10 subsistemas del sistema (Base de Datos, RBAC, Tareas, Columnas, Transiciones, Subtareas, Comentarios, Aprobaciones, DAG y Dashboard) en **<200 ms** (10/10 PASS).
+  - Soporta interfaz visual en modo oscuro y salida cruda en JSON vía `?format=json`.
+  - Acceso directo mediante enlace `🧪 Diagnóstico del Sistema` integrado discretamente en el footer de la plataforma.
+- **Edición Completa de Tareas In-Modal:**
+  - Botón `#btn-edit-task` en el pie del modal de detalle para alternar instantáneamente entre modo lectura y modo edición (`toggleTaskEditMode`).
+  - Formulario `#edit-task-form` que permite modificar título, descripción, prioridad, tipo de tarea, fecha límite y responsable asignado.
+  - Conexión directa con `PUT /api/tareas/{id}` y recarga reactiva sin refrescar la página.
+- **Creación y Gestión de Usuarios (RF-02):**
+  - Endpoint `POST /api/usuarios` con validación de roles (`ASISTENTE`, `JEFE_PLANEAMIENTO`, `JEFE_PERSONAL`), contraseña encriptada por Bcrypt y registro inmutable en auditoría.
+  - Módulo cliente `public_html/assets/js/modules/users.js` con método `openCreateUserModal` y `handleCreateUser`.
+  - Diálogo modal `#modal-create-user` y botón `+ Usuario` en la barra superior con control de visibilidad por rol (exclusivo para Jefatura).
+- **Columnas Dinámicas Personalizables Estilo Trello con Paleta de Colores:**
+  - Endpoints REST `POST /api/tableros/columnas`, `PUT /api/tableros/columnas/{id}` y `DELETE /api/tableros/columnas/{id}`.
+  - Módulo cliente `public_html/assets/js/modules/columns.js` con soporte para paleta cromática de 8 colores (Azul Océano, Púrpura Real, Verde Esmeralda, Ámbar Cálido, Rosa Coral, Cian Glaciar, Índigo Profundo, Gris Pizarra).
+  - Modal `#modal-column-editor` para configurar nombre, estado operativo asociado y color de distinción.
+  - Tarjeta interactiva "+ Añadir otra columna" al final del tablero Kanban y botón de edición en cada cabecera.
+  - Bordes superiores con acento cromático `border-top: 4px solid {color_hex}` en las columnas.
+
+### Corregido
+- **Identificación de Tareas y Manejo de Envelopes JSON:**
+  - Corrección de desestructuración en `task-modal.js` extrayendo `taskJson.data?.tarea || taskJson.data`, resolviendo los errores de "Identificador de tarea inválido" y "Error al cargar detalle de la tarea".
+  - Normalización de arreglos para subtareas (`subJson.data?.subtareas`) y comentarios (`comJson.data?.comentarios`).
+
+## [V1.4.0 - Modularización Frontend, Optimización Lighthouse (95+), Login Dinámico Bento y Aceleración Backend] - 2026-10-14
+### Añadido
+- **Arquitectura Modular de Frontend (Separación de Responsabilidades):** Desacople completo del archivo monolítico `app.js` (88KB) en 9 módulos ES6 especializados bajo `public_html/assets/js/modules/`:
+  - `api.js`: Cliente HTTP centralizado con token Bearer, credenciales y manejo de errores.
+  - `state.js`: Estado reactivo central (`STATE`) y helpers de permisos (`canAssignOthers`, etc.).
+  - `ui.js`: Temas claro/oscuro, toasts accesibles, modales y formateadores.
+  - `auth.js`: Sesión rápida, login con feedback visual de botón (`.icon-spin`), quick login y logout.
+  - `kanban.js`: Renderizado de columnas, tarjetas con progreso de checklist, arrastre HTML5 Drag & Drop y transiciones.
+  - `task-modal.js`: Ficha de detalle, CRUD de subtareas, comentarios con adjuntos, dependencias DAG y timeline de auditoría.
+  - `approvals.js`: Circuito formal de revisión de jefatura y modal de devolución con observaciones (RN-12).
+  - `dashboard.js`: KPIs, barras de progreso y balance de carga de equipo.
+  - `notifications.js`: Campana, dropdown y sondeo no invasivo cada 30s.
+  - `app.js`: Orquestador principal cargado con `<script type="module">`, exponiendo métodos requeridos en `window` para compatibilidad con handlers inline.
+- **Rediseño Bento Split-Screen en Login con Micro-Interacciones Dinámicas:**
+  - Panel izquierdo con imagen de bienvenida de TAL S.A., chips de características ("⚡ Kanban Fluido", "🛡️ Seguridad RBAC", "📊 Métricas en Vivo") y resplandor dinámico acelerado por hardware GPU (CSS3 puro, sin scripts pesados de Canvas/Three.js, 0% CPU overhead).
+  - Panel derecho ergonómico con formulario centrado y chips de acceso rápido demostrativo.
+- **Skill Especializada de UI:** Creación de `.agents/skills/diseno-interfaz-ui/SKILL.md` para checklist de diseño visual, centrado geométrico de iconos, sistema de márgenes en grid de 8px/4px, accesibilidad WCAG y auditoría Lighthouse.
+- **Modal de Devolución de Tareas (`modal-return-task`):** Interfaz modal requerida para registrar observaciones formales al devolver tareas en revisión a asistentes (RN-12).
+
+### Modificado
+- **Aceleración Drástica del Login (de 2.1s a ~5ms):**
+  - Creación de `.env` configurando `DB_DRIVER=sqlite` y `DB_PATH=storage/database.sqlite` para desarrollo local ultrarrápido.
+  - Optimización de `app/Config/Database.php` con timeout TCP de 1s para MySQL y detección/fallback automático e inmediato a SQLite en desarrollo.
+- **Optimización de Lighthouse:**
+  - **Performance:** Retiro de `@import url(...)` bloqueante en `public_html/assets/css/app.css`, inclusión de `<link rel="preconnect">` y preloads en `index.html` para Google Fonts, renderizado directo de `#login-view` en HTML sin bloqueo FCP.
+  - **Accessibility:** Corrección de ratios de contraste en badges (`ASISTENTE`, `JEFATURA`, `JEFE PERS.`, prioridades) superando WCAG AAA (>5.5:1), adición de `aria-label`, `autocomplete` y navegación por teclado en inputs y botones.
+- **Geometría de Iconos y Márgenes UI:** Estandarización de márgenes y espaciados internos a múltiplos de 8px (paddings 16px/24px/32px) y centrado absoluto `display: inline-flex; align-items: center; justify-content: center` en todos los SVGs.
+
 ## [V1.3.1 - Rediseño de Login, Eliminación de Emojis por SVG, Footer Slim y Permisos Estrictos por Rol] - 2026-10-14
 ### Añadido
 - **Pantalla de Login Corporativa y Rápida:** Rediseño integral de `#login-view` con tarjeta ejecutiva (`.login-card`), branding de TAL S.A., inputs con iconos vectoriales SVG y 3 chips de acceso rápido de demostración (Marco Chumbes, Elena Vega, Roberto Sánchez) con auto-completado y login inmediato en un clic.

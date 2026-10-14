@@ -34,11 +34,15 @@
   --status-done: #059669;        /* Finalizada (Esmeralda) */
   --status-done-bg: #ecfdf5;
 
-  /* Prioridades */
-  --priority-baja: #0284c7;
-  --priority-media: #f59e0b;
-  --priority-alta: #ea580c;
-  --priority-urgente: #dc2626;
+  /* Prioridades Accesibles (WCAG AA/AAA > 4.5:1) */
+  --priority-baja: #0369a1;
+  --priority-baja-bg: #e0f2fe;
+  --priority-media: #92400e;
+  --priority-media-bg: #fef3c7;
+  --priority-alta: #c2410c;
+  --priority-alta-bg: #ffedd5;
+  --priority-urgente: #b91c1c;
+  --priority-urgente-bg: #fee2e2;
 
   /* Elevaciones y Sombras */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -75,6 +79,15 @@
   --status-blocked-bg: #4c0519;
   --status-review-bg: #451a03;
   --status-done-bg: #022c22;
+
+  --priority-baja: #38bdf8;
+  --priority-baja-bg: #0c4a6e;
+  --priority-media: #fde047;
+  --priority-media-bg: #451a03;
+  --priority-alta: #fb923c;
+  --priority-alta-bg: #431407;
+  --priority-urgente: #f87171;
+  --priority-urgente-bg: #450a0a;
 
   --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.5);
   --shadow-card-hover: 0 10px 20px -3px rgb(0 0 0 / 0.7);

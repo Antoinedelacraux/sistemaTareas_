@@ -105,26 +105,43 @@ class Task
 
         $params = [];
 
-        // Filtro por alcance estricto según rol (RN-01, RN-02, RN-05)
+        // Filtro por alcance estricto según rol y vista solicitada (RN-01, RN-02, RN-05)
         $scope = strtolower(trim((string)($filters['scope'] ?? $filters['alcance'] ?? '')));
-        if ($isJefe) {
-            if ($scope === 'mine' || $scope === 'personal') {
-                $sql .= " AND (t.responsable_id = :current_user_id OR t.creador_id = :current_user_id)";
-            } else {
-                // Jefatura supervisa todas las tareas oficiales AREA y sus propias tareas personales
-                $sql .= " AND (t.tipo_tarea = 'AREA' OR t.responsable_id = :current_user_id OR t.creador_id = :current_user_id)";
-            }
-            $params[':current_user_id'] = $userId;
-        } else {
-            // Asistente ve estrictamente las tareas donde él es responsable o creador (RN-02, RN-05)
-            $sql .= " AND (t.responsable_id = :current_user_id OR t.creador_id = :current_user_id)";
-            $params[':current_user_id'] = $userId;
-        }
+        $tipoFilter = !empty($filters['tipo']) ? strtoupper(trim((string)$filters['tipo'])) : null;
 
-        // Filtro opcional por tipo_tarea (PERSONAL o AREA)
-        if (!empty($filters['tipo'])) {
-            $sql .= " AND t.tipo_tarea = :tipo";
-            $params[':tipo'] = strtoupper(trim((string)$filters['tipo']));
+        if ($scope === 'personal' || $tipoFilter === 'PERSONAL') {
+            // Vista Personal: exclusivamente tareas personales del usuario autenticado
+            $sql .= " AND t.tipo_tarea = 'PERSONAL' AND (t.responsable_id = :current_user_id OR t.creador_id = :current_user_id)";
+            $params[':current_user_id'] = $userId;
+            // En Vista Personal las tareas permanecen hasta que el usuario decida borrarlas (no expiran al historial)
+        } elseif ($scope === 'team') {
+            // Tablero del equipo (jefatura): todas las tareas de área
+            $sql .= " AND t.tipo_tarea = 'AREA'";
+            $cutoff24h = gmdate('Y-m-d H:i:s', time() - 86400);
+            if (!empty($filters['solo_archivadas'])) {
+                $sql .= " AND c.tipo_estado = 'FINALIZADA' AND t.fecha_finalizada IS NOT NULL AND t.fecha_finalizada <= :cutoff_historial";
+                $params[':cutoff_historial'] = $cutoff24h;
+            } elseif (empty($filters['incluir_archivadas'])) {
+                $sql .= " AND NOT (c.tipo_estado = 'FINALIZADA' AND t.fecha_finalizada IS NOT NULL AND t.fecha_finalizada <= :cutoff_kanban)";
+                $params[':cutoff_kanban'] = $cutoff24h;
+            }
+        } else {
+            // Vista Área (scope 'area' o general): exclusivamente tareas oficiales del área
+            $sql .= " AND t.tipo_tarea = 'AREA'";
+            if (!$isJefe) {
+                // Asistente solo ve las tareas del área donde es responsable o creador
+                $sql .= " AND (t.responsable_id = :current_user_id OR t.creador_id = :current_user_id)";
+                $params[':current_user_id'] = $userId;
+            }
+            // Regla de expiración de 24h para tareas oficiales del área hacia el historial
+            $cutoff24h = gmdate('Y-m-d H:i:s', time() - 86400);
+            if (!empty($filters['solo_archivadas'])) {
+                $sql .= " AND c.tipo_estado = 'FINALIZADA' AND t.fecha_finalizada IS NOT NULL AND t.fecha_finalizada <= :cutoff_historial";
+                $params[':cutoff_historial'] = $cutoff24h;
+            } elseif (empty($filters['incluir_archivadas'])) {
+                $sql .= " AND NOT (c.tipo_estado = 'FINALIZADA' AND t.fecha_finalizada IS NOT NULL AND t.fecha_finalizada <= :cutoff_kanban)";
+                $params[':cutoff_kanban'] = $cutoff24h;
+            }
         }
 
         // Filtro opcional por columna_id
@@ -146,12 +163,11 @@ class Task
                 $sql .= " AND t.responsable_id = :responsable_id";
                 $params[':responsable_id'] = $targetRespId;
             } else {
-                // Si un asistente pide ver tareas de otro responsable, no retorna nada
                 return [];
             }
         }
 
-        // Búsqueda textual
+        // Búsqueda textual por título o código
         if (!empty($filters['buscar'])) {
             $sql .= " AND (t.titulo LIKE :buscar OR t.codigo LIKE :buscar)";
             $params[':buscar'] = '%' . trim((string)$filters['buscar']) . '%';
@@ -171,6 +187,78 @@ class Task
         $rows = $stmt->fetchAll();
 
         return array_map(fn($row) => self::format($row), $rows);
+    }
+
+    /**
+     * Lista tareas archivadas en el historial (finalizadas hace más de 24 horas).
+     * Acceso reservado exclusivamente para Jefatura de Área y Jefatura de Personal.
+     */
+    public static function listArchived(array $currentUser, array $filters = []): array
+    {
+        $db = Database::getConnection();
+        $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true) || User::isJefe($currentUser);
+        if (!$isJefe) {
+            return [];
+        }
+
+        $cutoff24h = gmdate('Y-m-d H:i:s', time() - 86400);
+
+        $sql = "
+            SELECT 
+                t.*,
+                c.nombre AS columna_nombre,
+                c.tipo_estado AS columna_tipo_estado,
+                c.color_hex AS columna_color_hex,
+                uc.nombre AS creador_nombre,
+                uc.email AS creador_email,
+                ur.nombre AS responsable_nombre,
+                ur.email AS responsable_email,
+                (SELECT COUNT(*) FROM subtareas s WHERE s.tarea_id = t.id) AS total_subtareas,
+                (SELECT COUNT(*) FROM subtareas s WHERE s.tarea_id = t.id AND s.completada = 1) AS subtareas_completadas,
+                (SELECT COUNT(*) FROM tarea_comentarios tc WHERE tc.tarea_id = t.id) AS total_comentarios
+            FROM tareas t
+            INNER JOIN tableros_columnas c ON t.columna_id = c.id
+            INNER JOIN usuarios uc ON t.creador_id = uc.id
+            INNER JOIN usuarios ur ON t.responsable_id = ur.id
+            WHERE c.tipo_estado = 'FINALIZADA'
+              AND t.fecha_finalizada IS NOT NULL
+              AND t.fecha_finalizada <= :cutoff
+              AND t.tipo_tarea = 'AREA'
+        ";
+
+        $params = [':cutoff' => $cutoff24h];
+
+        if (!empty($filters['buscar'])) {
+            $sql .= " AND (t.titulo LIKE :buscar OR t.codigo LIKE :buscar)";
+            $params[':buscar'] = '%' . trim((string)$filters['buscar']) . '%';
+        }
+
+        if (!empty($filters['responsable_id'])) {
+            $sql .= " AND t.responsable_id = :responsable_id";
+            $params[':responsable_id'] = (int)$filters['responsable_id'];
+        }
+
+        if (!empty($filters['prioridad'])) {
+            $sql .= " AND t.prioridad = :prioridad";
+            $params[':prioridad'] = strtoupper(trim((string)$filters['prioridad']));
+        }
+
+        $sql .= " ORDER BY t.fecha_finalizada DESC, t.id DESC";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll();
+
+        return array_map(function ($row) {
+            $formatted = self::format($row);
+            $formatted['total_subtareas'] = (int)($row['total_subtareas'] ?? 0);
+            $formatted['subtareas_completadas'] = (int)($row['subtareas_completadas'] ?? 0);
+            $formatted['total_comentarios'] = (int)($row['total_comentarios'] ?? 0);
+            $formatted['horas_desde_finalizada'] = !empty($row['fecha_finalizada'])
+                ? round((time() - strtotime($row['fecha_finalizada'])) / 3600, 1)
+                : null;
+            return $formatted;
+        }, $rows);
     }
 
     /**
@@ -235,12 +323,21 @@ class Task
         $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true);
         $userId = (int)$currentUser['id'];
 
-        // Regla RF-05, RN-03: Asistente solo puede autoasignarse
-        if (!$isJefe) {
+        $tipoTarea = !empty($data['tipo_tarea']) ? strtoupper(trim((string)$data['tipo_tarea'])) : self::TIPO_AREA;
+        if (!in_array($tipoTarea, [self::TIPO_AREA, self::TIPO_PERSONAL], true)) {
+            $tipoTarea = self::TIPO_AREA;
+        }
+
+        // Regla RF-05, RN-03: Asistente solo puede autoasignarse.
+        // Tareas personales siempre se autoasignan al creador propio.
+        if (!$isJefe || $tipoTarea === self::TIPO_PERSONAL) {
             $responsableId = $userId;
         } else {
             $responsableId = !empty($data['responsable_id']) ? (int)$data['responsable_id'] : $userId;
         }
+
+        // Tareas personales son de apoyo interno; no requieren circuito formal de aprobación
+        $requiereAprobacion = ($tipoTarea === self::TIPO_PERSONAL) ? 0 : (!empty($data['requiere_aprobacion']) ? 1 : 0);
 
         $codigo = self::generateCodigo();
         $now = gmdate('Y-m-d H:i:s');
@@ -262,12 +359,12 @@ class Task
             ':codigo'              => $codigo,
             ':titulo'              => trim((string)$data['titulo']),
             ':descripcion'         => !empty($data['descripcion']) ? trim((string)$data['descripcion']) : null,
-            ':tipo_tarea'          => !empty($data['tipo_tarea']) ? strtoupper(trim((string)$data['tipo_tarea'])) : self::TIPO_AREA,
+            ':tipo_tarea'          => $tipoTarea,
             ':columna_id'          => !empty($data['columna_id']) ? (int)$data['columna_id'] : 1, // 1 = Pendiente
             ':prioridad'           => !empty($data['prioridad']) ? strtoupper(trim((string)$data['prioridad'])) : self::PRIORIDAD_MEDIA,
             ':creador_id'          => $userId,
             ':responsable_id'      => $responsableId,
-            ':requiere_aprobacion' => !empty($data['requiere_aprobacion']) ? 1 : 0,
+            ':requiere_aprobacion' => $requiereAprobacion,
             ':revisor_id'          => !empty($data['revisor_id']) ? (int)$data['revisor_id'] : null,
             ':fecha_limite'        => !empty($data['fecha_limite']) ? trim((string)$data['fecha_limite']) : null,
             ':created_at'          => $now,
@@ -558,6 +655,16 @@ class Task
             try {
                 if (class_exists(TaskDependency::class)) {
                     TaskDependency::onTaskReopened($id, $currentUser);
+                }
+            } catch (\Throwable $e) {}
+        } elseif ($estadoDestino === BoardColumn::ESTADO_EN_REVISION) {
+            try {
+                if (class_exists(Approval::class)) {
+                    $stmtCheck = $db->prepare("SELECT id FROM tarea_aprobaciones WHERE tarea_id = :id AND estado = 'PENDIENTE'");
+                    $stmtCheck->execute([':id' => $id]);
+                    if (!$stmtCheck->fetch()) {
+                        Approval::solicitar($id, (int)$currentUser['id'], 'Movida a columna En Revisión desde el tablero');
+                    }
                 }
             } catch (\Throwable $e) {}
         }

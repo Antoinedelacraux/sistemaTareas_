@@ -7,6 +7,14 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $publicDir = __DIR__ . '/public_html';
 $requestedFile = $publicDir . $uri;
 
+// Sincronizar imagen de portada del login hero si existe en artefactos
+$heroArtifact = 'C:/Users/MARCO CHUMBES/.gemini/antigravity-ide/brain/17c3d1fd-275f-48ed-9aa5-c0416269292a/login_hero_banner_1791984696300.jpg';
+$heroTarget = $publicDir . '/assets/img/login_hero.jpg';
+if (!file_exists($heroTarget) && file_exists($heroArtifact)) {
+    @mkdir(dirname($heroTarget), 0755, true);
+    @copy($heroArtifact, $heroTarget);
+}
+
 // 1. Delegar a la API REST si la ruta inicia con /api
 if (str_starts_with($uri, '/api')) {
     require $publicDir . '/api/index.php';

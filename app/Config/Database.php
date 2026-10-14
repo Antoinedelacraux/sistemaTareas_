@@ -22,8 +22,9 @@ class Database
     public static function getConnection(): PDO
     {
         if (self::$instance === null) {
-            $driver = (string) Env::get('DB_DRIVER', 'mysql');
-            $sqlitePath = (string) Env::get('DB_PATH', dirname(__DIR__, 2) . '/storage/database.sqlite');
+            $defaultSqlite = dirname(__DIR__, 2) . '/storage/database.sqlite';
+            $sqlitePath = (string) Env::get('DB_PATH', $defaultSqlite);
+            $driver = (string) Env::get('DB_DRIVER', file_exists($sqlitePath) ? 'sqlite' : 'mysql');
 
             if ($driver === 'sqlite') {
                 self::$instance = self::createSqliteConnection($sqlitePath);
@@ -42,6 +43,7 @@ class Database
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES   => false, // Previene inyección SQL nativamente
+                PDO::ATTR_TIMEOUT            => 1,     // Timeout rápido de 1s para prevenir demoras
                 PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
             ];
 
@@ -49,7 +51,7 @@ class Database
                 self::$instance = new PDO($dsn, $user, $pass, $options);
             } catch (PDOException $e) {
                 // En entorno local de desarrollo, fallback automático a SQLite si MySQL no está levantado
-                if (Env::get('APP_ENV', 'development') === 'development') {
+                if (Env::get('APP_ENV', 'development') === 'development' && file_exists($sqlitePath)) {
                     error_log("MySQL no disponible localmente. Usando SQLite en: {$sqlitePath}");
                     self::$instance = self::createSqliteConnection($sqlitePath);
                     return self::$instance;

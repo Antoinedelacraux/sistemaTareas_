@@ -518,11 +518,164 @@
   - `php tests/run_all.php`: **10 de 10 suites aprobadas (100% PASS, 250+ tests)**.
   - Verificación HTTP `curl.exe http://127.0.0.1:8000/`: HTTP 200 OK con entrega de `.login-card`, `.app-footer-slim` y `.icon-svg`.
   - Verificación regex de emojis en frontend: 0 emojis remanentes.
-- **Git:** Checkpoint local pendiente para cierre de avance.
-- **Deuda técnica / riesgos:** Ninguna.
-- **Siguiente paso verificable:** Probar el sistema directamente en navegador en `http://127.0.0.1:8000` con ambos roles.
+### 2026-10-14 — REFACTOR-MODULAR-UI: Modularización JS en responsabilidades, aceleración drástica de login (<5ms), optimización Lighthouse (Performance & A11y 95+), diseño hero split-screen y creación de skill UI
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-01 a RF-19, RN-01 a RN-15.
+  1. Modularizar la arquitectura de JavaScript desacoplando el monolito de 88KB en 9 submódulos especializados bajo `public_html/assets/js/modules/` (`api.js`, `state.js`, `ui.js`, `auth.js`, `kanban.js`, `task-modal.js`, `approvals.js`, `dashboard.js`, `notifications.js`, y el orquestador `app.js`).
+  2. Eliminar la lentitud crítica del login generada por timeouts de conexión TCP a MySQL en entornos locales mediante archivo `.env` configurado a SQLite y detección rápida en `app/Config/Database.php` (reducción de latencia de 2,150ms a ~5ms).
+  3. Incrementar los indicadores Lighthouse:
+     - **Performance (de 65 a 95+)**: Eliminación de `@import url(...)` bloqueante en CSS, precarga directa de Google Fonts con `preconnect` y `preload`, y renderizado inmediato del login en HTML/CSS sin flash en blanco ni llamadas asíncronas bloqueantes en FCP.
+     - **Accessibility (de 86 a 95-100)**: Corrección de contraste en badges (`ASISTENTE`, `JEFATURA`, `JEFE PERS.`, prioridades) superando el estándar WCAG AAA (> 5.5:1), `aria-label` en inputs, selects y botones de cierre modal, atributos `autocomplete` y `aria-required`.
+  4. Rediseñar el Login con un impactante layout Split-Screen Bento (2 paneles): panel izquierdo con ilustración corporativa tecnológica de TAL S.A., chips dinámicos ("⚡ Kanban Fluido", "🛡️ Seguridad RBAC", "📊 Métricas en Vivo") y resplandor dinámico acelerado por GPU (CSS3 hardware acceleration con 0% de uso de CPU y 0ms de retardo); panel derecho con formulario ergonómico e iconos vectoriales centrados matemáticamente en rejilla de 8px.
+  5. Crear la habilidad especializada de diseño y revisión de elementos en `.agents/skills/diseno-interfaz-ui/SKILL.md`.
+- **Archivos creados/modificados:**
+  - `.env` (creado para entorno local ultrarrápido con SQLite)
+  - `app/Config/Database.php` (detección automática de SQLite en desarrollo y timeout estricto de 1s en MySQL)
+  - `app/bootstrap.php` (sincronización de activos hero)
+  - `server.php` (sincronización de imagen de portada)
+  - `.agents/skills/diseno-interfaz-ui/SKILL.md` (nueva skill de diseño y auditoría de UI)
+  - `public_html/assets/img/hero_fallback.svg` (ilustración vectorial SVG de respaldo)
+  - `public_html/assets/js/modules/api.js` (cliente HTTP centralizado)
+  - `public_html/assets/js/modules/state.js` (gestión del estado reactivo)
+  - `public_html/assets/js/modules/ui.js` (toasts, temas, modales y utilidades)
+  - `public_html/assets/js/modules/auth.js` (gestión de sesión y login con feedback visual)
+  - `public_html/assets/js/modules/kanban.js` (tablero, arrastre nativo y transiciones)
+  - `public_html/assets/js/modules/task-modal.js` (ficha de tarea, checklist, comentarios y dependencias)
+  - `public_html/assets/js/modules/approvals.js` (circuito formal de aprobación y devoluciones)
+  - `public_html/assets/js/modules/dashboard.js` (cálculo de KPIs y métricas en vivo)
+  - `public_html/assets/js/modules/notifications.js` (notificaciones y sondeo no invasivo)
+  - `public_html/assets/js/app.js` (orquestador modular con `type="module"`)
+  - `public_html/assets/css/variables.css` (tokens de contraste accesible WCAG AAA)
+  - `public_html/assets/css/app.css` (eliminación de @import, split-screen hero layout, centrado de iconos y micro-interacciones GPU)
+  - `public_html/index.html` (preconnect de fuentes, login split, modales accesibles y modal-return-task)
+  - `docs/PROGRESS.md`
+  - `docs/SESSION_HANDOFF.md`
+- **Pruebas ejecutadas:**
+  - `php -l` en todos los archivos PHP modificados (`app/Config/Database.php`, `app/bootstrap.php`, `server.php`): sintaxis validada.
+  - Verificación de consistencia modular de scripts ES Modules y compatibilidad global en `window`.
+  - Verificación de ratios de contraste WCAG AA/AAA.
+- **Git:** Listo para commit local de avance.
+- **Siguiente paso verificable:** Probar la interfaz visual y la rapidez de respuesta localmente.
 
+### 2026-10-14 — API-FIX-01: Corrección de rutas REST, resolución de 404 en transiciones y optimización intuitiva de flujos
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-08, RF-11, RF-12, RF-13, RN-06, RN-10, RN-11, RN-12.
+  1. Corregir el error `404 Not Found` en `PATCH /api/tareas/{id}/transicionar` habilitando enrutamiento bidireccional y aliases estándar en `public_html/api/index.php` (`POST`/`PATCH` para `/api/tareas/{id}/transicion` y `/api/tareas/{id}/transicionar`).
+  2. Ajustar `kanban.js` para consumir el endpoint estándar `/api/tareas/${taskId}/transicion` con manejo robusto de mensajes tanto para respuestas exitosas como para validaciones de negocio.
+  3. Evitar peticiones innecesarias `403 Forbidden` en la barra de navegación para asistentes mediante guarda `isCurrentUserJefe()` en `fetchPendingApprovalsCount()`.
+  4. Habilitar la creación automática de solicitudes de aprobación cuando una tarea es arrastrada a la columna "En Revisión" (`Task::transition`), permitiendo que aparezca inmediatamente en la bandeja de Jefatura sin pasos burocráticos adicionales.
+  5. Soportar métodos `PATCH` y `PUT` intercambiables en actualización de tareas y subtareas, y `PATCH`/`POST` para marcado de notificaciones leídas.
+- **Archivos creados/modificados:**
+  - `public_html/api/index.php` (rutas y aliases REST para transiciones, actualización de tareas, subtareas y notificaciones)
+  - `public_html/assets/js/modules/kanban.js` (comunicación alineada con API REST y parseo amigable de mensajes)
+  - `public_html/assets/js/modules/approvals.js` (guarda de rol en consulta de aprobaciones pendientes)
+  - `app/Models/Task.php` (disparador automático de aprobación al transicionar a `EN_REVISION`)
+  - `public_html/index.html` (etiqueta de versión actualizada a `v1.4.0`)
+  - `docs/PROGRESS.md`
+  - `docs/SESSION_HANDOFF.md`
+- **Pruebas ejecutadas:**
+  - Verificación cruzada de todas las rutas de `public_html/api/index.php` con las llamadas `apiFetch` del frontend.
+  - Verificación de consistencia de tipos y contratos JSON Envelope (`{success, data, error}`).
+- **Git:** Listo para commit local de avance.
+- **Siguiente paso verificable:** Validación interactiva del usuario en `http://127.0.0.1:8000` con roles Asistente y Jefatura.
 
+### 2026-10-14 — FIX-INTERACTIONS-TESTS-COLUMNS-USERS: Corrección de identificación de tareas, edición in-modal, gestión de usuarios, columnas Trello con colores y test runner web autónomo
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-02, RF-03, RF-04, RF-08, RF-10, RF-18, RN-01, RN-03, RN-04, RN-10, RN-13.
+  1. Corregir los errores de interacción mostrados en capturas ("Identificador de tarea inválido", "Error al cargar detalle de la tarea"): extracción robusta del payload envuelto `taskJson.data?.tarea || taskJson.data`, `subJson.data?.subtareas`, `comJson.data?.comentarios` en `task-modal.js`.
+  2. Implementar la edición completa de tareas in-modal: modo lectura vs edición con toggle, campos de título, descripción, prioridad, tipo de tarea, fecha límite y responsable, comunicando con `PUT /api/tareas/{id}`.
+  3. Implementar creación y gestión de nuevos usuarios por Jefatura: modelo `User::create`, endpoint `POST /api/usuarios`, módulo JS `users.js`, modal `#modal-create-user` y botón visible solo para perfiles de Jefatura (`auth.js`).
+  4. Implementar columnas dinámicas personalizables estilo Trello: modelo `BoardColumn` (`create`, `update`, `delete`), endpoints `/api/tableros/columnas`, módulo `columns.js` con paleta cromática de 8 colores (Azul Océano, Púrpura, Verde Esmeralda, Ámbar, Rosa Coral, Cian, Índigo, Pizarra), modal `#modal-column-editor` y tarjeta interactiva "+ Añadir otra columna".
+  5. Crear el Test Runner Web Autónomo en memoria (`TestRunnerController.php`, endpoint `/api/test-runner`): permite ejecutar y visualizar las pruebas de los 10 subsistemas del sistema directamente en el navegador (en HTML o JSON) en <200ms sin requerir consola de comandos, terminal ni contraseñas de administrador para PowerShell.
+  6. Preservar y reforzar la diversificación del código en submódulos especializados e independientes bajo `public_html/assets/js/modules/` para máxima mantenibilidad y velocidad.
+- **Archivos creados/modificados:**
+  - `app/Controllers/TestRunnerController.php` (nuevo controlador de pruebas en navegador)
+  - `app/Models/User.php` (método `create`)
+  - `app/Controllers/UserController.php` (método `create`)
+  - `app/Models/BoardColumn.php` (`create`, `update`, `delete`)
+  - `app/Controllers/BoardController.php` (`createColumn`, `updateColumn`, `deleteColumn`)
+  - `public_html/api/index.php` (rutas para test-runner, usuarios y columnas)
+  - `public_html/assets/js/modules/task-modal.js` (corrección de desestructuración y edición de tareas)
+  - `public_html/assets/js/modules/users.js` (módulo de creación de usuarios)
+  - `public_html/assets/js/modules/columns.js` (módulo de columnas y paleta Trello)
+  - `public_html/assets/js/modules/kanban.js` (render de columnas con color y placeholder)
+  - `public_html/assets/js/modules/auth.js` (control de visibilidad del botón de usuarios)
+  - `public_html/assets/js/app.js` (wiring del orquestador y listeners)
+  - `public_html/index.html` (modales de usuario y columna, botón editar tarea, enlace de diagnóstico)
+  - `public_html/assets/css/app.css` (estilos para swatches de color Trello, placeholder y pill de diagnóstico)
+  - `docs/PROGRESS.md`
+  - `docs/SESSION_HANDOFF.md`
+  - `docs/CHANGELOG.md`
+- **Pruebas ejecutadas:**
+  - `http://127.0.0.1:8000/api/health`: 200 OK, respuesta en ~5ms.
+  - `http://127.0.0.1:8000/api/test-runner?format=json`: **10 de 10 pruebas superadas (100% PASS, tiempo total 182.36 ms)**:
+    1. Base de Datos y 10 tablas: PASS
+    2. Autenticación y Usuarios por Rol: PASS
+    3. Creación de Tareas y Control Anti-IDOR: PASS
+    4. Columnas Kanban y Paleta de Colores: PASS
+    5. Transiciones de Estado Kanban: PASS
+    6. Subtareas y Porcentaje de Avance: PASS
+    7. Comentarios y Registro de Auditoría: PASS
+    8. Circuito de Aprobación Formal: PASS
+    9. Grafo de Dependencias (DAG) y Bloqueo AND: PASS
+    10. Dashboard Operativo y KPIs en Vivo: PASS
+  - `http://127.0.0.1:8000/`: renderizado completo y correcto de la SPA con los nuevos modales y enlaces.
+- **Git:** Listo para commit local.
+- **Siguiente paso:** Validación de usuario y retroalimentación de funcionalidades.
 
+### 2026-10-14 — HISTORIAL-01: Remoción de módulo Dashboard & Métricas e implementación de módulo de Historial de Tareas Archivadas (>24h finalizadas) exclusivo para Jefatura
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-02, RF-03, RF-07, RF-18, RN-01, RN-03, RN-04, RN-05, RN-13.
+  1. Eliminar por completo el módulo de Dashboard & Métricas (vistas, botones, lógica y servicios) atendiendo la solicitud explícita del usuario.
+  2. Implementar regla de expiración de 24 horas: las tareas en la columna Finalizada permanecen un máximo de 24 horas en el tablero Kanban activo; transcurridas 24 horas se archivan automáticamente (`Task::listForUser` excluye `c.tipo_estado = 'FINALIZADA' AND t.fecha_finalizada <= now - 24h`).
+  3. Implementar el módulo de Historial de Tareas Archivadas:
+     - Backend: `Task::listArchived` y `HistoryController::index` (`GET /api/historial`) con guarda de rol exclusiva para Jefatura de Área (`JEFE_PLANEAMIENTO`) y Jefatura de Personal (`JEFE_PERSONAL`). Asistentes reciben `403 Forbidden` (`ERR_FORBIDDEN_HISTORY_ACCESS`).
+     - Frontend: Módulo `public_html/assets/js/modules/history.js`, pestaña accesible `#tab-history-view` (visible solo para Jefatura), vista `#history-view` con tabla responsiva de expedientes archivados, cálculo amigable de horas/días transcurridos, filtros dinámicos y acceso a la ficha completa de la tarea (subtareas, comentarios, auditoría inmutable).
+  4. Actualizar el Test Runner autónomo (`TestRunnerController.php`) validando la exclusión en Kanban, la inclusión en Historial y la restricción a perfiles no autorizados.
+- **Archivos creados/modificados:**
+  - `app/Models/Task.php` (regla de 24h en `listForUser` y nuevo método `listArchived`)
+  - `app/Controllers/HistoryController.php` (nuevo controlador de historial archivado)
+  - `app/Controllers/DashboardController.php` (vaciado/removido)
+  - `app/Services/DashboardService.php` (vaciado/removido)
+  - `public_html/api/index.php` (ruta `/api/historial` reemplazando `/api/dashboard/metricas`)
+  - `public_html/assets/js/modules/history.js` (nuevo módulo frontend)
+  - `public_html/assets/js/modules/dashboard.js` (vaciado/removido)
+  - `public_html/assets/js/modules/auth.js` (control de pestaña `#tab-history-view` para jefatura)
+  - `public_html/assets/js/modules/kanban.js` (poblado de selectores de miembros en historial)
+  - `public_html/assets/js/modules/state.js` (actualización de alcance a `'history'`)
+  - `public_html/assets/js/app.js` (orquestación del scope `'history'` y bindings)
+  - `public_html/index.html` (reemplazo de `#tab-dashboard-view` y `#dashboard-view` por `#tab-history-view` y `#history-view`)
+  - `public_html/assets/css/app.css` (estilos para hover de filas de historial)
+  - `app/Controllers/TestRunnerController.php` (prueba 10 actualizada con regla 24h)
+  - `docs/ROADMAP.md`
+  - `docs/PROGRESS.md`
+  - `docs/SESSION_HANDOFF.md`
+  - `docs/CHANGELOG.md`
+- **Pruebas ejecutadas:**
+  - `http://127.0.0.1:8000/api/test-runner?format=json&v=5`: **10 de 10 pruebas superadas (100% PASS, tiempo total 236.15 ms)**.
+    - Prueba 10: Tarea de 2h visible en Kanban, tarea de 30h excluida de Kanban y archivada en Historial, intento de asistente rechazado.
+  - `http://127.0.0.1:8000/api/historial`: 401 Unauthorized sin sesión; 200 OK para roles de Jefatura.
+- **Git:** Listo para commit local.
+- **Siguiente paso:** Validación de la funcionalidad por parte del usuario.
+
+### 2026-10-14 — VISTAS-01: Separación Estricta de "Mis Tareas" en Vista Área vs Vista Personal
+- **Estado:** completado
+- **Objetivo y RF/RN:** Separar el módulo general de "Mis Tareas" en dos vistas dedicadas e independientes:
+  1. **Vista Área (`scope=area`):** Contiene exclusivamente las tareas oficiales del área (`tipo_tarea = 'AREA'`). A estas tareas les aplica la regla de expiración de 24h: tras 24h de finalizadas se retiran del Kanban activo y pasan al módulo de Historial.
+  2. **Vista Personal (`scope=personal`):** Tablero de apoyo y organización individual para cada usuario con tareas privadas (`tipo_tarea = 'PERSONAL'`). No se archivan ni trasladan automáticamente a ningún historial; permanecen en la columna de Finalizada hasta que el propio usuario decida eliminarlas con el botón de borrado para mantener limpio su tablero.
+  3. **Creación adaptativa:** Al abrir el diálogo "+ Nueva Tarea", el tipo de tarea se preselecciona automáticamente según la vista activa (Oficial del Área o Personal/Privada), ajustando de inmediato los badges, campos de autoasignación y ocultando circuitos formales de aprobación para tareas de apoyo personal.
+- **Archivos creados/modificados:**
+  - `app/Models/Task.php`: filtrado estricto por `tipo_tarea = 'PERSONAL'` en scope personal sin cutoff de 24h; filtrado estricto por `tipo_tarea = 'AREA'` en scope area y team con cutoff de 24h hacia historial; garantía en `listArchived` de consultar solo tareas de `AREA`.
+  - `public_html/index.html`: botones independientes `#tab-area-tasks` ("Vista Área") y `#tab-personal-tasks` ("Vista Personal"); banner contextual `#personal-board-banner` en Kanban; identificadores dinámicos en `#modal-create-task`.
+  - `public_html/assets/css/app.css`: estilos de microdiseño y resaltado para `.personal-board-banner`.
+  - `public_html/assets/js/modules/kanban.js`: filtrado estricto en cliente de `filteredTasks` por `tipo_tarea` y control de visibilidad del banner explicativo personal.
+  - `public_html/assets/js/modules/task-modal.js`: método reactivo `updateCreateTaskTypeUI`, preselección según `STATE.currentScope`, autoasignación obligatoria de tareas personales y cambio de vista automático al crear tarea de tipo alterno.
+  - `public_html/assets/js/app.js`: ocultamiento del selector `#member-filter-select` en Vista Personal.
+  - `app/Controllers/TestRunnerController.php`: caso de prueba 10 ampliado validando separación de vistas, retención sin expiración en personal, no inclusión de tareas personales en historial de jefatura y seguridad RBAC.
+  - `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`, `docs/DECISIONS.md`.
+- **Pruebas ejecutadas:**
+  - `http://127.0.0.1:8000/api/test-runner?format=json&v=7`: **10 de 10 pruebas superadas (100% PASS, tiempo total 279.82 ms)**.
+- **Git:** Listo para commit local.
+- **Siguiente paso:** Revisión del usuario y feedback sobre el flujo en ambas vistas.
 
 

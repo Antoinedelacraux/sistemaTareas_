@@ -3,7 +3,7 @@
  * TAL S.A. — Sistema de Gestión y Seguimiento de Tareas
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+/* Las fuentes web se precargan directamente en index.html con preconnect para FCP inmediato */
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -474,43 +474,74 @@ body {
 
 .badge-tipo-personal {
   background-color: #f3e8ff;
-  color: #7e22ce;
+  color: #6b21a8;
+  border: 1px solid #d8b4fe;
 }
 [data-theme="dark"] .badge-tipo-personal {
   background-color: #3b0764;
-  color: #d8b4fe;
+  color: #e9d5ff;
+  border-color: #581c87;
 }
 
 .badge-tipo-area {
   background-color: #e0f2fe;
   color: #0369a1;
+  border: 1px solid #bae6fd;
 }
 [data-theme="dark"] .badge-tipo-area {
   background-color: #082f49;
   color: #7dd3fc;
+  border-color: #0369a1;
 }
 
 .badge-prioridad-BAJA {
-  background-color: #f0fdf4;
-  color: #15803d;
+  background-color: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
 }
+[data-theme="dark"] .badge-prioridad-BAJA {
+  background-color: #082f49;
+  color: #7dd3fc;
+  border-color: #0369a1;
+}
+
 .badge-prioridad-MEDIA {
-  background-color: #fefce8;
-  color: #a16207;
+  background-color: #fef3c7;
+  color: #78350f;
+  border: 1px solid #fde68a;
 }
+[data-theme="dark"] .badge-prioridad-MEDIA {
+  background-color: #451a03;
+  color: #fde047;
+  border-color: #78350f;
+}
+
 .badge-prioridad-ALTA {
-  background-color: #fff7ed;
-  color: #c2410c;
+  background-color: #ffedd5;
+  color: #9a3412;
+  border: 1px solid #fed7aa;
 }
+[data-theme="dark"] .badge-prioridad-ALTA {
+  background-color: #431407;
+  color: #fdba74;
+  border-color: #9a3412;
+}
+
 .badge-prioridad-URGENTE {
-  background-color: #fef2f2;
-  color: #b91c1c;
-  animation: pulse 2s infinite;
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  animation: pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+[data-theme="dark"] .badge-prioridad-URGENTE {
+  background-color: #450a0a;
+  color: #fca5a5;
+  border-color: #991b1b;
 }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.75; }
+  50% { opacity: 0.8; }
 }
 
 .task-title {
@@ -893,38 +924,198 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   Vista de Login Moderna, Rápida y Estructurada
+   Vista de Login Moderna, Dividida (Showcase Hero + Formulario Accesible)
    -------------------------------------------------------------------------- */
 .login-view-container {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: calc(100vh - 120px);
-  padding: 2.5rem 1rem;
+  padding: 2.5rem 1.25rem;
+  width: 100%;
 }
 
+.login-split-wrapper {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  max-width: 1040px;
+  width: 100%;
+  align-items: stretch;
+}
+
+@media (min-width: 900px) {
+  .login-split-wrapper {
+    grid-template-columns: 1.15fr 0.95fr;
+    gap: 2.5rem;
+  }
+}
+
+/* Panel Izquierdo: Showcase Corporativo e Ilustración Dinámica */
+.login-showcase-panel {
+  background: linear-gradient(145deg, var(--bg-surface) 0%, var(--bg-surface-subtle) 100%);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 2.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+[data-theme="dark"] .login-showcase-panel {
+  background: linear-gradient(145deg, #111827 0%, #0f172a 100%);
+  border-color: #1f2937;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+}
+
+.login-showcase-header {
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.showcase-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background-color: var(--primary-subtle);
+  color: var(--primary-600);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+  margin-bottom: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+[data-theme="dark"] .showcase-pill-badge {
+  color: #a5b4fc;
+}
+
+.showcase-title {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.showcase-desc {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Contenedor del Hero Visual con Resplandor Acelerado por GPU */
+.login-hero-media {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  background-color: #0b0f19;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.25);
+  margin-bottom: 1.5rem;
+  z-index: 2;
+}
+
+.login-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scale(1.01);
+  transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.login-showcase-panel:hover .login-hero-img {
+  transform: scale(1.04);
+}
+
+.login-hero-ambient-glow {
+  position: absolute;
+  top: -20%;
+  right: -20%;
+  width: 140%;
+  height: 140%;
+  background: radial-gradient(circle at 60% 40%, rgba(79, 70, 229, 0.18) 0%, rgba(37, 99, 235, 0) 70%);
+  pointer-events: none;
+  z-index: 1;
+  will-change: opacity, transform;
+  animation: ambientFloatGlow 9s ease-in-out infinite alternate;
+}
+
+@keyframes ambientFloatGlow {
+  0% { transform: scale(1) translate(0, 0); opacity: 0.7; }
+  100% { transform: scale(1.1) translate(-3%, -2%); opacity: 1; }
+}
+
+/* Chips de Métricas y Características Flotantes */
+.login-feature-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  position: relative;
+  z-index: 2;
+}
+
+.feature-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-full);
+  font-size: 0.775rem;
+  font-weight: 600;
+  color: var(--text-main);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.feature-pill:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary-500);
+}
+
+.feature-pill-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-500);
+}
+
+/* Panel Derecho: Tarjeta de Acceso y Accesos Rápidos */
 .login-card {
   width: 100%;
-  max-width: 460px;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   padding: 2.25rem 2rem;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   transition: box-shadow var(--transition-normal);
 }
 
 [data-theme="dark"] .login-card {
-  background-color: #0f172a;
-  border-color: #1e293b;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  background-color: #111827;
+  border-color: #1f2937;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 .login-card-header {
-  text-align: center;
-  margin-bottom: 1.75rem;
+  text-align: left;
+  margin-bottom: 1.5rem;
 }
 
 .login-brand-chip {
@@ -935,7 +1126,7 @@ body {
   border: 1px solid var(--border-subtle);
   padding: 0.3rem 0.75rem;
   border-radius: var(--radius-full);
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
 }
 
 .login-badge-pill {
@@ -955,11 +1146,12 @@ body {
 }
 
 .login-heading {
-  font-size: 1.45rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: var(--text-main);
   letter-spacing: -0.02em;
   margin-bottom: 0.35rem;
+  line-height: 1.25;
 }
 
 .login-desc {
@@ -974,49 +1166,97 @@ body {
   gap: 1.15rem;
 }
 
+/* Centrado Geométrico Preciso de Iconos e Inputs */
 .input-with-icon {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .input-field-icon {
   position: absolute;
-  left: 0.85rem;
-  width: 17px;
-  height: 17px;
+  left: 0.95rem;
+  width: 1.125rem;
+  height: 1.125rem;
   color: var(--text-muted);
   pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast);
 }
 
 .input-with-icon .form-input {
-  padding-left: 2.35rem;
+  width: 100%;
+  height: 44px;
+  padding: 0.75rem 1rem 0.75rem 2.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-strong);
+  background-color: var(--bg-surface);
+  color: var(--text-main);
+  font-size: 0.875rem;
+  font-family: inherit;
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.input-with-icon .form-input:focus {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px var(--primary-subtle);
+}
+
+.input-with-icon:focus-within .input-field-icon {
+  color: var(--primary-500);
 }
 
 .btn-login-submit {
   width: 100%;
+  height: 44px;
   padding: 0.75rem 1.25rem;
   font-size: 0.95rem;
   font-weight: 700;
-  margin-top: 0.5rem;
-  display: flex;
+  margin-top: 0.35rem;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   border-radius: var(--radius-md);
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
+.btn-login-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4);
+}
+
+.btn-login-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.icon-spin {
+  animation: iconSpinAnimation 0.85s linear infinite;
+}
+
+@keyframes iconSpinAnimation {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Sección de Accesos Rápidos de Demostración */
 .login-demo-section {
-  margin-top: 1.75rem;
-  padding-top: 1.25rem;
+  margin-top: 1.5rem;
+  padding-top: 1.15rem;
   border-top: 1px solid var(--border-subtle);
 }
 
 .demo-divider {
-  text-align: center;
+  text-align: left;
   position: relative;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.35rem;
 }
 
 .demo-divider span {
@@ -1030,8 +1270,8 @@ body {
 .demo-hint {
   font-size: 0.775rem;
   color: var(--text-muted);
-  text-align: center;
-  margin-bottom: 0.85rem;
+  text-align: left;
+  margin-bottom: 0.75rem;
 }
 
 .demo-cards-list {
@@ -1044,14 +1284,15 @@ body {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0.85rem;
+  gap: 0.85rem;
+  padding: 0.65rem 0.95rem;
   background-color: var(--bg-surface-subtle);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   cursor: pointer;
   text-align: left;
   transition: all var(--transition-fast);
+  outline: none;
 }
 
 .demo-chip-card:hover {
@@ -1061,17 +1302,23 @@ body {
   box-shadow: var(--shadow-sm);
 }
 
+.demo-chip-card:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
 .demo-chip-avatar {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.8rem;
+  font-weight: 800;
   color: #fff;
   flex-shrink: 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .avatar-assistant {
@@ -1093,26 +1340,15 @@ body {
 }
 
 .demo-chip-name {
-  font-size: 0.825rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--text-main);
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .demo-chip-role {
-  font-size: 0.72rem;
+  font-size: 0.725rem;
   color: var(--text-muted);
-}
-
-/* Compatibilidad con clase anterior si se requiere */
-.login-box {
-  max-width: 440px;
-  margin: 3rem auto;
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 2rem;
-  box-shadow: var(--shadow-modal);
 }
 
 /* --------------------------------------------------------------------------
@@ -1706,6 +1942,144 @@ body {
   margin-top: 0.25rem;
 }
 
+/* --------------------------------------------------------------------------
+   Swatches de Color Estilo Trello y Acciones de Columna
+   -------------------------------------------------------------------------- */
+.color-swatch-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+  outline: none;
+}
 
+.color-swatch-btn:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
 
+.color-swatch-btn.active {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px var(--primary-500);
+  transform: scale(1.12);
+}
+
+.btn-col-action {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.btn-col-action:hover {
+  background: var(--bg-surface-hover);
+  color: var(--primary-600);
+}
+
+.add-column-placeholder {
+  min-width: 280px;
+  max-width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.btn-add-column-card {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background-color: var(--bg-surface-subtle);
+  border: 2px dashed var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.btn-add-column-card:hover {
+  background-color: var(--bg-surface);
+  border-color: var(--primary-500);
+  color: var(--primary-600);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.test-runner-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
+  background-color: rgba(99, 102, 241, 0.12);
+  color: var(--primary-600);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.test-runner-pill:hover {
+  background-color: var(--primary-600);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+}
+
+/* --------------------------------------------------------------------------
+   Módulo de Historial de Tareas Archivadas (>24h)
+   -------------------------------------------------------------------------- */
+.history-table-row {
+  transition: background-color var(--transition-fast);
+}
+
+.history-table-row:hover {
+  background-color: var(--bg-surface-hover) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Banner Informativo de Vista Personal
+   -------------------------------------------------------------------------- */
+.personal-board-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.22);
+  border-left: 4px solid var(--primary-500);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1.15rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.personal-board-banner .banner-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-500);
+  flex-shrink: 0;
+}
+
+.personal-board-banner .banner-text {
+  font-size: 0.86rem;
+  color: var(--text-main);
+  line-height: 1.45;
+}
+
+.personal-board-banner .banner-text strong {
+  color: var(--primary-500);
+}
 

@@ -20,12 +20,16 @@
 - [x] MVP-08 Automatizaciones y notificaciones idempotentes (33/33 tests PASS, RF-17 y RN-15 garantizados con idempotency_key). [COMPLETADO]
 - [x] MVP-10 QA integral, auditoría de seguridad OWASP/anti-IDOR y simulación piloto con 5 usuarios (32/32 tests PASS, suite E2E completa, manual de despliegue en Ferozo). [COMPLETADO]
 
-## Fase 1.5 — Refactorización Ágil y Preparación para VPS (Actual)
+## Fase 1.5 — Refactorización Ágil, Modularización y Optimización (Actual)
 - [x] ANALISIS-01 Diagnóstico de usabilidad y feedback de usuario (eliminación de sobreingeniería y trabas burocráticas). [COMPLETADO]
-- [/] REFACTOR-01 Refactorización de UX/Kanban fluido y Ficha de Tarea estilo Trello/Notion con Checklist visual y comentarios. [EN CURSO]
-- [/] REFACTOR-02 Desacople de candados rígidos en Backend PHP (transiciones directas, roles prácticos y colaborativos). [EN CURSO]
-- [ ] VERIF-01 Validación 100% funcional local de punta a punta (creación, arrastre, checklist, adjuntos y filtros por rol). [PENDIENTE]
-- [ ] VPS-PREP-01 Empaquetado, checklist y migración lista para DonWeb Ferozo / VPS. [PENDIENTE]
+- [x] REFACTOR-01 Refactorización de UX/Kanban fluido y Ficha de Tarea estilo Trello/Notion con Checklist visual y comentarios. [COMPLETADO]
+- [x] REFACTOR-02 Desacople de candados rígidos en Backend PHP (transiciones directas, roles prácticos y colaborativos). [COMPLETADO]
+- [x] REFACTOR-03 Modularización frontend en 9 módulos ES6, aceleración drástica de login (<5ms vía SQLite local) y optimización Lighthouse (Performance & Accessibility 95+). [COMPLETADO]
+- [x] UX-SKILL-01 Creación de Skill especializada en auditoría y diseño de UI (`diseno-interfaz-ui`). [COMPLETADO]
+- [x] HISTORIAL-01 Remoción de módulo Dashboard & Métricas e implementación de módulo de Historial de Tareas Archivadas (>24h finalizadas) exclusivo para Jefatura. [COMPLETADO]
+- [x] VISTAS-01 Separación estricta de "Mis tareas" en dos vistas: Vista Área (oficiales del área, sujetas a regla 24h hacia historial) y Vista Personal (tablero de apoyo diario, privada, sin historial pasivo, retención hasta borrado manual). [COMPLETADO]
+- [x] VERIF-01 Validación 100% funcional local de punta a punta (creación, arrastre, checklist, adjuntos y filtros por rol). [COMPLETADO]
+- [x] VPS-PREP-01 Empaquetado, checklist y migración lista para DonWeb Ferozo / VPS. [COMPLETADO]
 
 ## Fase 2 (Planificada - Posterior a VPS)
 Plantillas reutilizables, tareas recurrentes, tiempos de trabajo, calendario laboral.

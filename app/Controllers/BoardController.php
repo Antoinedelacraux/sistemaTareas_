@@ -136,4 +136,105 @@ class BoardController
             'mensaje' => $resultado['mensaje']
         ]);
     }
+
+    /**
+     * Crea una nueva columna en el tablero (estilo Trello).
+     * POST /api/tableros/columnas
+     */
+    public function createColumn(array $request): void
+    {
+        $currentUser = $request['user'] ?? null;
+        if (!$currentUser) {
+            Response::error("Autenticación requerida.", 401, 'ERR_UNAUTHORIZED');
+            return;
+        }
+
+        $body = $request['body'] ?? [];
+        $nombre = trim((string)($body['nombre'] ?? ''));
+        if ($nombre === '' || mb_strlen($nombre) > 50) {
+            Response::error("El nombre de la columna es obligatorio y debe tener como máximo 50 caracteres.", 422, 'ERR_VALIDATION_FAILED');
+            return;
+        }
+
+        $colorHex = trim((string)($body['color_hex'] ?? '#2563eb'));
+        if (!preg_match('/^#[a-fA-F0-9]{6}$/', $colorHex)) {
+            $colorHex = '#2563eb';
+        }
+
+        $tipoEstado = strtoupper(trim((string)($body['tipo_estado'] ?? 'EN_PROCESO')));
+        if (!in_array($tipoEstado, [BoardColumn::ESTADO_PENDIENTE, BoardColumn::ESTADO_EN_PROCESO, BoardColumn::ESTADO_BLOQUEADA, BoardColumn::ESTADO_EN_REVISION, BoardColumn::ESTADO_FINALIZADA], true)) {
+            $tipoEstado = BoardColumn::ESTADO_EN_PROCESO;
+        }
+
+        $nuevaColumna = BoardColumn::create([
+            'nombre'      => $nombre,
+            'color_hex'   => $colorHex,
+            'tipo_estado' => $tipoEstado
+        ]);
+
+        Response::json([
+            'columna' => $nuevaColumna,
+            'mensaje' => "Columna '{$nuevaColumna['nombre']}' creada exitosamente."
+        ], 201);
+    }
+
+    /**
+     * Actualiza el nombre, color o estado de una columna existente.
+     * PUT /api/tableros/columnas/{id}
+     */
+    public function updateColumn(array $request): void
+    {
+        $currentUser = $request['user'] ?? null;
+        if (!$currentUser) {
+            Response::error("Autenticación requerida.", 401, 'ERR_UNAUTHORIZED');
+            return;
+        }
+
+        $id = (int)($request['params']['id'] ?? 0);
+        if ($id <= 0) {
+            Response::error("Identificador de columna inválido.", 400, 'ERR_INVALID_ID');
+            return;
+        }
+
+        $body = $request['body'] ?? [];
+        $actualizada = BoardColumn::update($id, $body);
+
+        if (!$actualizada) {
+            Response::error("Columna no encontrada.", 404, 'ERR_COLUMN_NOT_FOUND');
+            return;
+        }
+
+        Response::json([
+            'columna' => $actualizada,
+            'mensaje' => "Columna actualizada exitosamente."
+        ]);
+    }
+
+    /**
+     * Elimina (desactiva) una columna si no tiene tareas.
+     * DELETE /api/tableros/columnas/{id}
+     */
+    public function deleteColumn(array $request): void
+    {
+        $currentUser = $request['user'] ?? null;
+        if (!$currentUser) {
+            Response::error("Autenticación requerida.", 401, 'ERR_UNAUTHORIZED');
+            return;
+        }
+
+        $id = (int)($request['params']['id'] ?? 0);
+        if ($id <= 0) {
+            Response::error("Identificador de columna inválido.", 400, 'ERR_INVALID_ID');
+            return;
+        }
+
+        try {
+            BoardColumn::delete($id);
+            Response::json([
+                'mensaje' => "Columna eliminada exitosamente."
+            ]);
+        } catch (\RuntimeException $e) {
+            Response::error($e->getMessage(), $e->getCode() ?: 409, 'ERR_COLUMN_DELETE_FAILED');
+        }
+    }
 }

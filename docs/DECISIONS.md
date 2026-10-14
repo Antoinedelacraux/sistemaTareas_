@@ -13,6 +13,10 @@
 - D-010 Acceso web seguro desde cualquier ubicación.
 - D-011 Plataforma de despliegue DonWeb Ferozo (Web Hosting tradicional): Backend PHP 8.2+ (REST API modular), Base de datos MySQL / MariaDB (InnoDB con transacciones ACID), Frontend SPA moderna (HTML5, Vanilla CSS / Design Tokens, JavaScript modular).
 - D-012 Simplificación ágil y usabilidad prioritaria: Refactorización orientada a la fluidez en la gestión de tareas. Eliminación de trabas burocráticas en Kanban (sin modales bloqueantes de confirmación forzada al arrastrar, sin candados rígidos de grafos matemáticos DAG); tablero directo e interactivo, roles colaborativos (jefes asignan y supervisan todo; asistentes gestionan sus tareas y visualizan el tablero general del equipo) y checklist integrado con progreso porcentual.
+- D-015 Test Runner Web Autónomo en Memoria: Suite de autodiagnóstico integral ejecutable vía HTTP en `/api/test-runner` sin depender de consola de comandos ni permisos locales de PowerShell.
+- D-016 Personalización Cromática de Columnas Trello-Style: Configuración libre de columnas con paleta de 8 colores y border-top identificador.
+- D-017 Retiro de Dashboard y Módulo de Historial con Expiración de 24h: Descarte del módulo de métricas/dashboard y creación de un Historial exclusivo para Jefatura (`JEFE_PLANEAMIENTO`, `JEFE_PERSONAL`) con auto-archivo pasivo de tareas finalizadas tras 24 horas (`t.fecha_finalizada <= time() - 86400`).
+- D-018 Separación Estricta de Vista Área vs Vista Personal: Separación de la navegación principal en dos pestañas dedicadas: "Vista Área" (para tareas oficiales de equipo sujetas a auditoría y regla 24h hacia el historial) y "Vista Personal" (tablero privado de auto-organización de cada colaborador donde las tareas finalizadas permanecen hasta su borrado manual por el propio usuario, sin enviarse al historial).
 
 ## Propuestas pendientes de validación
 - P-001 Privacidad de tareas personales también ante jefes, exclusión de KPIs oficiales.

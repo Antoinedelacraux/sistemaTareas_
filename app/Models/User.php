@@ -214,4 +214,39 @@ class User
             'target' => self::formatPublic($target)
         ];
     }
+
+    /**
+     * Registra un nuevo usuario en la base de datos (RF-02).
+     */
+    public static function create(array $data): array
+    {
+        $db = Database::getConnection();
+
+        // Generar código secuencial USR-XXXX
+        $stmtMax = $db->query("SELECT MAX(id) AS max_id FROM usuarios");
+        $maxId = (int)($stmtMax->fetchColumn() ?: 0);
+        $codigo = sprintf("USR-%04d", $maxId + 1);
+
+        $passwordHash = password_hash($data['password'] ?? 'Planeamiento2026!', PASSWORD_BCRYPT);
+        $now = gmdate('Y-m-d H:i:s');
+
+        $stmt = $db->prepare("
+            INSERT INTO usuarios (codigo, nombre, email, password_hash, rol, cargo, activo, created_at, updated_at)
+            VALUES (:codigo, :nombre, :email, :password_hash, :rol, :cargo, 1, :now, :now)
+        ");
+
+        $stmt->execute([
+            ':codigo'        => $codigo,
+            ':nombre'        => trim((string)$data['nombre']),
+            ':email'         => strtolower(trim((string)$data['email'])),
+            ':password_hash' => $passwordHash,
+            ':rol'           => strtoupper(trim((string)$data['rol'])),
+            ':cargo'         => trim((string)($data['cargo'] ?? 'Colaborador')),
+            ':now'           => $now
+        ]);
+
+        $id = (int)$db->lastInsertId();
+        $user = self::findById($id);
+        return self::formatPublic($user);
+    }
 }
