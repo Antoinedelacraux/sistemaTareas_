@@ -698,4 +698,37 @@
 - **Git:** Listo para commit local.
 - **Siguiente paso:** Validación por parte del usuario en el navegador tras refrescar la página.
 
+### 2026-10-14 — V1.5.3: Eliminación de Bitácora de Formulario, Modal Expandido sin Scroll y Funciones Específicas por Rol
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-03, RF-04, RF-05, RF-06, RF-07, RF-14, RF-18, RN-01, RN-02, RN-03, RN-04, RN-07, RN-08, RN-13.
+  1. **Eliminar Bitácora de Auditoría del formulario de detalle:** Retirada la sección visual y las peticiones a `/api/tareas/{id}/historial` desde el modal de detalle, centralizando la trazabilidad histórica en el Módulo de Historial exclusivo para Jefatura.
+  2. **Modificar el tamaño de los cuadros de información de la tarea (sin scrollbars):**
+     - Adaptado el modal con la clase `.modal-dialog.modal-dialog-task-detail` (1140px / 95vw / 94vh) y grid de 2 columnas balanceado (1.05fr / 0.95fr).
+     - Compactación de paddings, márgenes e ítems para que toda la información (código, badges, descripción, checklist, dependencias, comentarios, formulario de evidencias y selector de columna) se aprecie de forma inmediata en una sola pantalla sin necesidad de barras de desplazamiento vertical del diálogo.
+  3. **Funciones y Permisos por Roles (Jefatura vs Asistentes):**
+     - **Jefe de Planeamiento y Jefe de Personal:** Acceso total a todos los módulos y operaciones (crear tareas, asignar a cualquier usuario, crear y remover dependencias DAG, editar/eliminar tareas, y añadir/editar columnas Kanban en ambas vistas).
+     - **Asistentes:**
+       - Acceso exclusivo a Vista Área y Vista Personal.
+       - *En Vista Área:* Visualizan sus tareas asignadas, gestionan checklist de subtareas, envían comentarios y adjuntan evidencias. Visualizan dependencias asignadas en modo de solo lectura (sin formulario de vinculación ni botones de eliminación). Bloqueados de editar o eliminar tareas oficiales, sin permisos para crear/editar columnas y sin botón de nueva tarea oficial.
+       - *En Vista Personal:* Permisos completos de gestión privada (crear, editar, eliminar, checklist, comentarios). Sección de dependencias completamente oculta en la interfaz y bloqueada con validación 422 en backend.
+  4. **Corrección de Generación de Código Correlativo (`Task::generateCodigo`):** Cálculo dinámico sobre el correlativo máximo existente con verificación de colisiones para garantizar unicidad absoluta ante eliminaciones de tareas.
+- **Archivos creados/modificados:**
+  - `public_html/index.html` (remoción de sección bitácora, añadido `.modal-dialog-task-detail`, ID `#detail-deps-box` y versión `v1.5.3`)
+  - `public_html/assets/css/app.css` (estilos adaptativos, amplios y compactos para `.modal-dialog-task-detail`)
+  - `public_html/assets/js/modules/task-modal.js` (remoción de llamadas a auditoría, ocultamiento de dependencias en personal, visibilidad condicional de botones editar/eliminar y formulario de dependencias según rol)
+  - `public_html/assets/js/modules/kanban.js` (ocultamiento de `+ Añadir otra columna` y edición de columnas para asistentes)
+  - `public_html/assets/js/modules/auth.js` (ocultamiento de botón "+ Nueva Tarea" para asistentes en Vista Área)
+  - `public_html/assets/js/app.js` (control reactivo de botón "+ Nueva Tarea" al conmutar entre Vista Área y Personal)
+  - `app/Models/Task.php` (`generateCodigo` anti-colisión, `canEdit`, `canDelete`, `canTransition`)
+  - `app/Models/TaskDependency.php` (restricción de DAG a Jefatura y bloqueo de tareas personales)
+  - `app/Controllers/BoardController.php` (restricción de columnas a Jefatura)
+  - `app/Controllers/TestRunnerController.php` (actualización de Test 9 para autorizar dependencias por Jefatura)
+  - `docs/CHANGELOG.md`
+  - `docs/PROGRESS.md`
+  - `docs/SESSION_HANDOFF.md`
+- **Pruebas ejecutadas:**
+  - Diagnóstico autónomo web (`http://127.0.0.1:8000/api/test-runner?format=json`): **10 de 10 pruebas superadas (100% PASS, 271.03 ms)**.
+- **Git:** Listo para commit local.
+- **Siguiente paso:** Validación de usuario en el navegador tras refrescar la página.
+
 

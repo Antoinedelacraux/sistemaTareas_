@@ -77,9 +77,15 @@ class TaskDependency
             throw new RuntimeException("La tarea predecesora no existe.", 404);
         }
 
-        // 3. Permisos: El usuario debe poder editar la tarea sucesora
-        if (!Task::canEdit($currentUser, $tarea)) {
-            throw new RuntimeException("No tienes permisos para modificar las dependencias de esta tarea.", 403);
+        // 3. Regla: Tareas personales son de apoyo individual y no admiten dependencias ni integran el grafo DAG
+        if (($tarea['tipo_tarea'] ?? '') === Task::TIPO_PERSONAL || ($predecesora['tipo_tarea'] ?? '') === Task::TIPO_PERSONAL) {
+            throw new InvalidArgumentException("Las tareas personales no admiten dependencias ni integran el grafo DAG.", 422);
+        }
+
+        // 4. Permisos: Solo Jefatura está autorizada para configurar dependencias entre tareas
+        $isJefe = in_array($currentUser['rol'] ?? '', [\App\Models\User::ROL_JEFE_PERSONAL, \App\Models\User::ROL_JEFE_PLANEAMIENTO], true) || \App\Models\User::isJefe($currentUser);
+        if (!$isJefe) {
+            throw new RuntimeException("Solo el personal de Jefatura está autorizado para configurar dependencias entre tareas.", 403);
         }
 
         // 4. Verificar si la dependencia ya existe
@@ -190,8 +196,9 @@ class TaskDependency
             throw new RuntimeException("La tarea no existe.", 404);
         }
 
-        if (!Task::canEdit($currentUser, $tarea)) {
-            throw new RuntimeException("No tienes permisos para modificar las dependencias de esta tarea.", 403);
+        $isJefe = in_array($currentUser['rol'] ?? '', [\App\Models\User::ROL_JEFE_PERSONAL, \App\Models\User::ROL_JEFE_PLANEAMIENTO], true) || \App\Models\User::isJefe($currentUser);
+        if (!$isJefe) {
+            throw new RuntimeException("Solo el personal de Jefatura está autorizado para desvincular dependencias.", 403);
         }
 
         $db = Database::getConnection();

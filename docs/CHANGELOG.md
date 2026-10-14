@@ -1,6 +1,33 @@
 # Changelog
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
+## [V1.5.3 - Retiro de Bitácora de Formulario, Modal Expandido sin Scroll y Permisos Estrictos por Rol] - 2026-10-14
+### Eliminado
+- **Bitácora de Auditoría en Modal de Tarea (`#modal-task-detail`):**
+  - Removido el bloque HTML de la "Bitácora de Auditoría Inmutable" y el badge `#detail-audit-count`.
+  - Retirada la llamada asíncrona a `/api/tareas/{id}/historial` y la invocación de `renderAuditTimeline()` en `task-modal.js`.
+  - La trazabilidad histórica completa permanece centralizada y disponible para roles de Jefatura en el Módulo de Historial.
+
+### Modificado
+- **Ergonomía Visual y Eliminación de Scrollbars en Modal de Detalle (`UI-TASK-01`):**
+  - Nuevo estilo `.modal-dialog.modal-dialog-task-detail` con ancho máximo de 1140px (95vw) y altura máxima de 94vh.
+  - Cuadrícula balanceada de 2 columnas (1.05fr / 0.95fr): Columna izquierda (datos generales, checklist de subtareas, dependencias) y columna derecha (comentarios y evidencias adjuntas).
+  - Compactación de paddings en `.section-box` (0.85rem), listas con micro-scrollbars sutiles solo cuando el contenido interno excede la altura asignada, garantizando que todo el modal se visualice completo sin requerir desplazamiento de la ventana principal.
+- **Diferenciación Estricta de Funciones por Roles (Jefatura vs Asistentes):**
+  - **Jefe de Planeamiento y Jefe de Personal:**
+    - Acceso irrestricto a todos los módulos: Vista Área, Vista Personal, Tablero del Equipo, Aprobaciones, Historial y Gestión de Usuarios.
+    - Facultades completas: crear tareas, asignar y reasignar tareas a cualquier miembro, vincular y desvincular dependencias DAG, editar y eliminar tareas tanto en Vista Área como en Vista Personal.
+    - Capacidad de agregar nuevas columnas (`+ Añadir otra columna`) y personalizar columnas existentes en ambos tableros.
+  - **Asistentes Operativos:**
+    - Acceso limitado únicamente a **Vista Área** y **Vista Personal**.
+    - *En Vista Área:* Pueden visualizar sus tareas asignadas, marcar checklist, enviar comentarios y adjuntar evidencias. Visualizan dependencias asignadas en modo de solo lectura (sin formulario de vinculación ni botones de eliminación). No pueden editar ni eliminar tareas de área, ni asignar tareas a compañeros, ni gestionar columnas. El botón de "+ Nueva Tarea" se oculta en el alcance oficial del área.
+    - *En Vista Personal:* Permisos completos para crear tareas personales, editarlas, eliminarlas, gestionar checklist y comentarios. La sección de dependencias se oculta por completo por ser de ámbito individual privado; el backend rechaza con 422 cualquier intento de crear dependencias sobre tareas personales.
+- **Robustez de Generación de Códigos de Tareas (`Task::generateCodigo`):**
+  - Cálculo del número correlativo máximo existente con verificación de colisiones para evitar violaciones de clave única (`UNIQUE constraint failed: tareas.codigo`) tras eliminaciones de registros.
+- **Suite de Pruebas Autónomas (`/api/test-runner`):**
+  - Test 9 ajustado a las nuevas reglas de negocio autorizando la configuración de dependencias a roles de Jefatura.
+  - 10 de 10 pruebas superadas con éxito (100% PASS en 271.03 ms).
+
 ## [V1.5.2 - Corrección de Conmutación de Vistas y Módulos en Navegación SPA] - 2026-10-14
 ### Corregido
 - **Error Crítico de Conmutación en Pestañas (`app.js`):**

@@ -127,6 +127,15 @@ export async function setScope(scope) {
         }
     }
 
+    const btnCreateTask = document.getElementById('btn-open-create-task');
+    if (btnCreateTask) {
+        if (!isCurrentUserJefe() && scope === 'area') {
+            btnCreateTask.style.display = 'none';
+        } else {
+            btnCreateTask.style.display = 'inline-flex';
+        }
+    }
+
     if (scope === 'history') {
         if (kanbanView) kanbanView.style.display = 'none';
         if (approvalsView) approvalsView.style.display = 'none';

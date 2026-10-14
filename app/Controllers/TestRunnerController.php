@@ -155,10 +155,11 @@ class TestRunnerController
         // 9. Dependencias (DAG)
         $results[] = $this->runTest("9. Grafo de Dependencias (DAG) y Bloqueo AND", function () {
             $asistente = User::findByRol('ASISTENTE');
-            $tareaA = Task::create(['titulo' => 'Tarea Predecesora A', 'responsable_id' => $asistente['id']], $asistente);
-            $tareaB = Task::create(['titulo' => 'Tarea Sucesora B', 'responsable_id' => $asistente['id']], $asistente);
+            $jefePlan = User::findByRol('JEFE_PLANEAMIENTO');
+            $tareaA = Task::create(['titulo' => 'Tarea Predecesora A', 'responsable_id' => $asistente['id']], $jefePlan);
+            $tareaB = Task::create(['titulo' => 'Tarea Sucesora B', 'responsable_id' => $asistente['id']], $jefePlan);
 
-            TaskDependency::add((int)$tareaB['id'], (int)$tareaA['id'], $asistente);
+            TaskDependency::add((int)$tareaB['id'], (int)$tareaA['id'], $jefePlan);
             $hasPending = TaskDependency::hasPendingPredecessors((int)$tareaB['id']);
 
             if (!$hasPending) {

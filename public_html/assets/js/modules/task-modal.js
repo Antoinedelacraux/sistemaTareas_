@@ -4,7 +4,7 @@
  */
 
 import { apiFetch } from './api.js';
-import { STATE } from './state.js';
+import { STATE, isCurrentUserJefe } from './state.js';
 import { escapeHtml, formatDate, showToast, openModal, closeModal } from './ui.js';
 import { fetchTasks } from './kanban.js';
 import { renderApprovalBox } from './approvals.js';
@@ -229,6 +229,18 @@ export async function loadTaskDetail(taskId) {
         const comments = comJson.success ? (comJson.data?.comentarios || (Array.isArray(comJson.data) ? comJson.data : [])) : [];
         renderCommentsList(comments);
 
+        // Configurar botones de acción según rol y tipo de tarea (Jefes: total; Asistentes: solo personal)
+        const user = STATE.currentUser;
+        const isJefe = isCurrentUserJefe();
+        const isPersonal = task.tipo_tarea === 'PERSONAL';
+        const isOwner = user && (parseInt(task.creador_id, 10) === parseInt(user.id, 10) || parseInt(task.responsable_id, 10) === parseInt(user.id, 10));
+        const canModify = isJefe || (isPersonal && isOwner);
+
+        const btnEdit = document.getElementById('btn-edit-task');
+        const btnDelete = document.getElementById('btn-delete-task');
+        if (btnEdit) btnEdit.style.display = canModify ? 'inline-flex' : 'none';
+        if (btnDelete) btnDelete.style.display = canModify ? 'inline-flex' : 'none';
+
         // Desactivar modo edición si estuviera activo
         toggleTaskEditMode(false);
 
@@ -245,26 +257,21 @@ export async function loadTaskDetail(taskId) {
         }
         renderApprovalBox(task, approvals);
 
-        // Dependencias (DAG MVP-07)
-        try {
-            const depRes = await apiFetch(`/api/tareas/${taskId}/dependencias`);
-            const depJson = await depRes.json();
-            if (depJson.success) {
-                renderDependenciesSection(task, depJson.data);
+        // Dependencias (DAG MVP-07): Innecesarias y ocultas en tareas personales
+        const depsBox = document.getElementById('detail-deps-box');
+        if (isPersonal) {
+            if (depsBox) depsBox.style.display = 'none';
+        } else {
+            if (depsBox) depsBox.style.display = 'block';
+            try {
+                const depRes = await apiFetch(`/api/tareas/${taskId}/dependencias`);
+                const depJson = await depRes.json();
+                if (depJson.success) {
+                    renderDependenciesSection(task, depJson.data);
+                }
+            } catch (e) {
+                console.warn('Error al cargar dependencias', e);
             }
-        } catch (e) {
-            console.warn('Error al cargar dependencias', e);
-        }
-
-        // Bitácora de auditoría inmutable (MVP-09 / RF-18 / RN-13)
-        try {
-            const auditRes = await apiFetch(`/api/tareas/${taskId}/historial`);
-            const auditJson = await auditRes.json();
-            if (auditJson.success) {
-                renderAuditTimeline(auditJson.data);
-            }
-        } catch (e) {
-            console.warn('Error al cargar historial de auditoría', e);
         }
 
     } catch {
@@ -458,6 +465,16 @@ export async function handleAddComment(e) {
 export async function handleDeleteActiveTask() {
     if (!STATE.activeTaskDetail) return;
     const task = STATE.activeTaskDetail;
+    const user = STATE.currentUser;
+    const isJefe = isCurrentUserJefe();
+    const isPersonal = task.tipo_tarea === 'PERSONAL';
+    const isOwner = user && (parseInt(task.creador_id, 10) === parseInt(user.id, 10) || parseInt(task.responsable_id, 10) === parseInt(user.id, 10));
+
+    if (!isJefe && (!isPersonal || !isOwner)) {
+        showToast('No tienes autorización para eliminar esta tarea oficial del área', 'warning');
+        return;
+    }
+
     if (!confirm(`¿Estás seguro de eliminar la tarea "${task.titulo}" (${task.codigo})?`)) {
         return;
     }
@@ -482,6 +499,8 @@ export async function handleDeleteActiveTask() {
  */
 export function renderDependenciesSection(task, depData) {
     if (!depData) return;
+
+    const isJefe = isCurrentUserJefe();
 
     const countBadge = document.getElementById('detail-deps-count');
     if (countBadge) countBadge.textContent = depData.total_predecesoras || 0;
@@ -512,7 +531,9 @@ export function renderDependenciesSection(task, depData) {
                         <span class="badge ${isFinalizada ? 'badge-prioridad-BAJA' : 'badge-prioridad-ALTA'}" style="font-size: 0.7rem; padding: 0.15rem 0.4rem;">
                             ${isFinalizada ? 'FINALIZADA' : 'PENDIENTE'}
                         </span>
+                        ${isJefe ? `
                         <button class="btn-close" style="font-size: 0.9rem; color: #ef4444;" aria-label="Desvincular dependencia" onclick="removeDependency(${task.id}, ${p.id})" title="Desvincular dependencia">&times;</button>
+                        ` : ''}
                     </div>
                 `;
                 predList.appendChild(item);
@@ -520,8 +541,14 @@ export function renderDependenciesSection(task, depData) {
         }
     }
 
+    // El formulario de vinculación solo está disponible para Jefatura
+    const addDepForm = document.getElementById('add-dependency-form');
+    if (addDepForm) {
+        addDepForm.style.display = isJefe ? 'flex' : 'none';
+    }
+
     const select = document.getElementById('dependency-predecessor-select');
-    if (select) {
+    if (select && isJefe) {
         select.innerHTML = '<option value="" disabled selected>Vincular tarea predecesora...</option>';
         const predIds = new Set((depData.predecesoras || []).map(p => parseInt(p.id, 10)));
         const currentTaskId = parseInt(task.id, 10);
@@ -579,6 +606,11 @@ export async function handleAddDependency(e) {
     e.preventDefault();
     if (!STATE.activeTaskDetail) return;
 
+    if (!isCurrentUserJefe()) {
+        showToast('Solo la Jefatura está autorizada para vincular dependencias', 'warning');
+        return;
+    }
+
     const select = document.getElementById('dependency-predecessor-select');
     const predId = parseInt(select.value, 10);
     if (!predId) return;
@@ -603,6 +635,11 @@ export async function handleAddDependency(e) {
 }
 
 export async function removeDependency(taskId, predId) {
+    if (!isCurrentUserJefe()) {
+        showToast('Solo la Jefatura está autorizada para desvincular dependencias', 'warning');
+        return;
+    }
+
     if (!confirm('¿Deseas desvincular esta tarea predecesora?')) return;
 
     try {
@@ -702,6 +739,14 @@ export function toggleTaskEditMode(isEditing) {
     if (isEditing && STATE.activeTaskDetail) {
         const task = STATE.activeTaskDetail;
         const user = STATE.currentUser;
+        const isJefe = isCurrentUserJefe();
+        const isPersonal = task.tipo_tarea === 'PERSONAL';
+        const isOwner = user && (parseInt(task.creador_id, 10) === parseInt(user.id, 10) || parseInt(task.responsable_id, 10) === parseInt(user.id, 10));
+
+        if (!isJefe && (!isPersonal || !isOwner)) {
+            showToast('No tienes autorización para editar esta tarea', 'warning');
+            return;
+        }
 
         document.getElementById('edit-task-title-input').value = task.titulo || '';
         document.getElementById('edit-task-desc-input').value = task.descripcion || '';
@@ -737,7 +782,15 @@ export function toggleTaskEditMode(isEditing) {
     } else {
         viewContainer.style.display = 'block';
         editContainer.style.display = 'none';
-        if (editBtn) editBtn.style.display = 'inline-flex';
+        if (editBtn) {
+            const task = STATE.activeTaskDetail;
+            const user = STATE.currentUser;
+            const isJefe = isCurrentUserJefe();
+            const isPersonal = task && task.tipo_tarea === 'PERSONAL';
+            const isOwner = task && user && (parseInt(task.creador_id, 10) === parseInt(user.id, 10) || parseInt(task.responsable_id, 10) === parseInt(user.id, 10));
+            const canModify = isJefe || (isPersonal && isOwner);
+            editBtn.style.display = canModify ? 'inline-flex' : 'none';
+        }
     }
 }
 
@@ -747,6 +800,17 @@ export function toggleTaskEditMode(isEditing) {
 export async function handleSaveTaskEdit(e) {
     if (e) e.preventDefault();
     if (!STATE.activeTaskDetail) return;
+
+    const task = STATE.activeTaskDetail;
+    const user = STATE.currentUser;
+    const isJefe = isCurrentUserJefe();
+    const isPersonal = task.tipo_tarea === 'PERSONAL';
+    const isOwner = user && (parseInt(task.creador_id, 10) === parseInt(user.id, 10) || parseInt(task.responsable_id, 10) === parseInt(user.id, 10));
+
+    if (!isJefe && (!isPersonal || !isOwner)) {
+        showToast('No tienes autorización para editar esta tarea', 'warning');
+        return;
+    }
 
     const taskId = STATE.activeTaskDetail.id;
     const title = document.getElementById('edit-task-title-input').value.trim();

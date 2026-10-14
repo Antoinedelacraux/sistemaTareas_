@@ -23,7 +23,7 @@ class Task
     public const PRIORIDAD_URGENTE = 'URGENTE';
 
     /**
-     * Genera un código correlativo único con formato TAR-YYYY-NNNN.
+     * Genera un código correlativo único con formato TAR-YYYY-NNNN garantizando unicidad absoluta.
      */
     public static function generateCodigo(): string
     {
@@ -31,12 +31,30 @@ class Task
         $year = (int)gmdate('Y');
         $prefix = "TAR-{$year}-";
 
-        $stmt = $db->prepare("SELECT COUNT(*) AS total FROM tareas WHERE codigo LIKE :prefix");
+        $stmt = $db->prepare("SELECT codigo FROM tareas WHERE codigo LIKE :prefix ORDER BY id DESC LIMIT 50");
         $stmt->execute([':prefix' => $prefix . '%']);
-        $count = (int)$stmt->fetchColumn();
+        $rows = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-        $nextNumber = str_pad((string)($count + 1), 4, '0', STR_PAD_LEFT);
-        return "{$prefix}{$nextNumber}";
+        $maxNum = 0;
+        foreach ($rows as $cod) {
+            if (preg_match('/TAR-\d{4}-(\d+)/', (string)$cod, $m)) {
+                $num = (int)$m[1];
+                if ($num > $maxNum) {
+                    $maxNum = $num;
+                }
+            }
+        }
+
+        $candidate = $maxNum + 1;
+        while (true) {
+            $formatted = $prefix . str_pad((string)$candidate, 4, '0', STR_PAD_LEFT);
+            $check = $db->prepare("SELECT id FROM tareas WHERE codigo = :c");
+            $check->execute([':c' => $formatted]);
+            if (!$check->fetch()) {
+                return $formatted;
+            }
+            $candidate++;
+        }
     }
 
     /**
@@ -287,15 +305,22 @@ class Task
 
     /**
      * Valida si un usuario tiene autorización para editar una tarea.
+     * - Jefes: pueden editar cualquier tarea del área y sus propias tareas personales.
+     * - Asistentes: en Vista Área NO pueden editar. En Vista Personal tienen todos los permisos.
      */
     public static function canEdit(array $currentUser, array $task): bool
     {
-        $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true);
+        $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true) || User::isJefe($currentUser);
         $userId = (int)$currentUser['id'];
         $respId = (int)$task['responsable_id'];
         $creadorId = (int)$task['creador_id'];
 
-        if ($userId === $respId || $userId === $creadorId || ($isJefe && $task['tipo_tarea'] === self::TIPO_AREA)) {
+        if ($isJefe) {
+            return $task['tipo_tarea'] === self::TIPO_AREA || $userId === $respId || $userId === $creadorId;
+        }
+
+        // Asistentes solo tienen permiso de edición sobre sus tareas personales
+        if ($task['tipo_tarea'] === self::TIPO_PERSONAL && ($userId === $respId || $userId === $creadorId)) {
             return true;
         }
 
@@ -304,14 +329,44 @@ class Task
 
     /**
      * Valida si un usuario tiene autorización para eliminar una tarea.
+     * - Jefes: pueden eliminar cualquier tarea del área y sus propias tareas personales.
+     * - Asistentes: en Vista Área NO pueden eliminar. En Vista Personal pueden eliminar sus tareas personales.
      */
     public static function canDelete(array $currentUser, array $task): bool
     {
-        $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true);
+        $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true) || User::isJefe($currentUser);
         $userId = (int)$currentUser['id'];
+        $respId = (int)$task['responsable_id'];
         $creadorId = (int)$task['creador_id'];
 
-        return $userId === $creadorId || $isJefe;
+        if ($isJefe) {
+            return $task['tipo_tarea'] === self::TIPO_AREA || $userId === $respId || $userId === $creadorId;
+        }
+
+        // Asistentes solo pueden eliminar sus tareas personales
+        if ($task['tipo_tarea'] === self::TIPO_PERSONAL && ($userId === $respId || $userId === $creadorId)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Valida si un usuario puede transicionar una tarea en el tablero Kanban.
+     * Asistentes pueden mover sus tareas asignadas o creadas.
+     */
+    public static function canTransition(array $currentUser, array $task): bool
+    {
+        $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true) || User::isJefe($currentUser);
+        $userId = (int)$currentUser['id'];
+        $respId = (int)$task['responsable_id'];
+        $creadorId = (int)$task['creador_id'];
+
+        if ($isJefe) {
+            return $task['tipo_tarea'] === self::TIPO_AREA || $userId === $respId || $userId === $creadorId;
+        }
+
+        return $userId === $respId || $userId === $creadorId;
     }
 
     /**
@@ -415,6 +470,10 @@ class Task
             throw new \RuntimeException("Tarea no encontrada.");
         }
 
+        if (!self::canEdit($currentUser, $currentTask)) {
+            throw new \RuntimeException("No posee permisos para editar esta tarea.", 403);
+        }
+
         $fields = [];
         $params = [':id' => $id, ':updated_at' => gmdate('Y-m-d H:i:s')];
 
@@ -508,6 +567,10 @@ class Task
             return false;
         }
 
+        if (!self::canDelete($currentUser, $task)) {
+            return false;
+        }
+
         $userId = (int)$currentUser['id'];
 
         $stmt = $db->prepare("DELETE FROM tareas WHERE id = :id");
@@ -550,8 +613,8 @@ class Task
             ];
         }
 
-        // Validar permisos de edición/movimiento sobre la tarea
-        if (!self::canEdit($currentUser, $task)) {
+        // Validar permisos de movimiento sobre la tarea en el tablero Kanban
+        if (!self::canTransition($currentUser, $task)) {
             return [
                 'success' => false,
                 'status'  => 403,

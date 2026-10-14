@@ -809,6 +809,90 @@ body {
   }
 }
 
+/* Modal de Detalle de Tarea Ampliado y Optimizado (Visualización completa sin scroll) */
+.modal-dialog.modal-dialog-task-detail {
+  max-width: 1140px;
+  width: 95vw;
+  max-height: 94vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.modal-dialog-task-detail .modal-body {
+  padding: 1.15rem 1.4rem;
+  gap: 1rem;
+}
+
+.modal-dialog-task-detail .task-detail-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.modal-dialog-task-detail .section-box {
+  padding: 0.85rem 1rem;
+  margin-top: 0.85rem;
+}
+
+.modal-dialog-task-detail .section-box:first-child {
+  margin-top: 0;
+}
+
+.modal-dialog-task-detail .section-box-title {
+  margin-bottom: 0.55rem;
+  font-size: 0.85rem;
+}
+
+.modal-dialog-task-detail .subtasks-list {
+  max-height: 180px;
+  overflow-y: auto;
+  margin-bottom: 0.55rem;
+  padding-right: 0.25rem;
+  scrollbar-width: thin;
+}
+
+.modal-dialog-task-detail .subtask-item {
+  padding: 0.35rem 0.55rem;
+  font-size: 0.8rem;
+}
+
+.modal-dialog-task-detail .comments-list {
+  max-height: 220px;
+  overflow-y: auto;
+  margin-bottom: 0.65rem;
+  padding-right: 0.25rem;
+  scrollbar-width: thin;
+}
+
+.modal-dialog-task-detail .comment-card {
+  padding: 0.55rem 0.75rem;
+}
+
+.modal-dialog-task-detail #detail-predecessors-list,
+.modal-dialog-task-detail #detail-successors-list {
+  max-height: 130px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.modal-dialog-task-detail .dependency-item {
+  padding: 0.35rem 0.55rem;
+  font-size: 0.775rem;
+}
+
+@media (max-width: 900px) {
+  .modal-dialog.modal-dialog-task-detail {
+    max-width: 96vw;
+    max-height: 95vh;
+  }
+  .modal-dialog-task-detail .task-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
 .section-box {
   background-color: var(--bg-surface-subtle);
   border: 1px solid var(--border-subtle);

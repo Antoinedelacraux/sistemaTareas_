@@ -415,7 +415,7 @@
 
     <!-- Modal de Detalle de Tarea con Subtareas y Comentarios (MVP-05) -->
     <div id="modal-task-detail" class="modal-backdrop">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-task-detail">
             <div class="modal-header">
                 <div class="modal-title-group">
                     <span id="detail-code" class="task-code" style="font-size: 0.95rem;">TAR-XXXX</span>
@@ -518,7 +518,7 @@
                         </div>
 
                         <!-- Sección de Dependencias entre Tareas (DAG MVP-07) -->
-                        <div class="section-box" style="margin-top: 1.25rem;">
+                        <div id="detail-deps-box" class="section-box" style="margin-top: 1rem;">
                             <div class="section-box-title">
                                 <div style="display: flex; align-items: center; gap: 0.4rem;">
                                     <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
@@ -595,23 +595,6 @@
                                     <span>Publicar Comentario / Evidencia</span>
                                 </button>
                             </form>
-                        </div>
-
-                        <!-- Sección de Auditoría Inmutable (RF-18 / RN-13 MVP-09) -->
-                        <div class="section-box" style="margin-top: 1.25rem;">
-                            <div class="section-box-title">
-                                <div style="display: flex; align-items: center; gap: 0.4rem;">
-                                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                                    <span>Bitácora de Auditoría Inmutable</span>
-                                </div>
-                                <span id="detail-audit-count" class="badge badge-tipo-area">0</span>
-                            </div>
-                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                                Trazabilidad cronológica inalterable de creación, transiciones, aprobaciones y reasignaciones (RN-13).
-                            </p>
-                            <div id="detail-audit-timeline" class="audit-timeline">
-                                <!-- Eventos de auditoría cargados dinámicamente -->
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -777,10 +760,10 @@
             <a href="api/test-runner" target="_blank" rel="noopener" class="test-runner-pill" title="Ejecutar autodiagnóstico del sistema en el navegador sin PowerShell">
                 🧪 Diagnóstico del Sistema
             </a>
-            <span>v1.5.2</span>
+            <span>v1.5.3</span>
         </div>
     </footer>
 
-    <script type="module" src="assets/js/app.js?v=1.5.2"></script>
+    <script type="module" src="assets/js/app.js?v=1.5.3"></script>
 </body>
 </html>

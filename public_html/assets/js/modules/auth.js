@@ -221,4 +221,13 @@ export function renderUserBar() {
             STATE.currentScope = 'area';
         }
     }
+
+    const btnCreateTask = document.getElementById('btn-open-create-task');
+    if (btnCreateTask) {
+        if (!isJefe && STATE.currentScope === 'area') {
+            btnCreateTask.style.display = 'none';
+        } else {
+            btnCreateTask.style.display = 'inline-flex';
+        }
+    }
 }

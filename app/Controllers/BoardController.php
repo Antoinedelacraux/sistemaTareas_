@@ -149,6 +149,12 @@ class BoardController
             return;
         }
 
+        $isJefe = in_array($currentUser['rol'] ?? '', [\App\Models\User::ROL_JEFE_PERSONAL, \App\Models\User::ROL_JEFE_PLANEAMIENTO], true) || \App\Models\User::isJefe($currentUser);
+        if (!$isJefe) {
+            Response::error("Solo el personal de Jefatura está autorizado para gestionar columnas del tablero.", 403, 'ERR_FORBIDDEN_ACTION');
+            return;
+        }
+
         $body = $request['body'] ?? [];
         $nombre = trim((string)($body['nombre'] ?? ''));
         if ($nombre === '' || mb_strlen($nombre) > 50) {
@@ -190,6 +196,12 @@ class BoardController
             return;
         }
 
+        $isJefe = in_array($currentUser['rol'] ?? '', [\App\Models\User::ROL_JEFE_PERSONAL, \App\Models\User::ROL_JEFE_PLANEAMIENTO], true) || \App\Models\User::isJefe($currentUser);
+        if (!$isJefe) {
+            Response::error("Solo el personal de Jefatura está autorizado para gestionar columnas del tablero.", 403, 'ERR_FORBIDDEN_ACTION');
+            return;
+        }
+
         $id = (int)($request['params']['id'] ?? 0);
         if ($id <= 0) {
             Response::error("Identificador de columna inválido.", 400, 'ERR_INVALID_ID');
@@ -219,6 +231,12 @@ class BoardController
         $currentUser = $request['user'] ?? null;
         if (!$currentUser) {
             Response::error("Autenticación requerida.", 401, 'ERR_UNAUTHORIZED');
+            return;
+        }
+
+        $isJefe = in_array($currentUser['rol'] ?? '', [\App\Models\User::ROL_JEFE_PERSONAL, \App\Models\User::ROL_JEFE_PLANEAMIENTO], true) || \App\Models\User::isJefe($currentUser);
+        if (!$isJefe) {
+            Response::error("Solo el personal de Jefatura está autorizado para gestionar columnas del tablero.", 403, 'ERR_FORBIDDEN_ACTION');
             return;
         }
 

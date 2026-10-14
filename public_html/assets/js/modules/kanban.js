@@ -4,7 +4,7 @@
  */
 
 import { apiFetch } from './api.js';
-import { STATE } from './state.js';
+import { STATE, isCurrentUserJefe } from './state.js';
 import { escapeHtml, showToast } from './ui.js';
 
 let onTaskClickCallback = null;
@@ -144,6 +144,8 @@ export function renderKanban() {
         filteredTasks = filteredTasks.filter(t => t.prioridad === STATE.priorityFilter);
     }
 
+    const isJefe = isCurrentUserJefe();
+
     // Renderizar las columnas
     STATE.columns.forEach(col => {
         const colTasks = filteredTasks.filter(t => parseInt(t.columna_id, 10) === parseInt(col.id, 10));
@@ -159,9 +161,11 @@ export function renderKanban() {
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.35rem;">
                     <span class="column-badge" aria-label="${colTasks.length} tareas">${colTasks.length}</span>
+                    ${isJefe ? `
                     <button type="button" class="btn-col-action" title="Personalizar columna" onclick="openEditColumnModal(${col.id})">
                         <svg class="icon-svg icon-svg-xs" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
                     </button>
+                    ` : ''}
                 </div>
             </div>
             <div class="column-cards-container" id="col-cards-${col.id}">
@@ -207,16 +211,18 @@ export function renderKanban() {
         container.appendChild(colDiv);
     });
 
-    // Botón estilo Trello para añadir nuevas columnas
-    const addColDiv = document.createElement('div');
-    addColDiv.className = 'kanban-column add-column-placeholder';
-    addColDiv.innerHTML = `
-        <button type="button" class="btn-add-column-card" onclick="openCreateColumnModal()">
-            <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span>+ Añadir otra columna</span>
-        </button>
-    `;
-    container.appendChild(addColDiv);
+    // Botón estilo Trello para añadir nuevas columnas (Exclusivo para Jefatura)
+    if (isJefe) {
+        const addColDiv = document.createElement('div');
+        addColDiv.className = 'kanban-column add-column-placeholder';
+        addColDiv.innerHTML = `
+            <button type="button" class="btn-add-column-card" onclick="openCreateColumnModal()">
+                <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>+ Añadir otra columna</span>
+            </button>
+        `;
+        container.appendChild(addColDiv);
+    }
 }
 
 /**
