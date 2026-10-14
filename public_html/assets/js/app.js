@@ -3,7 +3,7 @@
  * Arquitectura modular con separación estricta de responsabilidades.
  */
 
-import { STATE } from './modules/state.js';
+import { STATE, isCurrentUserJefe } from './modules/state.js';
 import { apiFetch } from './modules/api.js';
 import { initTheme, openModal, closeModal, showToast } from './modules/ui.js';
 import { checkSession, doLogin, quickLogin, doLogout, registerLoginCallback } from './modules/auth.js';
@@ -78,6 +78,7 @@ window.openEditColumnModal = openEditColumnModal;
 window.selectColumnColor = selectColorHex;
 window.handleSaveColumn = handleSaveColumn;
 window.handleDeleteColumn = handleDeleteColumn;
+window.setScope = setScope;
 
 // -----------------------------------------------------------------------------
 // Ciclo de Vida y Event Listeners
@@ -100,7 +101,7 @@ async function loadInitialData() {
 /**
  * Cambio de ámbito y pestañas (Mis Tareas / Tablero del Equipo / Aprobaciones / Historial).
  */
-async function setScope(scope) {
+export async function setScope(scope) {
     STATE.currentScope = scope;
     document.querySelectorAll('.tab-btn').forEach(btn => {
         if (btn.getAttribute('data-scope') === scope) {

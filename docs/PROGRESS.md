@@ -678,4 +678,24 @@
 - **Git:** Listo para commit local.
 - **Siguiente paso:** Revisión del usuario y feedback sobre el flujo en ambas vistas.
 
+### 2026-10-14 — FIX-TABS-01: Corrección de importación de isCurrentUserJefe en app.js y desbloqueo de conmutación de módulos
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-08, RF-12, RN-01, RN-02, RN-03, RN-04.
+  1. Corregir el bug crítico en la conmutación de pestañas: `isCurrentUserJefe` no estaba importado en `app.js`, provocando un `ReferenceError` al intentar salir de la Vista Personal hacia cualquier otra vista (Área, Equipo, Aprobaciones o Historial).
+  2. Exponer y exportar `setScope` en `window.setScope` para permitir la navegación automática entre vistas desde el modal de creación de tareas.
+  3. Asegurar la preservación de `STATE.columns` en `fetchTasks` (`kanban.js`).
+  4. Incrementar versión de script a `v1.5.2` en `index.html` para forzar invalidación de caché en el navegador del usuario.
+- **Archivos creados/modificados:**
+  - `public_html/assets/js/app.js` (importación de `isCurrentUserJefe` y exportación de `setScope`)
+  - `public_html/assets/js/modules/kanban.js` (salvaguarda de `STATE.columns` en `fetchTasks`)
+  - `public_html/index.html` (tag de versión `v1.5.2` en assets)
+  - `docs/CHANGELOG.md`
+  - `docs/PROGRESS.md`
+  - `docs/SESSION_HANDOFF.md`
+- **Pruebas ejecutadas:**
+  - Diagnóstico autónomo web (`http://127.0.0.1:8000/api/test-runner?format=json`): **10 de 10 pruebas superadas (100% PASS, 299 ms)**.
+  - Verificación de entrega HTTP de `app.js?v=1.5.2` con `curl`.
+- **Git:** Listo para commit local.
+- **Siguiente paso:** Validación por parte del usuario en el navegador tras refrescar la página.
+
 

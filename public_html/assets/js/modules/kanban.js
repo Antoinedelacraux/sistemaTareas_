@@ -75,6 +75,9 @@ export async function fetchTasks() {
         const json = await res.json();
         if (json.success && json.data) {
             const cols = json.data.columnas || (Array.isArray(json.data) ? json.data : []);
+            if (!STATE.columns || STATE.columns.length === 0) {
+                STATE.columns = cols;
+            }
             const allTasks = [];
             cols.forEach(col => {
                 if (Array.isArray(col.tareas)) {

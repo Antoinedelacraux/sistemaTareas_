@@ -1,6 +1,15 @@
 # Changelog
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
+## [V1.5.2 - Corrección de Conmutación de Vistas y Módulos en Navegación SPA] - 2026-10-14
+### Corregido
+- **Error Crítico de Conmutación en Pestañas (`app.js`):**
+  - Resuelto fallo de JavaScript `ReferenceError: isCurrentUserJefe is not defined` en la función `setScope(scope)`. El método `isCurrentUserJefe` no estaba importado desde `./modules/state.js`, lo que provocaba que al conmutar a la Vista Personal y luego intentar seleccionar cualquier otro módulo (Vista Área, Tablero del Equipo, Aprobaciones o Historial), la evaluación `!isCurrentUserJefe()` abortara la ejecución del hilo principal de JavaScript, impidiendo la actualización de vistas y congelando la pantalla.
+  - Se importó `isCurrentUserJefe` desde `./modules/state.js` en `app.js`.
+  - Se expuso y exportó `setScope` globalmente en `window.setScope = setScope` para permitir llamadas interoperables desde el modal de creación de tareas (`task-modal.js`).
+  - Añadida salvaguarda en `fetchTasks` (`kanban.js`) para garantizar que `STATE.columns` permanezca poblado ante refrescos de vista.
+  - Actualizada la etiqueta de versión y consulta de activos a `v1.5.2` en `index.html` para invalidar cachés del navegador.
+
 ## [V1.5.1 - Separación Estricta de Vista Área vs Vista Personal y Creación Adaptativa] - 2026-10-14
 ### Añadido
 - **Separación en Dos Vistas Dedicadas en Navegación Principal (`VISTAS-01`):**
