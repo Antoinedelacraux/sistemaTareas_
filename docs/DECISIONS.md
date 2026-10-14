@@ -12,6 +12,7 @@
 - D-009 Tareas personales y del área separadas.
 - D-010 Acceso web seguro desde cualquier ubicación.
 - D-011 Plataforma de despliegue DonWeb Ferozo (Web Hosting tradicional): Backend PHP 8.2+ (REST API modular), Base de datos MySQL / MariaDB (InnoDB con transacciones ACID), Frontend SPA moderna (HTML5, Vanilla CSS / Design Tokens, JavaScript modular).
+- D-012 Simplificación ágil y usabilidad prioritaria: Refactorización orientada a la fluidez en la gestión de tareas. Eliminación de trabas burocráticas en Kanban (sin modales bloqueantes de confirmación forzada al arrastrar, sin candados rígidos de grafos matemáticos DAG); tablero directo e interactivo, roles colaborativos (jefes asignan y supervisan todo; asistentes gestionan sus tareas y visualizan el tablero general del equipo) y checklist integrado con progreso porcentual.
 
 ## Propuestas pendientes de validación
 - P-001 Privacidad de tareas personales también ante jefes, exclusión de KPIs oficiales.

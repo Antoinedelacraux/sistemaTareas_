@@ -108,6 +108,19 @@ class Subtask
     }
 
     /**
+     * Alterna o establece el estado completado de una subtarea.
+     */
+    public static function toggle(int $id, ?bool $completada = null): array
+    {
+        $sub = self::findById($id);
+        if (!$sub) {
+            throw new \RuntimeException("Subtarea no encontrada.", 404);
+        }
+        $val = $completada !== null ? $completada : empty($sub['completada']);
+        return self::update($id, ['completada' => $val ? 1 : 0]);
+    }
+
+    /**
      * Elimina una subtarea.
      */
     public static function delete(int $id): bool
@@ -115,6 +128,23 @@ class Subtask
         $db = Database::getConnection();
         $stmt = $db->prepare("DELETE FROM subtareas WHERE id = :id");
         return $stmt->execute([':id' => $id]);
+    }
+
+    /**
+     * Calcula métricas y porcentaje de progreso del checklist de una tarea.
+     */
+    public static function getProgress(int $taskId): array
+    {
+        $subtasks = self::listByTaskId($taskId);
+        $total = count($subtasks);
+        $completadas = count(array_filter($subtasks, fn($s) => !empty($s['completada'])));
+        $porcentaje = $total > 0 ? (int)round(($completadas / $total) * 100) : 0;
+
+        return [
+            'total'       => $total,
+            'completadas' => $completadas,
+            'porcentaje'  => $porcentaje
+        ];
     }
 
     /**

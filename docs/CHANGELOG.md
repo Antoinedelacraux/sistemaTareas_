@@ -1,6 +1,20 @@
 # Changelog
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
+## [V1.3.0 - Refactorización Ágil, Tablero Fluido y Roles Colaborativos] - 2026-10-13 (Fase 1.5)
+### Añadido
+- **Drag & Drop Nativo HTML5:** Interacción suave de arrastrar y soltar tarjetas entre columnas del tablero Kanban sin diálogos modales molestos ni bloqueos artificiales (**D-012**).
+- **Tablero Colaborativo del Equipo:** Pestaña "Tablero del Equipo" accesible para todos los roles para visualizar en tiempo real en qué trabaja el área, evitando duplicidad de esfuerzo.
+- **Filtro Rápido por Miembro del Equipo:** Selector dinámico `#member-filter-select` en la barra de control para filtrar instantáneamente el tablero por cualquier colaborador del área.
+- **Progreso Visual en Checklist de Subtareas:** Barra de progreso porcentual dinámica en el modal de detalle que refleja el avance acumulado al marcar/desmarcar ítems.
+- **Botón de Eliminación Directa:** Eliminación rápida de tareas en el pie del modal para simplificar la gestión diaria.
+- **Runner de Pruebas Unificado (`tests/run_all.php`):** Ejecución secuencial y reporte consolidado de las 10 suites de prueba del sistema.
+
+### Modificado
+- **Flujo de Transición Kanban:** Eliminación de pantallas de confirmación obligatorias al arrastrar tarjetas; las transiciones aplican de inmediato en frontend y backend.
+- **Modelo de Visibilidad:** `Task::listForUser` y `User::listForUser` soportan parámetro `?scope=team` para habilitar colaboración de equipo sin comprometer el aislamiento de tareas estrictamente personales (`PERSONAL`).
+- **Arquitectura de Requisitos y Roadmap:** Consolidación de 12 requisitos funcionales prácticos en `docs/REQUIREMENTS.md` y registro de la decisión **D-012** en `docs/DECISIONS.md`.
+
 ## [V1.2.0 - MVP Completo: QA Integral, Seguridad y Piloto con 5 Usuarios] - 2026-10-13 (MVP-10)
 ### Añadido
 - Culminación integral de la **Fase 1 (MVP)** del Sistema de Gestión y Seguimiento de Tareas de TAL S.A.

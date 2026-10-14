@@ -26,6 +26,15 @@ class UploadHandler
     ];
 
     /**
+     * Valida si el nombre o extensión de un archivo está en la lista de tipos permitidos.
+     */
+    public static function isAllowedExtension(string $filename): bool
+    {
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        return array_key_exists($extension, self::ALLOWED_EXTENSIONS);
+    }
+
+    /**
      * Retorna la ruta física del directorio de almacenamiento.
      */
     public static function getUploadsDir(): string

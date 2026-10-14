@@ -135,11 +135,11 @@ class User
     {
         $isJefe = in_array($currentUser['rol'] ?? '', [self::ROL_JEFE_PERSONAL, self::ROL_JEFE_PLANEAMIENTO], true);
 
-        if ($isJefe) {
+        if ($isJefe || ($filters['scope'] ?? '') === 'team' || ($filters['contexto'] ?? '') === 'equipo' || ($filters['context'] ?? '') === 'team') {
             return self::listAll($filters);
         }
 
-        // Si es asistente, su alcance de asignación es estrictamente a sí mismo
+        // Si es asistente y no solicita scope=team, su alcance de asignación es estrictamente a sí mismo
         $me = self::findById((int)$currentUser['id']);
         if ($me === null || (int)$me['activo'] !== 1) {
             return [];

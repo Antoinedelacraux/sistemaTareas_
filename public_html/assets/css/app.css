@@ -342,6 +342,13 @@ body {
   flex: 1;
 }
 
+.column-cards-container.drag-over {
+  background-color: var(--primary-subtle);
+  border: 2px dashed var(--primary-500);
+  border-radius: var(--radius-sm);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
 /* --------------------------------------------------------------------------
    Task Card
    -------------------------------------------------------------------------- */
@@ -351,9 +358,21 @@ body {
   border-radius: var(--radius-sm);
   padding: 1rem;
   box-shadow: var(--shadow-sm);
-  cursor: pointer;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+  cursor: grab;
+  user-select: none;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), opacity var(--transition-fast);
   position: relative;
+}
+
+.task-card:active {
+  cursor: grabbing;
+}
+
+.task-card.dragging {
+  opacity: 0.35;
+  transform: scale(0.96);
+  border: 2px dashed var(--primary-500);
+  box-shadow: none;
 }
 
 .task-card:hover {

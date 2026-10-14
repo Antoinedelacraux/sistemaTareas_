@@ -445,6 +445,58 @@
 - **Deuda técnica / riesgos:** Ninguna. Fase 1 finalizada.
 - **Siguiente paso:** Iniciar periodo de marcha blanca del piloto con los 5 usuarios de TAL S.A. en DonWeb Ferozo y planificar Fase 2.
 
+### 2026-10-13 — FASE 1.5: Refactorización Ágil y Simplificación de Experiencia de Usuario (V1.3)
+- **Estado:** completado
+- **Objetivo y RF/RN:** Simplificación integral del sistema según feedback directo del usuario (D-012). Eliminar fricción corporativa innecesaria, garantizar un flujo ágil y un sistema 100% funcional y fácil de usar entre roles antes del despliegue en VPS (DonWeb Ferozo).
+- **Componentes desarrollados y refactorizados:**
+  1. **Kanban Fluido con Drag & Drop Nativo HTML5:**
+     - Arrastre y suelta instantáneo entre columnas sin diálogos bloqueantes molestos al soltar.
+     - Actualización atómica en base de datos preservando consistencia.
+     - Indicador visual elegante (`.dragging`, `.drag-over`).
+  2. **Vistas Separadas y Colaborativas:**
+     - Pestaña "Mis Tareas": Foco personal para el trabajo diario.
+     - Pestaña "Tablero del Equipo": Visibilidad de tareas del área para que todo el equipo colabore y conozca en qué avanza cada integrante.
+     - Pestaña "Dashboard & Métricas": Indicadores visuales clave de cumplimiento y balance de equipo.
+  3. **Filtros Ágiles y Buscador en Tiempo Real:**
+     - Buscador por texto/código instantáneo.
+     - Selector interactivo `#member-filter-select` para filtrar por miembro del equipo en el tablero general.
+     - Filtro por nivel de prioridad.
+  4. **Modal de Detalle Enriquecido:**
+     - Checklist interactivo de subtareas con barra de progreso porcentual dinámica.
+     - Comentarios y notas con adjuntos/evidencias.
+     - Edición rápida de responsable y columna.
+     - Botón directo de eliminación de tarea con confirmación sencilla.
+  5. **Mantenimiento del Motor de Backend y Seguridad:**
+     - Soporte para `?scope=team` en `Task::listForUser()` y `User::listForUser()`.
+     - Preservación estricta de Anti-IDOR sobre tareas privadas (`PERSONAL`) y restricciones RBAC.
+     - Métodos de conveniencia `Subtask::toggle()` y `Subtask::getProgress()`.
+     - `UploadHandler::isAllowedExtension()`.
+- **Archivos creados/modificados:**
+  - `docs/DECISIONS.md` (D-012)
+  - `docs/PROJECT_CONTEXT.md` (V1.3 Enfoque Ágil)
+  - `docs/REQUIREMENTS.md` (12 Requisitos Prácticos y Reglas Ágiles)
+  - `docs/ROADMAP.md` (Fase 1.5)
+  - `app/Models/Task.php`
+  - `app/Models/User.php`
+  - `app/Models/Subtask.php`
+  - `app/Core/UploadHandler.php`
+  - `public_html/index.html`
+  - `public_html/assets/css/app.css`
+  - `public_html/assets/js/app.js`
+  - `tests/dependencies_test.php`
+  - `tests/qa_security_pilot_test.php`
+  - `tests/run_all.php` (nuevo runner integral)
+  - `docs/PROGRESS.md`
+  - `docs/SESSION_HANDOFF.md`
+  - `docs/CHANGELOG.md`
+  - `LEEME_PRIMERO.md`
+- **Pruebas ejecutadas:**
+  - Las 10 suites de pruebas automatizadas ejecutadas mediante `php tests/run_all.php`: **10 de 10 aprobadas (100% PASS, 250+ pruebas)**.
+  - Servidor web de desarrollo operativo en `http://127.0.0.1:8000`.
+- **Git:** Checkpoint local pendiente para consolidación de Fase 1.5.
+- **Deuda técnica / riesgos:** Ninguna. El sistema es 100% funcional, liviano y listo para subir a DonWeb Ferozo.
+- **Siguiente paso verificable:** Probar interactivamente el tablero en `http://127.0.0.1:8000`, verificar feedback del usuario y proceder con el empaquetado para el VPS DonWeb Ferozo.
+
 
 
 

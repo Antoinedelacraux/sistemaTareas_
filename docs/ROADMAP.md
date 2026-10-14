@@ -20,10 +20,15 @@
 - [x] MVP-08 Automatizaciones y notificaciones idempotentes (33/33 tests PASS, RF-17 y RN-15 garantizados con idempotency_key). [COMPLETADO]
 - [x] MVP-10 QA integral, auditoría de seguridad OWASP/anti-IDOR y simulación piloto con 5 usuarios (32/32 tests PASS, suite E2E completa, manual de despliegue en Ferozo). [COMPLETADO]
 
-> **FASE 1 (MVP V1.2.0): 100% COMPLETADA Y VALIDADA CON 250+ PRUEBAS AUTOMATIZADAS.**
+## Fase 1.5 — Refactorización Ágil y Preparación para VPS (Actual)
+- [x] ANALISIS-01 Diagnóstico de usabilidad y feedback de usuario (eliminación de sobreingeniería y trabas burocráticas). [COMPLETADO]
+- [/] REFACTOR-01 Refactorización de UX/Kanban fluido y Ficha de Tarea estilo Trello/Notion con Checklist visual y comentarios. [EN CURSO]
+- [/] REFACTOR-02 Desacople de candados rígidos en Backend PHP (transiciones directas, roles prácticos y colaborativos). [EN CURSO]
+- [ ] VERIF-01 Validación 100% funcional local de punta a punta (creación, arrastre, checklist, adjuntos y filtros por rol). [PENDIENTE]
+- [ ] VPS-PREP-01 Empaquetado, checklist y migración lista para DonWeb Ferozo / VPS. [PENDIENTE]
 
-## Fase 2 (Planificada)
-Plantillas, tareas recurrentes, tiempos de trabajo, calendario laboral.
+## Fase 2 (Planificada - Posterior a VPS)
+Plantillas reutilizables, tareas recurrentes, tiempos de trabajo, calendario laboral.
 
 ## Fase 3
 Indicadores avanzados, exportaciones Excel, reglas avanzadas de automatización.

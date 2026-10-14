@@ -1,65 +1,34 @@
-# Requisitos y reglas de negocio — V1.2
+# Requisitos y reglas de negocio — V1.3 (Refactorización Ágil)
 
-## Requisitos funcionales (MVP)
-- RF-01 Autenticar usuarios y proteger sesiones.
-- RF-02 Administrar cuentas, roles y permisos finos.
-- RF-03 Crear tareas personales.
-- RF-04 Crear tareas del área según permiso.
-- RF-05 Impedir que asistentes asignen a otros usuarios.
-- RF-06 Permitir asignación y reasignación por jefes autorizados.
-- RF-07 Aplicar visibilidad por alcance y rol desde el servidor.
-- RF-08 Gestionar tableros Kanban configurables y vista individual/general.
-- RF-09 Gestionar estados, prioridades, fechas, responsables y colaboradores.
-- RF-10 Gestionar subtareas, comentarios y evidencias con control de acceso.
-- RF-11 Mover tareas manualmente o por automatización según reglas.
-- RF-12 Solicitar confirmación explícita antes de cerrar tareas SIN aprobación.
-- RF-13 Configurar aprobaciones por tarea, revisor y observaciones.
-- RF-14 Modelar dependencias secuenciales entre tareas.
-- RF-15 Permitir ramas de tareas en paralelo.
-- RF-16 Habilitar dependientes cuando finalicen todas sus predecesoras.
-- RF-17 Generar notificaciones internas de eventos relevantes.
-- RF-18 Mantener historial y auditoría de cambios.
-- RF-19 Mostrar dashboard personal y general según permisos.
+## Requisitos funcionales (Core 100% Funcional)
+- RF-01 Autenticar usuarios con sesiones seguras y cambio rápido de rol para testing.
+- RF-02 Administrar roles de usuario: Jefatura (Planeamiento / Personal) y Asistentes.
+- RF-03 Crear tareas con título, descripción, prioridad, fecha límite y responsable.
+- RF-04 Gestión de roles y asignación: Jefatura asigna y reasigna a cualquiera; Asistentes pueden asignarse tareas y crear tareas de apoyo.
+- RF-05 Tablero Kanban interactivo, rápido y fluido con columnas: Pendiente, En proceso, En revisión (opcional), Finalizada.
+- RF-06 Movimiento directo e inmediato de tarjetas (Drag & Drop y cambio por selector) sin bloqueos artificiales ni modales forzados.
+- RF-07 Ficha de tarea enriquecida (estilo Trello/Notion): edición de campos, estado, prioridad y fechas.
+- RF-08 Checklist interactivo de subtareas con barra de progreso porcentual visible en tarjeta y detalle.
+- RF-09 Muro de comentarios y notas de avance con soporte de archivos adjuntos/evidencias.
+- RF-10 Filtros rápidos en un solo clic: "Mis Tareas", "Tablero del Equipo", filtro por responsable y por prioridad.
+- RF-11 Dashboard operativo con métricas de tareas completadas, en progreso, tasa de cumplimiento y balance general.
+- RF-12 Compatibilidad nativa con PHP 8.2+ y MySQL/MariaDB para despliegue directo en DonWeb Ferozo / VPS.
 
-## Funcionalidades posteriores
-- RF-20 Plantillas reutilizables de procesos.
-- RF-21 Recurrencia programada.
-- RF-22 Registro de tiempo de trabajo.
-- RF-23 Calendarios laborales.
-- RF-24 Indicadores y reportes avanzados.
-- RF-25 Exportación a Excel.
-- RF-26 Constructor de reglas complejas de automatización.
+## Reglas de negocio prácticas
+- RN-01 La experiencia de usuario debe ser ágil y libre de fricción: mover una tarjeta a cualquier columna debe reflejarse inmediatamente.
+- RN-02 Roles colaborativos: El asistente tiene su vista por defecto en sus tareas asignadas, pero puede consultar el tablero general del equipo para saber en qué están sus compañeros.
+- RN-03 Asignaciones: Jefes pueden asignar y reasignar tareas a cualquier miembro del equipo.
+- RN-04 Toda finalización registra automáticamente fecha y hora de término.
+- RN-05 Al reabrir una tarea hacia otra columna, la fecha de finalización se limpia automáticamente.
+- RN-06 Subida de archivos segura: extensiones controladas (PDF, imágenes, hojas de cálculo, documentos), nombres hasheados para evitar colisiones y límite de 10 MB.
+- RN-07 El código debe ser limpio, modular y fácilmente modificable para permitir futuros cambios sin romper el sistema.
 
-## Reglas de negocio
-- RN-01 Las tareas personales se separan de tareas oficiales del área; privacidad total ante jefes es PROPUESTA, no confirmada.
-- RN-02 Tarea oficial visible a su responsable y a jefes habilitados; otra persona no obtiene acceso por conocer su ID.
-- RN-03 Asistentes no pueden asignar, transferir ni reasignar tareas a compañeros.
-- RN-04 Jefes autorizados asignan o reasignan tareas del área.
-- RN-05 Permiso para crear tarea oficial no otorga privilegio de consultar tareas ajenas.
-- RN-06 El tipo funcional de estado se conserva aunque cambie nombre/color de columna.
-- RN-07 Dependencias no deben formar ciclos; una tarea puede esperar varias predecesoras.
-- RN-08 Tareas paralelas progresan de forma independiente; una sucesora requiere que TODAS las predecesoras alcancen cierre efectivo (regla AND inicial).
-- RN-09 Una tarea habilitada no significa tarea ejecutada o finalizada.
-- RN-10 Tarea con aprobación: entrega -> En revisión -> aprobación o devolución; dependencias avanzan tras aprobación efectiva.
-- RN-11 Tarea sin aprobación: confirmar explícitamente -> Finalizada; cancelar deja estado intacto.
-- RN-12 Arrastrar tarjeta a Finalizada debe respetar la misma confirmación y permiso.
-- RN-13 Cada transición importante registra actor, motivo/evento y fecha.
-- RN-14 Reabrir una tarea requiere permiso y evaluación de dependientes, sin borrar entregas posteriores automáticamente.
-- RN-15 Eventos automatizados idempotentes; cambios persistidos coherentemente.
-
-## Aceptación mínima de MVP
-1. Asistente crea tarea para sí; puede verla y actualizarla.
-2. Intento de asignación de asistente a otro => denegado por API.
-3. Intento de consultar ID de tarea ajena => denegado por API.
-4. Jefe asigna una tarea y aparece en la vista del responsable.
-5. Confirmación cancelada => no cierra tarea ni dispara dependencias.
-6. Confirmación aceptada => tarea sin aprobación se cierra y activa dependientes elegibles.
-7. Tarea con aprobación no cierra hasta que aprobador la autorice.
-8. Tres ramas paralelas: completar 2/3 mantiene bloqueada la tarea sucesora; 3/3 la habilita.
-9. Cambiar nombre de columna no rompe las reglas de transición.
-10. Evitar disparos duplicados y pérdida de cambios concurrentes.
-11. Se actualiza el histórico con quién, cuándo y qué cambió.
-12. Funciona con conexión remota HTTPS en ambiente de despliegue seguro.
-
-## Restricciones no funcionales
-Autorización backend (evitar IDOR), seguridad de sesiones, secretos fuera de Git, backups restaurables, trazabilidad, usabilidad, adaptabilidad móvil, mantenibilidad modular y pruebas automatizadas de reglas críticas.
+## Aceptación mínima para subida a VPS
+1. Login y cambio de usuario funcional entre Asistente y Jefa.
+2. Creación ágil de tarea con título, prioridad, fecha y responsable.
+3. Arrastre de tarjeta directo entre columnas en Kanban con actualización en base de datos.
+4. Agregar, marcar y desmarcar subtareas con cálculo inmediato de % de progreso.
+5. Dejar comentarios y adjuntar archivos con descarga funcional.
+6. Filtro ágil entre "Mis Tareas" y "Tablero del Equipo".
+7. Visualización del Dashboard con métricas reales.
+8. Verificación 100% funcional local sin errores de consola ni de PHP.

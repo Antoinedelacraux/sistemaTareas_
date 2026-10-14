@@ -8,9 +8,10 @@ const STATE = {
     users: [],
     columns: [],
     tasks: [],
-    currentScope: 'area', // 'area' | 'personal' | 'team'
+    currentScope: 'area', // 'area' (mis tareas) | 'team' (tablero del equipo) | 'dashboard'
     searchQuery: '',
     priorityFilter: '',
+    memberFilter: '',
     activeTaskDetail: null,
     pendingCloseTaskId: null,
     pendingReturnTaskId: null,
@@ -118,6 +119,14 @@ function initEventListeners() {
     if (prioritySelect) {
         prioritySelect.addEventListener('change', (e) => {
             STATE.priorityFilter = e.target.value;
+            renderKanban();
+        });
+    }
+
+    const memberSelect = document.getElementById('member-filter-select');
+    if (memberSelect) {
+        memberSelect.addEventListener('change', (e) => {
+            STATE.memberFilter = e.target.value;
             renderKanban();
         });
     }
@@ -329,20 +338,9 @@ function renderUserBar() {
     else if (user.rol === 'JEFE_PERSONAL') roleText = 'Jefe Personal';
     document.getElementById('user-role').textContent = roleText;
 
-    // Ajustar visibilidad de pestañas según rol
+    // Visibilidad colaborativa: todos los integrantes pueden ver el Tablero del Equipo
     const tabTeam = document.getElementById('tab-team-board');
-    const tabApprovals = document.getElementById('tab-approvals-board');
-    if (user.rol === 'ASISTENTE') {
-        if (tabTeam) tabTeam.style.display = 'none';
-        if (tabApprovals) tabApprovals.style.display = 'none';
-        if (STATE.currentScope === 'team' || STATE.currentScope === 'approvals') {
-            setScope('area');
-        }
-    } else {
-        if (tabTeam) tabTeam.style.display = 'inline-flex';
-        if (tabApprovals) tabApprovals.style.display = 'inline-flex';
-        fetchPendingApprovalsCount();
-    }
+    if (tabTeam) tabTeam.style.display = 'inline-flex';
 
     // Sincronizar selector rápido
     const quickSelect = document.getElementById('quick-role-select');
@@ -359,19 +357,38 @@ async function loadInitialData() {
 
 async function fetchUsers() {
     try {
-        const res = await apiFetch('/api/usuarios');
+        const res = await apiFetch('/api/usuarios?scope=team');
         const json = await res.json();
-        if (json.success) STATE.users = json.data;
+        if (json.success) {
+            STATE.users = json.data?.usuarios || (Array.isArray(json.data) ? json.data : []);
+            renderMemberFilterOptions();
+        }
     } catch (e) {
         console.error('Error al cargar usuarios', e);
     }
+}
+
+function renderMemberFilterOptions() {
+    const select = document.getElementById('member-filter-select');
+    if (!select) return;
+    const currentVal = select.value;
+    select.innerHTML = '<option value="">👤 Todos los miembros</option>';
+    STATE.users.forEach(u => {
+        const opt = document.createElement('option');
+        opt.value = u.id;
+        opt.textContent = `${u.nombre} (${u.cargo || u.rol})`;
+        select.appendChild(opt);
+    });
+    select.value = currentVal;
 }
 
 async function fetchColumns() {
     try {
         const res = await apiFetch('/api/tableros/columnas');
         const json = await res.json();
-        if (json.success) STATE.columns = json.data;
+        if (json.success) {
+            STATE.columns = json.data?.columnas || (Array.isArray(json.data) ? json.data : []);
+        }
     } catch (e) {
         console.error('Error al cargar columnas', e);
     }
@@ -379,11 +396,13 @@ async function fetchColumns() {
 
 async function fetchTasks() {
     try {
-        const res = await apiFetch('/api/tableros/kanban');
+        const scopeParam = STATE.currentScope ? `?scope=${STATE.currentScope}` : '';
+        const res = await apiFetch(`/api/tableros/kanban${scopeParam}`);
         const json = await res.json();
-        if (json.success) {
+        if (json.success && json.data) {
+            const cols = json.data.columnas || (Array.isArray(json.data) ? json.data : []);
             const allTasks = [];
-            json.data.forEach(col => {
+            cols.forEach(col => {
                 if (Array.isArray(col.tareas)) {
                     allTasks.push(...col.tareas);
                 }
@@ -396,7 +415,7 @@ async function fetchTasks() {
     }
 }
 
-function setScope(scope) {
+async function setScope(scope) {
     STATE.currentScope = scope;
     document.querySelectorAll('.tab-btn').forEach(btn => {
         if (btn.getAttribute('data-scope') === scope) btn.classList.add('active');
@@ -404,24 +423,16 @@ function setScope(scope) {
     });
 
     const kanbanView = document.getElementById('kanban-view');
-    const approvalsView = document.getElementById('approvals-view');
     const dashboardView = document.getElementById('dashboard-view');
 
-    if (scope === 'approvals') {
+    if (scope === 'dashboard') {
         if (kanbanView) kanbanView.style.display = 'none';
-        if (dashboardView) dashboardView.style.display = 'none';
-        if (approvalsView) approvalsView.style.display = 'block';
-        fetchPendingApprovals();
-    } else if (scope === 'dashboard') {
-        if (kanbanView) kanbanView.style.display = 'none';
-        if (approvalsView) approvalsView.style.display = 'none';
         if (dashboardView) dashboardView.style.display = 'block';
         loadDashboardMetrics();
     } else {
         if (dashboardView) dashboardView.style.display = 'none';
-        if (approvalsView) approvalsView.style.display = 'none';
         if (kanbanView) kanbanView.style.display = 'block';
-        renderKanban();
+        await fetchTasks();
     }
 }
 
@@ -437,16 +448,16 @@ function renderKanban() {
     if (!user) return;
 
     // Filtrar tareas según alcance activo
-    let filteredTasks = STATE.tasks.filter(task => {
-        if (STATE.currentScope === 'personal') {
-            return task.tipo_tarea === 'PERSONAL' && parseInt(task.responsable_id, 10) === parseInt(user.id, 10);
-        } else if (STATE.currentScope === 'area') {
-            return task.tipo_tarea === 'AREA' && parseInt(task.responsable_id, 10) === parseInt(user.id, 10);
-        } else if (STATE.currentScope === 'team') {
-            return task.tipo_tarea === 'AREA';
-        }
-        return true;
-    });
+    let filteredTasks = [...STATE.tasks];
+    if (STATE.currentScope === 'area') {
+        filteredTasks = filteredTasks.filter(task => parseInt(task.responsable_id, 10) === parseInt(user.id, 10));
+    } else if (STATE.currentScope === 'personal') {
+        filteredTasks = filteredTasks.filter(task => task.tipo_tarea === 'PERSONAL' && parseInt(task.responsable_id, 10) === parseInt(user.id, 10));
+    }
+
+    if (STATE.memberFilter) {
+        filteredTasks = filteredTasks.filter(t => parseInt(t.responsable_id, 10) === parseInt(STATE.memberFilter, 10));
+    }
 
     if (STATE.searchQuery) {
         filteredTasks = filteredTasks.filter(t =>
@@ -460,7 +471,7 @@ function renderKanban() {
         filteredTasks = filteredTasks.filter(t => t.prioridad === STATE.priorityFilter);
     }
 
-    // Renderizar las 5 columnas
+    // Renderizar las columnas
     STATE.columns.forEach(col => {
         const colTasks = filteredTasks.filter(t => parseInt(t.columna_id, 10) === parseInt(col.id, 10));
 
@@ -479,6 +490,29 @@ function renderKanban() {
         `;
 
         const cardsContainer = colDiv.querySelector('.column-cards-container');
+
+        // Soporte Drag & Drop nativo en columna
+        cardsContainer.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            cardsContainer.classList.add('drag-over');
+        });
+
+        cardsContainer.addEventListener('dragleave', (e) => {
+            if (!cardsContainer.contains(e.relatedTarget)) {
+                cardsContainer.classList.remove('drag-over');
+            }
+        });
+
+        cardsContainer.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            cardsContainer.classList.remove('drag-over');
+            const taskId = e.dataTransfer.getData('text/plain') || window._draggedTaskId;
+            if (taskId) {
+                await executeTaskTransition(parseInt(taskId, 10), parseInt(col.id, 10));
+            }
+        });
+
         if (colTasks.length === 0) {
             cardsContainer.innerHTML = `
                 <div style="padding: 2.5rem 1rem; text-align: center; color: var(--text-muted); font-size: 0.8rem;">
@@ -498,6 +532,21 @@ function renderKanban() {
 function createTaskCardElement(task) {
     const card = document.createElement('div');
     card.className = 'task-card';
+    card.setAttribute('draggable', 'true');
+
+    // Eventos de arrastre nativo
+    card.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', task.id);
+        e.dataTransfer.effectAllowed = 'move';
+        card.classList.add('dragging');
+        window._draggedTaskId = task.id;
+    });
+
+    card.addEventListener('dragend', () => {
+        card.classList.remove('dragging');
+        window._draggedTaskId = null;
+        document.querySelectorAll('.column-cards-container').forEach(c => c.classList.remove('drag-over'));
+    });
 
     const isPersonal = task.tipo_tarea === 'PERSONAL';
     const tipoBadge = isPersonal
@@ -550,7 +599,6 @@ function createTaskCardElement(task) {
                 <span class="assignee-name">${escapeHtml(respName)}</span>
             </div>
             <div class="task-meta-icons">
-                ${task.requiere_aprobacion ? `<span title="Requiere Aprobación Formal de Cierre">⚖️</span>` : ''}
                 <span title="${task.total_comentarios || 0} Comentarios">💬 ${task.total_comentarios || 0}</span>
             </div>
         </div>
@@ -570,44 +618,24 @@ function createTaskCardElement(task) {
 }
 
 // -----------------------------------------------------------------------------
-// Transiciones de Estado y Kanban
+// Transiciones de Estado y Kanban Directas (Sin bloqueo)
 // -----------------------------------------------------------------------------
 window.onQuickMoveSelect = async function(e, taskId) {
     const newColId = parseInt(e.target.value, 10);
-    await requestTaskTransition(taskId, newColId);
+    await executeTaskTransition(taskId, newColId);
 };
 
 async function requestTaskTransition(taskId, newColId) {
-    const targetCol = STATE.columns.find(c => parseInt(c.id, 10) === newColId);
-    if (!targetCol) return;
-
-    if (targetCol.tipo_estado === 'FINALIZADA') {
-        const task = STATE.tasks.find(t => parseInt(t.id, 10) === parseInt(taskId, 10));
-        if (task && task.requiere_aprobacion) {
-            showToast('⚠️ Regla RN-10: Tareas con circuito de aprobación deben ser resueltas por Jefatura. Solicita la aprobación en el detalle.', 'error');
-            renderKanban();
-            return;
-        }
-
-        STATE.pendingCloseTaskId = taskId;
-        document.getElementById('confirm-close-task-code').textContent = task ? task.codigo : `ID #${taskId}`;
-        document.getElementById('confirm-close-checkbox').checked = false;
-        document.getElementById('btn-submit-confirm-close').disabled = true;
-        openModal('modal-confirm-close');
-        return;
-    }
-
-    await executeTaskTransition(taskId, newColId, false);
+    await executeTaskTransition(taskId, newColId);
 }
 
-async function executeTaskTransition(taskId, newColId, confirmation) {
+async function executeTaskTransition(taskId, newColId) {
     try {
         const res = await apiFetch(`/api/tareas/${taskId}/transicionar`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                nueva_columna_id: newColId,
-                confirmacion_cierre: !!confirmation
+                nueva_columna_id: newColId
             })
         });
         const result = await res.json();
@@ -627,6 +655,28 @@ async function executeTaskTransition(taskId, newColId, confirmation) {
         renderKanban();
     }
 }
+
+// Acción de eliminar tarea activa desde el modal
+window.handleDeleteActiveTask = async function() {
+    if (!STATE.activeTaskDetail) return;
+    const task = STATE.activeTaskDetail;
+    if (!confirm(`¿Estás seguro de eliminar la tarea "${task.titulo}" (${task.codigo})?`)) {
+        return;
+    }
+    try {
+        const res = await apiFetch(`/api/tareas/${task.id}`, { method: 'DELETE' });
+        const json = await res.json();
+        if (json.success) {
+            showToast('Tarea eliminada correctamente', 'success');
+            closeModal('modal-task-detail');
+            await fetchTasks();
+        } else {
+            showToast(json.error?.message || 'No se pudo eliminar la tarea', 'error');
+        }
+    } catch (e) {
+        showToast('Error de conexión al eliminar la tarea', 'error');
+    }
+};
 
 // -----------------------------------------------------------------------------
 // Modal de Creación de Tarea (MVP-03)

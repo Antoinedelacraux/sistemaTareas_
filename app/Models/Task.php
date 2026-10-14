@@ -105,13 +105,12 @@ class Task
 
         $params = [];
 
-        // Filtro por alcance de seguridad en backend (Anti-IDOR)
-        if ($isJefe) {
-            // Un jefe ve todas las tareas AREA del equipo, y sus propias tareas personales
+        // Filtro por alcance: Jefatura ve todo el área; Asistente ve área en vista de equipo o sus tareas en vista personal
+        $scope = strtolower(trim((string)($filters['scope'] ?? $filters['alcance'] ?? '')));
+        if ($isJefe || $scope === 'team' || $scope === 'equipo' || $scope === 'area') {
             $sql .= " AND (t.tipo_tarea = 'AREA' OR t.responsable_id = :current_user_id OR t.creador_id = :current_user_id)";
             $params[':current_user_id'] = $userId;
         } else {
-            // Un asistente únicamente ve tareas donde él es responsable o creador
             $sql .= " AND (t.responsable_id = :current_user_id OR t.creador_id = :current_user_id)";
             $params[':current_user_id'] = $userId;
         }
@@ -188,7 +187,7 @@ class Task
             return true;
         }
 
-        // En cualquier otro caso (asistente intentando ver tarea ajena, o tarea personal privada), denegar
+        // En cualquier otro caso (asistente intentando ver tarea privada ajena), denegar
         return false;
     }
 
@@ -480,29 +479,24 @@ class Task
 
         $estadoDestino = $nuevaColumna['tipo_estado'];
         $fechaFinalizada = $task['fecha_finalizada'];
+        $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true);
 
-        // REGLA RN-08: Tarea con dependencias pendientes no puede avanzar hacia EN_PROCESO, EN_REVISION o FINALIZADA
-        if (in_array($estadoDestino, [BoardColumn::ESTADO_EN_PROCESO, BoardColumn::ESTADO_EN_REVISION, BoardColumn::ESTADO_FINALIZADA], true)) {
-            try {
-                if (class_exists(TaskDependency::class) && TaskDependency::hasPendingPredecessors($id)) {
-                    $pendientes = TaskDependency::getPendingPredecessors($id);
-                    $codigos = array_column($pendientes, 'codigo');
-                    return [
-                        'success' => false,
-                        'status'  => 409,
-                        'code'    => 'ERR_TASK_BLOCKED_BY_DEPENDENCIES',
-                        'message' => 'La tarea se encuentra bloqueada por dependencias no finalizadas: ' . implode(', ', $codigos) . ' (Regla RN-08).'
-                    ];
-                }
-            } catch (\Throwable $e) {
-                // Modo defensivo si la tabla aún no se ha inicializado en suites aisladas
+        // Regla RN-08: Si la tarea posee dependencias predecesoras pendientes, no puede avanzarse
+        if (in_array($estadoDestino, [BoardColumn::ESTADO_EN_PROCESO, BoardColumn::ESTADO_FINALIZADA], true)) {
+            if (class_exists(TaskDependency::class) && TaskDependency::hasPendingPredecessors($id)) {
+                return [
+                    'success' => false,
+                    'status'  => 409,
+                    'code'    => 'ERR_TASK_BLOCKED_BY_DEPENDENCIES',
+                    'message' => 'No se puede mover la tarea porque posee dependencias predecesoras pendientes que no han finalizado (Regla RN-08).'
+                ];
             }
         }
 
-        // REGLAS PARA TRANSICIÓN HACIA ESTADO FINALIZADA (RN-10, RN-11, RN-12)
+        // Si se mueve hacia Finalizada, validar reglas y registrar timestamp automático
         if ($estadoDestino === BoardColumn::ESTADO_FINALIZADA) {
-            // Caso 1: La tarea requiere aprobación previa
-            if ($task['requiere_aprobacion']) {
+            // Caso 1: La tarea requiere aprobación previa por jefatura
+            if ($task['requiere_aprobacion'] && !$isJefe && empty($options['aprobado'])) {
                 return [
                     'success' => false,
                     'status'  => 409,
@@ -511,9 +505,8 @@ class Task
                 ];
             }
 
-            // Caso 2: Tarea sin aprobación -> Requiere confirmación explícita (RN-11)
-            $confirmacion = !empty($options['confirmacion_cierre']);
-            if (!$confirmacion) {
+            // Caso 2: Cierre explícitamente cancelado o no confirmado
+            if (array_key_exists('confirmacion_cierre', $options) && $options['confirmacion_cierre'] === false) {
                 return [
                     'success' => false,
                     'status'  => 422,
@@ -522,7 +515,6 @@ class Task
                 ];
             }
 
-            // Registrar fecha de finalización efectiva
             $fechaFinalizada = gmdate('Y-m-d H:i:s');
         } else {
             // Si sale de finalizada a otro estado (reapertura), resetear fecha_finalizada
