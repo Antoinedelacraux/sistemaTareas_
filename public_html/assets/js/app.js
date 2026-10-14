@@ -62,7 +62,13 @@ function initTheme() {
 function updateThemeIcon(theme) {
     const iconSpan = document.getElementById('theme-icon');
     const textSpan = document.getElementById('theme-text');
-    if (iconSpan) iconSpan.textContent = theme === 'dark' ? '☀️' : '🌙';
+    if (iconSpan) {
+        if (theme === 'dark') {
+            iconSpan.innerHTML = `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+        } else {
+            iconSpan.innerHTML = `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+        }
+    }
     if (textSpan) textSpan.textContent = theme === 'dark' ? 'Claro' : 'Oscuro';
 }
 
@@ -277,6 +283,10 @@ async function doLogin(email, password) {
 }
 
 window.quickLogin = async function(email) {
+    const emailInput = document.getElementById('login-email');
+    const passInput = document.getElementById('login-password');
+    if (emailInput) emailInput.value = email;
+    if (passInput) passInput.value = 'Planeamiento2026!';
     await doLogin(email, 'Planeamiento2026!');
 };
 
@@ -286,7 +296,7 @@ async function doLogout() {
     } catch (e) {}
     localStorage.removeItem('auth_token');
     STATE.currentUser = null;
-    showToast('Sesión cerrada correctamente', 'success');
+    showToast('Sesión cerrada correctamente', 'info');
     showLoginView();
 }
 
@@ -301,29 +311,41 @@ async function onLoginSuccess() {
 }
 
 function showLoginView() {
-    document.getElementById('login-view').style.display = 'block';
-    document.getElementById('kanban-view').style.display = 'none';
+    const loginView = document.getElementById('login-view');
+    if (loginView) loginView.style.display = 'flex';
+    const kanbanView = document.getElementById('kanban-view');
+    if (kanbanView) kanbanView.style.display = 'none';
     const dashView = document.getElementById('dashboard-view');
     if (dashView) dashView.style.display = 'none';
     const appView = document.getElementById('approvals-view');
     if (appView) appView.style.display = 'none';
-    document.getElementById('workspace-controls-bar').style.display = 'none';
-    document.getElementById('user-profile-container').style.display = 'none';
+    const controlsBar = document.getElementById('workspace-controls-bar');
+    if (controlsBar) controlsBar.style.display = 'none';
+    const userProfile = document.getElementById('user-profile-container');
+    if (userProfile) userProfile.style.display = 'none';
     const notifContainer = document.getElementById('notifications-menu-container');
     if (notifContainer) notifContainer.style.display = 'none';
-    document.getElementById('quick-role-select').style.display = 'none';
-    document.getElementById('logout-btn').style.display = 'none';
+    const quickSelect = document.getElementById('quick-role-select');
+    if (quickSelect) quickSelect.style.display = 'none';
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) logoutBtn.style.display = 'none';
 }
 
 function showKanbanView() {
-    document.getElementById('login-view').style.display = 'none';
-    document.getElementById('kanban-view').style.display = 'block';
-    document.getElementById('workspace-controls-bar').style.display = 'flex';
-    document.getElementById('user-profile-container').style.display = 'flex';
+    const loginView = document.getElementById('login-view');
+    if (loginView) loginView.style.display = 'none';
+    const kanbanView = document.getElementById('kanban-view');
+    if (kanbanView) kanbanView.style.display = 'block';
+    const controlsBar = document.getElementById('workspace-controls-bar');
+    if (controlsBar) controlsBar.style.display = 'flex';
+    const userProfile = document.getElementById('user-profile-container');
+    if (userProfile) userProfile.style.display = 'flex';
     const notifContainer = document.getElementById('notifications-menu-container');
     if (notifContainer) notifContainer.style.display = 'inline-flex';
-    document.getElementById('quick-role-select').style.display = 'inline-block';
-    document.getElementById('logout-btn').style.display = 'inline-flex';
+    const quickSelect = document.getElementById('quick-role-select');
+    if (quickSelect) quickSelect.style.display = 'none';
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) logoutBtn.style.display = 'inline-flex';
 }
 
 function renderUserBar() {
@@ -333,16 +355,36 @@ function renderUserBar() {
     document.getElementById('user-avatar').textContent = user.nombre.charAt(0).toUpperCase();
     document.getElementById('user-name').textContent = user.nombre;
 
+    const isJefe = !!(user.es_jefe == 1 || user.es_jefe === true || user.rol === 'JEFE_PLANEAMIENTO' || user.rol === 'JEFE_PERSONAL');
+
     let roleText = 'Asistente';
     if (user.rol === 'JEFE_PLANEAMIENTO') roleText = 'Jefe Planeamiento';
     else if (user.rol === 'JEFE_PERSONAL') roleText = 'Jefe Personal';
     document.getElementById('user-role').textContent = roleText;
 
-    // Visibilidad colaborativa: todos los integrantes pueden ver el Tablero del Equipo
+    // Control estricto de visibilidad por roles (RN-01, RN-03)
     const tabTeam = document.getElementById('tab-team-board');
-    if (tabTeam) tabTeam.style.display = 'inline-flex';
+    const tabApprovals = document.getElementById('tab-approvals-view');
+    const memberFilter = document.getElementById('member-filter-select');
+    const teamSection = document.getElementById('dashboard-team-section');
 
-    // Sincronizar selector rápido
+    if (isJefe) {
+        if (tabTeam) tabTeam.style.display = 'inline-flex';
+        if (tabApprovals) tabApprovals.style.display = 'inline-flex';
+        if (memberFilter) memberFilter.style.display = 'inline-block';
+        if (teamSection) teamSection.style.display = 'block';
+    } else {
+        if (tabTeam) tabTeam.style.display = 'none';
+        if (tabApprovals) tabApprovals.style.display = 'none';
+        if (memberFilter) memberFilter.style.display = 'none';
+        if (teamSection) teamSection.style.display = 'none';
+
+        // Si el asistente estaba en una pestaña de supervisión de equipo, regresar a 'area' (Mis Tareas)
+        if (STATE.currentScope === 'team' || STATE.currentScope === 'approvals') {
+            setScope('area');
+        }
+    }
+
     const quickSelect = document.getElementById('quick-role-select');
     if (quickSelect) quickSelect.value = user.email;
 }
@@ -372,7 +414,7 @@ function renderMemberFilterOptions() {
     const select = document.getElementById('member-filter-select');
     if (!select) return;
     const currentVal = select.value;
-    select.innerHTML = '<option value="">👤 Todos los miembros</option>';
+    select.innerHTML = '<option value="">Todos los miembros</option>';
     STATE.users.forEach(u => {
         const opt = document.createElement('option');
         opt.value = u.id;
@@ -424,13 +466,21 @@ async function setScope(scope) {
 
     const kanbanView = document.getElementById('kanban-view');
     const dashboardView = document.getElementById('dashboard-view');
+    const approvalsView = document.getElementById('approvals-view');
 
     if (scope === 'dashboard') {
         if (kanbanView) kanbanView.style.display = 'none';
+        if (approvalsView) approvalsView.style.display = 'none';
         if (dashboardView) dashboardView.style.display = 'block';
         loadDashboardMetrics();
+    } else if (scope === 'approvals') {
+        if (kanbanView) kanbanView.style.display = 'none';
+        if (dashboardView) dashboardView.style.display = 'none';
+        if (approvalsView) approvalsView.style.display = 'block';
+        fetchPendingApprovals();
     } else {
         if (dashboardView) dashboardView.style.display = 'none';
+        if (approvalsView) approvalsView.style.display = 'none';
         if (kanbanView) kanbanView.style.display = 'block';
         await fetchTasks();
     }
@@ -450,9 +500,9 @@ function renderKanban() {
     // Filtrar tareas según alcance activo
     let filteredTasks = [...STATE.tasks];
     if (STATE.currentScope === 'area') {
-        filteredTasks = filteredTasks.filter(task => parseInt(task.responsable_id, 10) === parseInt(user.id, 10));
+        filteredTasks = filteredTasks.filter(task => parseInt(task.responsable_id, 10) === parseInt(user.id, 10) || parseInt(task.creador_id, 10) === parseInt(user.id, 10));
     } else if (STATE.currentScope === 'personal') {
-        filteredTasks = filteredTasks.filter(task => task.tipo_tarea === 'PERSONAL' && parseInt(task.responsable_id, 10) === parseInt(user.id, 10));
+        filteredTasks = filteredTasks.filter(task => task.tipo_tarea === 'PERSONAL' && (parseInt(task.responsable_id, 10) === parseInt(user.id, 10) || parseInt(task.creador_id, 10) === parseInt(user.id, 10)));
     }
 
     if (STATE.memberFilter) {
@@ -550,8 +600,8 @@ function createTaskCardElement(task) {
 
     const isPersonal = task.tipo_tarea === 'PERSONAL';
     const tipoBadge = isPersonal
-        ? `<span class="badge badge-tipo-personal">🔒 PERSONAL</span>`
-        : `<span class="badge badge-tipo-area">📋 ÁREA</span>`;
+        ? `<span class="badge badge-tipo-personal"><svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> PERSONAL</span>`
+        : `<span class="badge badge-tipo-area">ÁREA</span>`;
 
     const prioBadge = `<span class="badge badge-prioridad-${task.prioridad}">${task.prioridad}</span>`;
 
@@ -576,11 +626,13 @@ function createTaskCardElement(task) {
     const respName = task.responsable_nombre || 'Sin asignar';
     const initial = respName.charAt(0).toUpperCase();
 
-    let moveOptions = STATE.columns.map(c => `
-        <option value="${c.id}" ${parseInt(c.id, 10) === parseInt(task.columna_id, 10) ? 'selected' : ''}>
-            ${escapeHtml(c.nombre)}
-        </option>
-    `).join('');
+    const commentsCount = parseInt(task.total_comentarios || 0, 10);
+    const dueDateBadge = task.fecha_limite ? `
+        <span class="task-due-chip" title="Fecha límite: ${task.fecha_limite}">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span>${escapeHtml(task.fecha_limite)}</span>
+        </span>
+    ` : '';
 
     card.innerHTML = `
         <div class="task-card-header">
@@ -599,14 +651,12 @@ function createTaskCardElement(task) {
                 <span class="assignee-name">${escapeHtml(respName)}</span>
             </div>
             <div class="task-meta-icons">
-                <span title="${task.total_comentarios || 0} Comentarios">💬 ${task.total_comentarios || 0}</span>
+                ${dueDateBadge}
+                <span class="task-comments-chip" title="${commentsCount} Comentarios">
+                    <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    <span>${commentsCount}</span>
+                </span>
             </div>
-        </div>
-        <div class="task-quick-move" onclick="event.stopPropagation()">
-            <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Mover:</span>
-            <select class="quick-move-select" onchange="onQuickMoveSelect(event, ${task.id})">
-                ${moveOptions}
-            </select>
         </div>
     `;
 
@@ -703,10 +753,10 @@ function openCreateTaskModal() {
         opt.selected = true;
         assigneeSelect.appendChild(opt);
         assigneeSelect.disabled = true;
-        helpSpan.textContent = '🔒 Regla RN-03: Los asistentes no pueden asignar tareas a compañeros.';
+        helpSpan.textContent = 'Regla RN-03: Los asistentes solo gestionan tareas asignadas a sí mismos.';
     } else {
         assigneeSelect.disabled = false;
-        helpSpan.textContent = '👑 Regla RN-04: Como jefatura autorizada, puedes asignar a cualquier miembro del equipo.';
+        helpSpan.textContent = 'Regla RN-04: Como jefatura autorizada, puedes asignar tareas a cualquier miembro del equipo.';
 
         STATE.users.forEach(u => {
             const opt = document.createElement('option');
@@ -968,7 +1018,7 @@ function renderCommentsList(comments) {
             attachmentHtml = `
                 <div class="comment-attachment">
                     <div class="attachment-info">
-                        <span>📎</span>
+                        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
                         <span>${escapeHtml(com.archivo_nombre_original)} (${kb} KB)</span>
                     </div>
                     <a href="/api/comentarios/${com.id}/archivo" target="_blank" class="btn btn-outline btn-sm" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">
@@ -1048,8 +1098,15 @@ function showToast(message, type = 'info') {
 
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    const icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
-    toast.innerHTML = `<span>${icon}</span> <span>${escapeHtml(message)}</span>`;
+    let iconSvg = '';
+    if (type === 'success') {
+        iconSvg = `<svg class="icon-svg icon-svg-sm" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+    } else if (type === 'error') {
+        iconSvg = `<svg class="icon-svg icon-svg-sm" style="color: #ef4444;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+    } else {
+        iconSvg = `<svg class="icon-svg icon-svg-sm" style="color: #3b82f6;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
+    }
+    toast.innerHTML = `<span class="toast-icon">${iconSvg}</span> <span>${escapeHtml(message)}</span>`;
     container.appendChild(toast);
 
     setTimeout(() => {
@@ -1124,8 +1181,9 @@ function renderApprovalBox(task, approvals) {
     if (ultimaDevuelta && task.estado !== 'FINALIZADA') {
         html += `
             <div style="background-color: #fee2e2; border: 1px solid #f87171; border-radius: var(--radius-sm); padding: 0.6rem 0.75rem; margin-bottom: 0.75rem;">
-                <div style="font-size: 0.75rem; font-weight: 700; color: #b91c1c; margin-bottom: 0.25rem;">
-                    ⚠️ Observaciones de Devolución (${formatDate(ultimaDevuelta.resolved_at)}):
+                <div style="font-size: 0.75rem; font-weight: 700; color: #b91c1c; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.35rem;">
+                    <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <span>Observaciones de Devolución (${formatDate(ultimaDevuelta.resolved_at)}):</span>
                 </div>
                 <div style="font-size: 0.8rem; color: #7f1d1d; white-space: pre-wrap;">${escapeHtml(ultimaDevuelta.observaciones)}</div>
             </div>
@@ -1143,8 +1201,14 @@ function renderApprovalBox(task, approvals) {
         if (isJefe) {
             html += `
                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                    <button class="btn btn-success btn-sm" onclick="approveTask(${task.id})">✅ Aprobar y Finalizar</button>
-                    <button class="btn btn-danger btn-sm" onclick="openReturnModal(${task.id}, '${task.codigo}')">↩️ Devolver con Observaciones</button>
+                    <button class="btn btn-success btn-sm" onclick="approveTask(${task.id})">
+                        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <span>Aprobar y Finalizar</span>
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="openReturnModal(${task.id}, '${task.codigo}')">
+                        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>
+                        <span>Devolver con Observaciones</span>
+                    </button>
                 </div>
             `;
         } else {
@@ -1157,8 +1221,9 @@ function renderApprovalBox(task, approvals) {
     } else if (task.estado === 'FINALIZADA') {
         box.className = 'approval-detail-box approved';
         html += `
-            <p style="font-size: 0.8rem; color: #065f46; margin: 0;">
-                ✅ Tarea validada y aprobada formalmente. Ciclo completado satisfactoriamente.
+            <p style="font-size: 0.8rem; color: #065f46; margin: 0; display: flex; align-items: center; gap: 0.35rem;">
+                <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <span>Tarea validada y aprobada formalmente. Ciclo completado satisfactoriamente.</span>
             </p>
         `;
     } else {
@@ -1169,7 +1234,8 @@ function renderApprovalBox(task, approvals) {
                     Al concluir el desarrollo y checklist, envía la tarea a Jefatura para su evaluación formal.
                 </p>
                 <button class="btn btn-primary btn-sm" onclick="requestApproval(${task.id})">
-                    🚀 Enviar a Aprobación (Jefatura)
+                    <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    <span>Enviar a Aprobación (Jefatura)</span>
                 </button>
             `;
         } else {
@@ -1231,7 +1297,7 @@ function renderApprovalsList(approvals) {
     if (!approvals || approvals.length === 0) {
         container.innerHTML = `
             <div style="grid-column: 1 / -1; padding: 3rem; text-align: center; background-color: var(--bg-surface); border-radius: var(--radius-md); border: 1px dashed var(--border-strong);">
-                <div style="font-size: 2rem; margin-bottom: 0.5rem;">✨</div>
+                <div style="margin-bottom: 0.75rem;"><svg class="icon-svg" style="width: 32px; height: 32px; color: var(--primary-500);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
                 <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main);">Sin aprobaciones pendientes</h3>
                 <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Todas las tareas enviadas a revisión han sido dictaminadas satisfactoriamente.</p>
             </div>
@@ -1253,9 +1319,18 @@ function renderApprovalsList(approvals) {
                 <span>${formatDate(appr.created_at)}</span>
             </div>
             <div class="approval-actions">
-                <button class="btn btn-outline btn-sm" onclick="openTaskDetailModal(${appr.tarea_id})">🔍 Ver Detalle</button>
-                <button class="btn btn-success btn-sm" onclick="approveTask(${appr.tarea_id})">✅ Aprobar</button>
-                <button class="btn btn-danger btn-sm" onclick="openReturnModal(${appr.tarea_id}, '${appr.tarea_codigo}')">↩️ Devolver</button>
+                <button class="btn btn-outline btn-sm" onclick="openTaskDetailModal(${appr.tarea_id})">
+                    <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <span>Ver Detalle</span>
+                </button>
+                <button class="btn btn-success btn-sm" onclick="approveTask(${appr.tarea_id})">
+                    <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    <span>Aprobar</span>
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="openReturnModal(${appr.tarea_id}, '${appr.tarea_codigo}')">
+                    <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>
+                    <span>Devolver</span>
+                </button>
             </div>
         `;
         container.appendChild(card);
@@ -1293,7 +1368,7 @@ window.approveTask = async function(taskId) {
         });
         const result = await res.json();
         if (result.success) {
-            showToast('✅ Tarea Aprobada y Finalizada formalmente', 'success');
+            showToast('Tarea Aprobada y Finalizada formalmente', 'success');
             await fetchTasks();
             await fetchPendingApprovalsCount();
             fetchNotificationsSummary();
@@ -1328,7 +1403,7 @@ async function handleReturnTaskSubmit(e) {
     const observaciones = obsEl ? obsEl.value.trim() : '';
 
     if (!observaciones) {
-        showToast('⚠️ Regla RN-12: Las observaciones de devolución son obligatorias.', 'error');
+        showToast('Regla RN-12: Las observaciones de devolución son obligatorias.', 'error');
         return;
     }
 
@@ -1344,7 +1419,7 @@ async function handleReturnTaskSubmit(e) {
         const result = await res.json();
         if (result.success) {
             closeModal('modal-return-task');
-            showToast('↩️ Tarea devuelta con observaciones registradas (RN-12)', 'success');
+            showToast('Tarea devuelta con observaciones registradas (RN-12)', 'info');
             const taskId = STATE.pendingReturnTaskId;
             STATE.pendingReturnTaskId = null;
             await fetchTasks();
@@ -1399,7 +1474,7 @@ function renderDependenciesSection(task, depData) {
                     </div>
                     <div style="display: flex; align-items: center; gap: 0.4rem;">
                         <span class="badge ${isFinalizada ? 'badge-prioridad-BAJA' : 'badge-prioridad-ALTA'}" style="font-size: 0.7rem; padding: 0.15rem 0.4rem;">
-                            ${isFinalizada ? '✓ FINALIZADA' : '⏳ PENDIENTE'}
+                            ${isFinalizada ? 'FINALIZADA' : 'PENDIENTE'}
                         </span>
                         <button class="btn-close" style="font-size: 0.9rem; color: #ef4444;" onclick="removeDependency(${task.id}, ${p.id})" title="Desvincular dependencia">&times;</button>
                     </div>
@@ -1614,13 +1689,20 @@ function renderNotifications(notifs) {
 
 function getNotificationIcon(tipo) {
     switch (tipo) {
-        case 'TAREA_ASIGNADA': return '📋';
-        case 'APROBACION_SOLICITADA': return '⏳';
-        case 'TAREA_APROBADA': return '✅';
-        case 'TAREA_DEVUELTA': return '⚠️';
-        case 'TAREA_DESBLOQUEADA': return '🔓';
-        case 'NUEVO_COMENTARIO': return '💬';
-        default: return '🔔';
+        case 'TAREA_ASIGNADA':
+            return `<svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`;
+        case 'APROBACION_SOLICITADA':
+            return `<svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
+        case 'TAREA_APROBADA':
+            return `<svg class="icon-svg icon-svg-sm" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+        case 'TAREA_DEVUELTA':
+            return `<svg class="icon-svg icon-svg-sm" style="color: #f59e0b;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
+        case 'TAREA_DESBLOQUEADA':
+            return `<svg class="icon-svg icon-svg-sm" style="color: #3b82f6;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>`;
+        case 'NUEVO_COMENTARIO':
+            return `<svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>`;
+        default:
+            return `<svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>`;
     }
 }
 
@@ -1830,10 +1912,10 @@ function renderDashboard(data) {
     if (prioContainer) {
         prioContainer.innerHTML = '';
         const prioMeta = [
-            { key: 'URGENTE', label: '🔥 Urgente', color: '#dc2626' },
-            { key: 'ALTA', label: '⚡ Alta', color: '#ea580c' },
-            { key: 'MEDIA', label: '📌 Media', color: '#2563eb' },
-            { key: 'BAJA', label: '☕ Baja', color: '#64748b' }
+            { key: 'URGENTE', label: 'Urgente', color: '#dc2626' },
+            { key: 'ALTA', label: 'Alta', color: '#ea580c' },
+            { key: 'MEDIA', label: 'Media', color: '#2563eb' },
+            { key: 'BAJA', label: 'Baja', color: '#64748b' }
         ];
 
         const totalPrios = Object.values(prioridades).reduce((a, b) => a + b, 0);

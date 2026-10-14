@@ -1,6 +1,20 @@
 # Changelog
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
+## [V1.3.1 - Rediseño de Login, Eliminación de Emojis por SVG, Footer Slim y Permisos Estrictos por Rol] - 2026-10-14
+### Añadido
+- **Pantalla de Login Corporativa y Rápida:** Rediseño integral de `#login-view` con tarjeta ejecutiva (`.login-card`), branding de TAL S.A., inputs con iconos vectoriales SVG y 3 chips de acceso rápido de demostración (Marco Chumbes, Elena Vega, Roberto Sánchez) con auto-completado y login inmediato en un clic.
+- **Sistema de Iconos Vectoriales SVG:** Sustitución de todos los emojis de la interfaz por iconos vectoriales SVG inline con clase `.icon-svg` (portapapeles, usuarios, métricas, aprobaciones, campana, sol/luna, salida, candado, comentarios, clips, etc.).
+- **Footer Slim y Profesional (`.app-footer-slim`):** Reemplazo del pie de página voluminoso por una barra compacta de 36px con tipografía reducida (`0.72rem`), indicador de pulso verde en tiempo real (`.status-pulse-dot`) y datos institucionales discretos.
+- **Tarjetas Kanban Limpias:** Eliminación del selector desplegable invasivo `Mover: <select>` en cada tarjeta en favor del Drag & Drop nativo y del modal de detalle; integración de chips SVG para fecha límite y comentarios.
+
+### Modificado
+- **Aislamiento Estricto de Roles y Visibilidad:**
+  - `Task::listForUser`: Los asistentes únicamente tienen visibilidad de sus tareas asignadas o creadas (`responsable_id == :userId OR creador_id == :userId`), sin importar parámetros externos. Las jefaturas supervisan todas las tareas del área y disponen del scope personal y de equipo.
+  - `User::listForUser`: Los asistentes solo pueden listarse a sí mismos (evitando espionaje de nómina o asignación indebida a pares), mientras que las jefaturas listan al equipo completo.
+  - Interfaz gráfica: La pestaña "Tablero del Equipo", "Aprobaciones", el filtro `#member-filter-select` y la tabla de balance de carga se ocultan automáticamente para asistentes.
+- **Barra de Navegación Superior:** Se retira el selector artificial `#quick-role-select` de la cabecera autenticada; el cambio de perfil se gestiona ordenadamente a través de los accesos de prueba en la pantalla de login.
+
 ## [V1.3.0 - Refactorización Ágil, Tablero Fluido y Roles Colaborativos] - 2026-10-13 (Fase 1.5)
 ### Añadido
 - **Drag & Drop Nativo HTML5:** Interacción suave de arrastrar y soltar tarjetas entre columnas del tablero Kanban sin diálogos modales molestos ni bloqueos artificiales (**D-012**).

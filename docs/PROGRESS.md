@@ -493,9 +493,34 @@
 - **Pruebas ejecutadas:**
   - Las 10 suites de pruebas automatizadas ejecutadas mediante `php tests/run_all.php`: **10 de 10 aprobadas (100% PASS, 250+ pruebas)**.
   - Servidor web de desarrollo operativo en `http://127.0.0.1:8000`.
-- **Git:** Checkpoint local pendiente para consolidación de Fase 1.5.
-- **Deuda técnica / riesgos:** Ninguna. El sistema es 100% funcional, liviano y listo para subir a DonWeb Ferozo.
-- **Siguiente paso verificable:** Probar interactivamente el tablero en `http://127.0.0.1:8000`, verificar feedback del usuario y proceder con el empaquetado para el VPS DonWeb Ferozo.
+- **Git:** Commit `a3adc3a` (`feat(agile): streamline kanban workflow, native drag and drop and team collaboration`).
+- **Deuda técnica / riesgos:** Ninguna.
+- **Siguiente paso verificable:** Modernización estética de la interfaz y refuerzo de visibilidad por rol.
+
+### 2026-10-14 — UX-01: Rediseño profesional de Login, eliminación de emojis por SVGs, footer discreto y permisos estrictos de visualización por rol
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-01, RF-03, RF-04, RF-08, RF-12, RN-01, RN-02, RN-03, RN-04.
+  1. Rediseñar el Login corporativo con alto rendimiento y chips de prueba de roles instantáneos.
+  2. Sustituir el footer voluminoso por uno discreto, elegante y con tipografía reducida (`0.72rem`).
+  3. Eliminar todos los emojis de la interfaz reemplazándolos por iconos vectoriales SVG limpios.
+  4. Quitar el dropdown `Mover: <select>` de las tarjetas para darles aspecto profesional y despejado.
+  5. Asegurar el aislamiento estricto de roles: asistentes solo ven sus tareas y no acceden a tableros de equipo, filtros de miembros ni tablas de balance general.
+- **Archivos creados/modificados:**
+  - `app/Models/Task.php` (aislamiento estricto en `listForUser`)
+  - `app/Models/User.php` (aislamiento estricto en `listForUser`)
+  - `public_html/index.html` (login moderno, header con SVGs sin switcher artificial, footer slim)
+  - `public_html/assets/css/app.css` (estilos para login-card, footer slim, icon-svg, tarjetas limpias)
+  - `public_html/assets/js/app.js` (eliminación total de emojis, iconos SVG, visibilidad dinámica de pestañas/filtros según `user.es_jefe`)
+  - `docs/CHANGELOG.md`
+  - `docs/SESSION_HANDOFF.md`
+  - `docs/PROGRESS.md`
+- **Pruebas ejecutadas:**
+  - `php tests/run_all.php`: **10 de 10 suites aprobadas (100% PASS, 250+ tests)**.
+  - Verificación HTTP `curl.exe http://127.0.0.1:8000/`: HTTP 200 OK con entrega de `.login-card`, `.app-footer-slim` y `.icon-svg`.
+  - Verificación regex de emojis en frontend: 0 emojis remanentes.
+- **Git:** Checkpoint local pendiente para cierre de avance.
+- **Deuda técnica / riesgos:** Ninguna.
+- **Siguiente paso verificable:** Probar el sistema directamente en navegador en `http://127.0.0.1:8000` con ambos roles.
 
 
 

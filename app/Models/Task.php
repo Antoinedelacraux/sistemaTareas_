@@ -105,12 +105,18 @@ class Task
 
         $params = [];
 
-        // Filtro por alcance: Jefatura ve todo el área; Asistente ve área en vista de equipo o sus tareas en vista personal
+        // Filtro por alcance estricto según rol (RN-01, RN-02, RN-05)
         $scope = strtolower(trim((string)($filters['scope'] ?? $filters['alcance'] ?? '')));
-        if ($isJefe || $scope === 'team' || $scope === 'equipo' || $scope === 'area') {
-            $sql .= " AND (t.tipo_tarea = 'AREA' OR t.responsable_id = :current_user_id OR t.creador_id = :current_user_id)";
+        if ($isJefe) {
+            if ($scope === 'mine' || $scope === 'personal') {
+                $sql .= " AND (t.responsable_id = :current_user_id OR t.creador_id = :current_user_id)";
+            } else {
+                // Jefatura supervisa todas las tareas oficiales AREA y sus propias tareas personales
+                $sql .= " AND (t.tipo_tarea = 'AREA' OR t.responsable_id = :current_user_id OR t.creador_id = :current_user_id)";
+            }
             $params[':current_user_id'] = $userId;
         } else {
+            // Asistente ve estrictamente las tareas donde él es responsable o creador (RN-02, RN-05)
             $sql .= " AND (t.responsable_id = :current_user_id OR t.creador_id = :current_user_id)";
             $params[':current_user_id'] = $userId;
         }

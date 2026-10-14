@@ -135,7 +135,7 @@ class User
     {
         $isJefe = in_array($currentUser['rol'] ?? '', [self::ROL_JEFE_PERSONAL, self::ROL_JEFE_PLANEAMIENTO], true);
 
-        if ($isJefe || ($filters['scope'] ?? '') === 'team' || ($filters['contexto'] ?? '') === 'equipo' || ($filters['context'] ?? '') === 'team') {
+        if ($isJefe) {
             return self::listAll($filters);
         }
 

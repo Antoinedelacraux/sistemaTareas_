@@ -12,8 +12,8 @@
     <!-- Top Header & Brand -->
     <header class="app-header">
         <div class="brand-section">
-            <span class="brand-badge">TAL</span>
-            <div>
+            <div class="brand-logo-pill">TAL</div>
+            <div class="brand-meta">
                 <h1 class="brand-title">Planeamiento — Sistema de Tareas</h1>
                 <span class="brand-subtitle">TAL S.A. &bull; Gestión Operativa</span>
             </div>
@@ -30,24 +30,18 @@
                 </div>
             </div>
 
-            <!-- Menú de cambio rápido de perfil para pruebas de roles -->
-            <select id="quick-role-select" class="select-filter" title="Cambiar rápidamente de usuario para probar alcances y permisos" style="display: none;">
-                <option value="" disabled selected>Cambiar de Usuario...</option>
-                <option value="mchumbes@planeamiento.tal">👤 Marco Chumbes (Asistente 1)</option>
-                <option value="asistente2@planeamiento.tal">👤 Asistente Dos (Asistente 2)</option>
-                <option value="jefe.planeamiento@planeamiento.tal">👑 Elena Vega (Jefe Planeamiento)</option>
-                <option value="jefe.personal@planeamiento.tal">👔 Roberto (Jefe Personal)</option>
-            </select>
-
             <!-- Campana de Notificaciones Idempotentes (MVP-08) -->
             <div id="notifications-menu-container" class="notifications-wrapper" style="display: none;">
                 <button id="notif-bell-btn" class="btn btn-outline btn-sm notif-bell-btn" title="Notificaciones" aria-label="Notificaciones del sistema" aria-expanded="false">
-                    <span class="notif-icon" aria-hidden="true">🔔</span>
+                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                     <span id="notif-badge" class="notif-badge" style="display: none;">0</span>
                 </button>
                 <div id="notif-dropdown" class="notif-dropdown" style="display: none;" role="region" aria-label="Bandeja de notificaciones">
                     <div class="notif-dropdown-header">
-                        <span class="notif-dropdown-title">🔔 Notificaciones</span>
+                        <div class="notif-title-group">
+                            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                            <span class="notif-dropdown-title">Notificaciones</span>
+                        </div>
                         <button id="notif-mark-all-btn" class="notif-mark-all-btn" title="Marcar todas como leídas">Marcar todas leídas</button>
                     </div>
                     <div id="notif-items-list" class="notif-items-list">
@@ -57,11 +51,14 @@
             </div>
 
             <button id="theme-toggle-btn" class="btn btn-outline btn-sm" aria-label="Cambiar modo claro y oscuro">
-                <span id="theme-icon" aria-hidden="true">🌙</span>
+                <span id="theme-icon" aria-hidden="true" class="theme-icon-slot">
+                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </span>
                 <span id="theme-text">Modo</span>
             </button>
 
             <button id="logout-btn" class="btn btn-outline btn-sm" style="display: none;">
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                 <span>Salir</span>
             </button>
         </div>
@@ -71,33 +68,44 @@
     <div id="workspace-controls-bar" class="workspace-bar" style="display: none;">
         <div class="workspace-tabs">
             <button class="tab-btn active" data-scope="area">
-                <span>📋 Mis Tareas</span>
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                <span>Mis Tareas</span>
             </button>
-            <button id="tab-team-board" class="tab-btn" data-scope="team">
-                <span>👥 Tablero del Equipo</span>
+            <button id="tab-team-board" class="tab-btn" data-scope="team" style="display: none;">
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <span>Tablero del Equipo</span>
+            </button>
+            <button id="tab-approvals-view" class="tab-btn" data-scope="approvals" style="display: none;">
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <span>Aprobaciones</span>
             </button>
             <button id="tab-dashboard-view" class="tab-btn" data-scope="dashboard">
-                <span>📊 Dashboard & Métricas</span>
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                <span>Dashboard & Métricas</span>
             </button>
         </div>
 
         <div class="workspace-actions">
-            <input type="text" id="task-search-input" class="search-input" placeholder="🔍 Buscar tarea o código...">
+            <div class="search-input-wrapper">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="task-search-input" class="search-input" placeholder="Buscar tarea o código...">
+            </div>
 
-            <select id="member-filter-select" class="select-filter">
-                <option value="">👤 Todos los miembros</option>
+            <select id="member-filter-select" class="select-filter" style="display: none;">
+                <option value="">Todos los miembros</option>
             </select>
 
             <select id="priority-filter-select" class="select-filter">
                 <option value="">Todas las prioridades</option>
-                <option value="URGENTE">🔥 Urgente</option>
-                <option value="ALTA">⚡ Alta</option>
-                <option value="MEDIA">📌 Media</option>
-                <option value="BAJA">☕ Baja</option>
+                <option value="URGENTE">Urgente</option>
+                <option value="ALTA">Alta</option>
+                <option value="MEDIA">Media</option>
+                <option value="BAJA">Baja</option>
             </select>
 
             <button id="btn-open-create-task" class="btn btn-primary">
-                <span>+ Nueva Tarea</span>
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>Nueva Tarea</span>
             </button>
         </div>
     </div>
@@ -105,42 +113,71 @@
     <!-- Contenedor Principal SPA -->
     <main class="main-content">
         <!-- Vista de Login (cuando no hay sesión activa) -->
-        <div id="login-view" style="display: none;">
-            <div class="login-box">
-                <div class="login-header">
-                    <span class="brand-badge" style="display: inline-block; margin-bottom: 0.75rem;">TAL S.A.</span>
-                    <h2>Iniciar Sesión</h2>
-                    <p>Ingresa al Sistema de Seguimiento de Tareas del Área de Planeamiento</p>
+        <div id="login-view" class="login-view-container" style="display: none;">
+            <div class="login-card">
+                <div class="login-card-header">
+                    <div class="login-brand-chip">
+                        <span class="login-badge-pill">TAL</span>
+                        <span class="login-brand-label">Sistema de Tareas</span>
+                    </div>
+                    <h2 class="login-heading">Iniciar Sesión</h2>
+                    <p class="login-desc">Ingreso seguro a la plataforma de gestión operativa del Área de Planeamiento</p>
                 </div>
 
-                <form id="login-form">
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label class="form-label" for="login-email">Correo Electrónico</label>
-                        <input type="email" id="login-email" class="form-input" required placeholder="usuario@planeamiento.tal" value="mchumbes@planeamiento.tal">
+                <form id="login-form" class="login-form">
+                    <div class="form-group">
+                        <label class="form-label" for="login-email">Correo Institucional</label>
+                        <div class="input-with-icon">
+                            <svg class="input-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                            <input type="email" id="login-email" class="form-input" required placeholder="usuario@planeamiento.tal" value="mchumbes@planeamiento.tal">
+                        </div>
                     </div>
-                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <div class="form-group">
                         <label class="form-label" for="login-password">Contraseña</label>
-                        <input type="password" id="login-password" class="form-input" required placeholder="••••••••" value="Planeamiento2026!">
+                        <div class="input-with-icon">
+                            <svg class="input-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            <input type="password" id="login-password" class="form-input" required placeholder="••••••••" value="Planeamiento2026!">
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <button type="submit" id="login-submit-btn" class="btn btn-primary btn-login-submit">
                         <span>Ingresar a la Plataforma</span>
+                        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                     </button>
                 </form>
 
-                <div class="quick-logins-group">
-                    <span class="quick-logins-title">Accesos Rápidos de Prueba (Roles)</span>
-                    <button class="quick-login-btn" onclick="quickLogin('mchumbes@planeamiento.tal')">
-                        <span>👤 Marco Chumbes (Asistente 1)</span>
-                        <span class="badge badge-tipo-area">ASISTENTE</span>
-                    </button>
-                    <button class="quick-login-btn" onclick="quickLogin('jefe.planeamiento@planeamiento.tal')">
-                        <span>👑 Elena Vega (Jefe Planeamiento)</span>
-                        <span class="badge badge-prioridad-ALTA">JEFE PLAN.</span>
-                    </button>
-                    <button class="quick-login-btn" onclick="quickLogin('jefe.personal@planeamiento.tal')">
-                        <span>👔 Roberto (Jefe Personal)</span>
-                        <span class="badge badge-prioridad-MEDIA">JEFE PERS.</span>
-                    </button>
+                <div class="login-demo-section">
+                    <div class="demo-divider">
+                        <span>Accesos Rápidos de Demostración</span>
+                    </div>
+                    <p class="demo-hint">Ingreso instantáneo con un clic para verificar perfiles y permisos:</p>
+                    <div class="demo-cards-list">
+                        <button type="button" class="demo-chip-card" onclick="quickLogin('mchumbes@planeamiento.tal')">
+                            <div class="demo-chip-avatar avatar-assistant">MC</div>
+                            <div class="demo-chip-info">
+                                <span class="demo-chip-name">Marco Chumbes</span>
+                                <span class="demo-chip-role">Asistente Operativo</span>
+                            </div>
+                            <span class="badge badge-tipo-area">ASISTENTE</span>
+                        </button>
+
+                        <button type="button" class="demo-chip-card" onclick="quickLogin('jefe.planeamiento@planeamiento.tal')">
+                            <div class="demo-chip-avatar avatar-chief">EV</div>
+                            <div class="demo-chip-info">
+                                <span class="demo-chip-name">Elena Vega</span>
+                                <span class="demo-chip-role">Jefe de Planeamiento</span>
+                            </div>
+                            <span class="badge badge-prioridad-ALTA">JEFATURA</span>
+                        </button>
+
+                        <button type="button" class="demo-chip-card" onclick="quickLogin('jefe.personal@planeamiento.tal')">
+                            <div class="demo-chip-avatar avatar-hr">RS</div>
+                            <div class="demo-chip-info">
+                                <span class="demo-chip-name">Roberto Sánchez</span>
+                                <span class="demo-chip-role">Jefe de Personal</span>
+                            </div>
+                            <span class="badge badge-prioridad-MEDIA">JEFE PERS.</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -154,12 +191,15 @@
 
         <!-- Vista de Bandeja de Aprobaciones (MVP-06) -->
         <div id="approvals-view" style="display: none;">
-            <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div class="view-header-bar">
                 <div>
-                    <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main);">Bandeja de Aprobaciones Pendientes</h2>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Tareas enviadas a revisión formal que requieren dictamen de Jefatura (RN-10, RN-12).</p>
+                    <h2 class="view-title">Bandeja de Aprobaciones Pendientes</h2>
+                    <p class="view-subtitle">Tareas enviadas a revisión formal que requieren dictamen de Jefatura (RN-10, RN-12).</p>
                 </div>
-                <button class="btn btn-outline btn-sm" onclick="fetchPendingApprovals()">🔄 Actualizar Lista</button>
+                <button class="btn btn-outline btn-sm" onclick="fetchPendingApprovals()">
+                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    <span>Actualizar Lista</span>
+                </button>
             </div>
             <div id="approvals-container" class="approvals-grid">
                 <!-- Tarjetas de aprobación cargadas dinámicamente -->
@@ -168,12 +208,15 @@
 
         <!-- Vista de Dashboard Operativo y Métricas (MVP-09) -->
         <div id="dashboard-view" style="display: none;">
-            <div class="dashboard-header" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div class="dashboard-header view-header-bar">
                 <div>
-                    <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main);">Dashboard Operativo y Métricas de Cierre</h2>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Indicadores en tiempo real de avance, cumplimiento y carga operativa (RF-19).</p>
+                    <h2 class="view-title">Dashboard Operativo y Métricas de Cierre</h2>
+                    <p class="view-subtitle">Indicadores en tiempo real de avance, cumplimiento y carga operativa (RF-19).</p>
                 </div>
-                <button class="btn btn-outline btn-sm" onclick="loadDashboardMetrics()">🔄 Actualizar Métricas</button>
+                <button class="btn btn-outline btn-sm" onclick="loadDashboardMetrics()">
+                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    <span>Actualizar Métricas</span>
+                </button>
             </div>
 
             <!-- Grid de Indicadores Clave (KPIs) -->
@@ -201,13 +244,13 @@
             </div>
 
             <!-- Gráficos / Distribuciones de Estados y Prioridades -->
-            <div class="dashboard-sections-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+            <div class="dashboard-sections-grid">
                 <!-- Desglose por Estado -->
                 <div class="section-box">
                     <div class="section-box-title">
                         <span>Distribución por Estados Kanban</span>
                     </div>
-                    <div id="dashboard-status-bars" class="distribution-bars" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.85rem;">
+                    <div id="dashboard-status-bars" class="distribution-bars">
                         <!-- Barras de estado montadas dinámicamente -->
                     </div>
                 </div>
@@ -217,7 +260,7 @@
                     <div class="section-box-title">
                         <span>Tareas Activas por Prioridad</span>
                     </div>
-                    <div id="dashboard-priority-bars" class="distribution-bars" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.85rem;">
+                    <div id="dashboard-priority-bars" class="distribution-bars">
                         <!-- Barras de prioridad montadas dinámicamente -->
                     </div>
                 </div>
@@ -226,7 +269,10 @@
             <!-- Balance de Carga del Equipo (Solo Jefatura) -->
             <div id="dashboard-team-section" class="section-box" style="margin-top: 1.5rem; display: none;">
                 <div class="section-box-title">
-                    <span>👥 Balance de Carga de Trabajo del Equipo (Supervisión Jefatura)</span>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        <span>Balance de Carga de Trabajo del Equipo (Supervisión Jefatura)</span>
+                    </div>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; margin-bottom: 1rem;">
                     Monitoreo de tareas asignadas, en curso, finalizadas y atrasadas por cada integrante del área.
@@ -279,8 +325,8 @@
                         <div class="form-group">
                             <label class="form-label" for="task-type">Tipo de Tarea *</label>
                             <select id="task-type" class="form-select" required>
-                                <option value="AREA">📋 Oficial del Área</option>
-                                <option value="PERSONAL">🔒 Personal / Privada</option>
+                                <option value="AREA">Oficial del Área</option>
+                                <option value="PERSONAL">Personal / Privada</option>
                             </select>
                             <span class="form-help">Tareas personales son privadas y solo visibles para ti.</span>
                         </div>
@@ -288,10 +334,10 @@
                         <div class="form-group">
                             <label class="form-label" for="task-priority">Prioridad *</label>
                             <select id="task-priority" class="form-select" required>
-                                <option value="BAJA">☕ Baja</option>
-                                <option value="MEDIA" selected>📌 Media</option>
-                                <option value="ALTA">⚡ Alta</option>
-                                <option value="URGENTE">🔥 Urgente</option>
+                                <option value="BAJA">Baja</option>
+                                <option value="MEDIA" selected>Media</option>
+                                <option value="ALTA">Alta</option>
+                                <option value="URGENTE">Urgente</option>
                             </select>
                         </div>
                     </div>
@@ -344,7 +390,7 @@
                     <div>
                         <p id="detail-desc" style="font-size: 0.875rem; color: var(--text-main); margin-bottom: 1rem; line-height: 1.5;"></p>
 
-                        <div style="display: flex; gap: 1rem; margin-bottom: 1.25rem; font-size: 0.8rem; color: var(--text-muted);">
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1.25rem; font-size: 0.8rem; color: var(--text-muted); flex-wrap: wrap;">
                             <div><strong>Responsable:</strong> <span id="detail-assignee">-</span></div>
                             <div><strong>Creador:</strong> <span id="detail-creator">-</span></div>
                             <div><strong>Fecha Límite:</strong> <span id="detail-due-date">-</span></div>
@@ -358,7 +404,10 @@
                         <!-- Sección de Subtareas (Checklist MVP-05) -->
                         <div class="section-box">
                             <div class="section-box-title">
-                                <span>Checklist de Subtareas</span>
+                                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                                    <span>Checklist de Subtareas</span>
+                                </div>
                                 <span id="detail-subtasks-count" class="badge badge-tipo-area">0/0</span>
                             </div>
 
@@ -379,14 +428,18 @@
                         <!-- Sección de Dependencias entre Tareas (DAG MVP-07) -->
                         <div class="section-box" style="margin-top: 1.25rem;">
                             <div class="section-box-title">
-                                <span>🔗 Dependencias (Predecesoras y DAG)</span>
+                                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                    <span>Dependencias (Predecesoras y DAG)</span>
+                                </div>
                                 <span id="detail-deps-count" class="badge badge-tipo-area">0</span>
                             </div>
 
                             <!-- Alerta si la tarea está bloqueada por dependencias pendientes (RN-08) -->
                             <div id="detail-deps-blocked-alert" style="display: none; background-color: var(--status-blocked-bg); border: 1px solid var(--status-blocked); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; margin-bottom: 0.75rem;">
                                 <div style="font-size: 0.8rem; font-weight: 700; color: #b91c1c; display: flex; align-items: center; gap: 0.4rem;">
-                                    <span>🔒 Tarea Bloqueada</span>
+                                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                    <span>Tarea Bloqueada</span>
                                 </div>
                                 <p style="font-size: 0.775rem; color: #7f1d1d; margin-top: 0.25rem; line-height: 1.4;">
                                     Esta tarea no puede iniciarse ni finalizarse hasta que todas sus tareas predecesoras alcancen el estado Finalizada (Regla RN-08).
@@ -427,7 +480,10 @@
                     <div>
                         <div class="section-box">
                             <div class="section-box-title">
-                                <span>Historial y Evidencias</span>
+                                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                    <span>Historial y Evidencias</span>
+                                </div>
                                 <span id="detail-comments-count" class="badge badge-tipo-area">0</span>
                             </div>
 
@@ -452,7 +508,10 @@
                         <!-- Sección de Auditoría Inmutable (RF-18 / RN-13 MVP-09) -->
                         <div class="section-box" style="margin-top: 1.25rem;">
                             <div class="section-box-title">
-                                <span>📜 Bitácora de Auditoría Inmutable</span>
+                                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                                    <span>Bitácora de Auditoría Inmutable</span>
+                                </div>
                                 <span id="detail-audit-count" class="badge badge-tipo-area">0</span>
                             </div>
                             <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem;">
@@ -472,7 +531,10 @@
                         <!-- Columnas -->
                     </select>
                 </div>
-                <button type="button" id="btn-delete-task" class="btn btn-outline" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" onclick="handleDeleteActiveTask()">🗑️ Eliminar Tarea</button>
+                <button type="button" id="btn-delete-task" class="btn btn-outline" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" onclick="handleDeleteActiveTask()">
+                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    <span>Eliminar Tarea</span>
+                </button>
                 <button type="button" class="btn btn-primary" onclick="closeModal('modal-task-detail')">Cerrar</button>
             </div>
         </div>
@@ -481,9 +543,22 @@
     <!-- Toast Notifications -->
     <div id="toast-container" class="toast-container"></div>
 
-    <!-- Footer -->
-    <footer class="app-footer">
-        <p>&copy; 2026 TAL S.A. — Área de Planeamiento. Servidor DonWeb Ferozo / API PHP REST 8.2+.</p>
+    <!-- Footer Slim & Profesional -->
+    <footer id="app-footer" class="app-footer-slim">
+        <div class="footer-left">
+            <span class="footer-corp">TAL S.A.</span>
+            <span class="footer-separator">•</span>
+            <span>Área de Planeamiento</span>
+        </div>
+        <div class="footer-center">
+            <span class="status-pulse-dot"></span>
+            <span>Sistema Operativo</span>
+            <span class="footer-separator">•</span>
+            <span>DonWeb Ferozo</span>
+        </div>
+        <div class="footer-right">
+            <span>v1.3.0</span>
+        </div>
     </footer>
 
     <script src="assets/js/app.js"></script>
