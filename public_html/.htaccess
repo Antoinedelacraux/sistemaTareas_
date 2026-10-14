@@ -5,6 +5,7 @@
 
 Options -Indexes
 ServerSignature Off
+DirectoryIndex index.php
 
 <IfModule mod_rewrite.c>
     RewriteEngine On

@@ -8,6 +8,11 @@
 - **Cambios:** se retiró la Vista Personal, su borrado masivo, sus selectores y endpoint; las tareas nuevas se fuerzan a Área. Asistentes crean/gestionan solo sus tareas autoasignadas y las jefaturas ven todas las tareas de Área y asignan a asistentes activos. En evidencias se muestra el primer nombre, se guarda el adjunto y se descarga por ruta autorizada; se permite archivo sin texto.
 - **Pruebas:** `php tests/subtasks_comments_test.php` (23/23 PASS), `php tests/tasks_test.php` (24/24 PASS) y lint PHP sin errores. Node.js no está instalado para comprobación estática de JavaScript.
 
+### 2026-10-14 — Corrección de carga del Kanban
+- **Estado:** completado.
+- **Cambios:** Apache ahora declara `DirectoryIndex index.php`, para que el acceso a la raíz cargue el ensamblador modular vigente y no `index.html` histórico. Se actualizó la versión del módulo principal para renovar la caché del navegador.
+- **Verificación:** `GET /` local entrega el markup de Kanban modular; `GET /api/tableros/kanban` autenticado devuelve columnas y tareas.
+
 ### 2026-10-14 — LOGIN-UI-01: Contraste y espaciado del acceso
 - **Estado:** implementado, pendiente de validación visual en navegador.
 - **Cambios:** se reforzó el overlay sobre `login_hero.jpg`, se ajustaron proporciones de la tarjeta, padding, gaps, inputs, botón principal y cuentas demo; se añadió breakpoint móvil y se reemplazaron flechas de texto por SVG.
