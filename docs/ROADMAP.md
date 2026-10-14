@@ -29,6 +29,7 @@
 - [x] HISTORIAL-01 Remoción de módulo Dashboard & Métricas e implementación de módulo de Historial de Tareas Archivadas (>24h finalizadas) exclusivo para Jefatura. [COMPLETADO]
 - [x] VISTAS-01 Separación estricta de "Mis tareas" en dos vistas: Vista Área (oficiales del área, sujetas a regla 24h hacia historial) y Vista Personal (tablero de apoyo diario, privada, sin historial pasivo, retención hasta borrado manual). [COMPLETADO]
 - [x] VISTAS-02 Limpieza masiva de Vista Personal y cierre de solo lectura por columna `FINALIZADA`. [COMPLETADO]
+- [x] VISTAS-03 Tablero único de Área, permisos simplificados y evidencias descargables con autor visible. [COMPLETADO]
 - [x] VERIF-01 Validación 100% funcional local de punta a punta (creación, arrastre, checklist, adjuntos y filtros por rol). [COMPLETADO]
 - [x] VPS-PREP-01 Empaquetado, checklist y migración lista para DonWeb Ferozo / VPS. [COMPLETADO]
 

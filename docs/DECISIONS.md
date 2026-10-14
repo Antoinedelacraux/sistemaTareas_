@@ -34,6 +34,7 @@
   5. Creación de la Skill `.agents/skills/modularizar-archivos-grandes/SKILL.md` para estandarizar el proceso en el repositorio.
 
 - D-023 Cierre visible por columna y limpieza personal: las columnas `FINALIZADA` muestran un candado informativo; una tarea movida a ellas queda solo para consulta. La Vista Personal incluye una eliminación masiva confirmada, acotada en servidor a las tareas personales del usuario autenticado. La interfaz evita emojis y usa iconografía SVG profesional.
+- D-024 Tablero único de Área: se retira la Vista Personal y sus rutas de uso. Todas las tareas nuevas se fuerzan a `AREA`; asistentes crean y gestionan solo sus tareas asignadas, mientras Jefe de Personal y Jefe de Área ven todas las tareas y pueden asignarlas a asistentes activos. Las tareas personales históricas se conservan en datos, pero no se exponen.
 
 ## Propuestas pendientes de validación
 - P-001 Privacidad de tareas personales también ante jefes, exclusión de KPIs oficiales.

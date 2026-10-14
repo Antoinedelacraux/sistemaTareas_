@@ -216,26 +216,20 @@ export function renderUserBar() {
         if (tabHistory) tabHistory.style.display = 'inline-flex';
         if (memberFilter) memberFilter.style.display = 'inline-block';
         if (btnCreateUser) btnCreateUser.style.display = 'inline-flex';
-        if (btnCreateColumn) btnCreateColumn.style.display = (STATE.currentScope === 'area' || STATE.currentScope === 'personal' || STATE.currentScope === 'team') ? 'inline-flex' : 'none';
+        if (btnCreateColumn) btnCreateColumn.style.display = (STATE.currentScope === 'area' || STATE.currentScope === 'team') ? 'inline-flex' : 'none';
     } else {
         if (tabTeam) tabTeam.style.display = 'none';
         if (tabApprovals) tabApprovals.style.display = 'none';
         if (tabHistory) tabHistory.style.display = 'none';
         if (memberFilter) memberFilter.style.display = 'none';
         if (btnCreateUser) btnCreateUser.style.display = 'none';
-        if (btnCreateColumn) btnCreateColumn.style.display = STATE.currentScope === 'personal' ? 'inline-flex' : 'none';
+        if (btnCreateColumn) btnCreateColumn.style.display = 'none';
 
-        if (STATE.currentScope === 'team' || STATE.currentScope === 'approvals' || STATE.currentScope === 'history') {
+        if (STATE.currentScope === 'team' || STATE.currentScope === 'approvals' || STATE.currentScope === 'history' || STATE.currentScope === 'personal') {
             STATE.currentScope = 'area';
         }
     }
 
     const btnCreateTask = document.getElementById('btn-open-create-task');
-    if (btnCreateTask) {
-        if (!isJefe && STATE.currentScope === 'area') {
-            btnCreateTask.style.display = 'none';
-        } else {
-            btnCreateTask.style.display = 'inline-flex';
-        }
-    }
+    if (btnCreateTask) btnCreateTask.style.display = 'inline-flex';
 }

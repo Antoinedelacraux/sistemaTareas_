@@ -55,8 +55,7 @@ export function renderMemberFilterOptions() {
  */
 export async function fetchColumns() {
     try {
-        const scope = STATE.currentScope === 'personal' ? 'personal' : 'area';
-        const res = await apiFetch(`/api/tableros/columnas?scope=${scope}`);
+        const res = await apiFetch('/api/tableros/columnas');
         const json = await res.json();
         if (json.success) {
             STATE.columns = json.data?.columnas || (Array.isArray(json.data) ? json.data : []);
@@ -93,26 +92,6 @@ export async function fetchTasks() {
     }
 }
 
-/** Elimina en bloque las tareas de la Vista Personal del usuario actual. */
-export async function deleteAllPersonalTasks() {
-    if (STATE.currentScope !== 'personal') return;
-
-    if (!window.confirm('Se eliminarán permanentemente todas tus tareas de la Vista Personal. Esta acción no se puede deshacer. ¿Deseas continuar?')) return;
-
-    try {
-        const response = await apiFetch('/api/tareas/personales', { method: 'DELETE' });
-        const result = await response.json();
-        if (!result.success) {
-            showToast(result.error?.message || 'No fue posible eliminar las tareas personales.', 'error');
-            return;
-        }
-        showToast(result.data?.mensaje || 'Las tareas personales fueron eliminadas.', 'success');
-        await fetchTasks();
-    } catch {
-        showToast('Error de conexión al eliminar las tareas personales.', 'error');
-    }
-}
-
 /**
  * Renderiza el tablero Kanban y sus columnas.
  */
@@ -124,30 +103,7 @@ export function renderKanban() {
     const user = STATE.currentUser;
     if (!user) return;
 
-    // Control del banner explicativo para la Vista Personal
-    const banner = document.getElementById('personal-board-banner');
-    if (banner) {
-        banner.style.display = (STATE.currentScope === 'personal') ? 'flex' : 'none';
-    }
-
-    // Filtrar tareas según alcance activo (separación estricta de AREA vs PERSONAL)
-    let filteredTasks = [...STATE.tasks];
-    if (STATE.currentScope === 'area') {
-        filteredTasks = filteredTasks.filter(task =>
-            task.tipo_tarea === 'AREA' &&
-            (user.rol !== 'ASISTENTE' ||
-                parseInt(task.responsable_id, 10) === parseInt(user.id, 10) ||
-                parseInt(task.creador_id, 10) === parseInt(user.id, 10))
-        );
-    } else if (STATE.currentScope === 'personal') {
-        filteredTasks = filteredTasks.filter(task =>
-            task.tipo_tarea === 'PERSONAL' &&
-            (parseInt(task.responsable_id, 10) === parseInt(user.id, 10) ||
-                parseInt(task.creador_id, 10) === parseInt(user.id, 10))
-        );
-    } else if (STATE.currentScope === 'team') {
-        filteredTasks = filteredTasks.filter(task => task.tipo_tarea === 'AREA');
-    }
+    let filteredTasks = [...STATE.tasks].filter(task => task.tipo_tarea === 'AREA');
 
     if (STATE.memberFilter) {
         filteredTasks = filteredTasks.filter(t => parseInt(t.responsable_id, 10) === parseInt(STATE.memberFilter, 10));
@@ -164,8 +120,6 @@ export function renderKanban() {
     if (STATE.priorityFilter) {
         filteredTasks = filteredTasks.filter(t => t.prioridad === STATE.priorityFilter);
     }
-
-    const isJefe = isCurrentUserJefe();
 
     // Renderizar las columnas
     STATE.columns.forEach(col => {
@@ -243,18 +197,6 @@ export function renderKanban() {
         container.appendChild(colDiv);
     });
 
-    // Botón estilo Trello para añadir nuevas columnas (Exclusivo para Jefatura)
-    if (isJefe) {
-        const addColDiv = document.createElement('div');
-        addColDiv.className = 'kanban-column add-column-placeholder';
-        addColDiv.innerHTML = `
-            <button type="button" class="btn-add-column-card" onclick="openCreateColumnModal()">
-                <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                <span>+ Añadir otra columna</span>
-            </button>
-        `;
-        container.appendChild(addColDiv);
-    }
 }
 
 /**
@@ -288,10 +230,7 @@ export function createTaskCardElement(task) {
         });
     }
 
-    const isPersonal = task.tipo_tarea === 'PERSONAL';
-    const tipoBadge = isPersonal
-        ? `<span class="badge badge-tipo-personal"><svg class="icon-svg icon-svg-sm" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> PERSONAL</span>`
-        : `<span class="badge badge-tipo-area">ÁREA</span>`;
+    const tipoBadge = `<span class="badge badge-tipo-area">ÁREA</span>`;
 
     const prioBadge = `<span class="badge badge-prioridad-${task.prioridad}">${task.prioridad}</span>`;
     let subtasksHtml = '';

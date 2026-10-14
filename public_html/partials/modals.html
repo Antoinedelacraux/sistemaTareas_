@@ -22,15 +22,6 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label" for="task-type">Tipo de Tarea *</label>
-                            <select id="task-type" class="form-select" required>
-                                <option value="AREA">Oficial del Área</option>
-                                <option value="PERSONAL">Personal / Privada</option>
-                            </select>
-                            <span id="task-type-help" class="form-help">Tareas del área se supervisan e ingresan al historial pasadas 24h.</span>
-                        </div>
-
-                        <div class="form-group">
                             <label class="form-label" for="task-priority">Prioridad *</label>
                             <select id="task-priority" class="form-select" required>
                                 <option value="BAJA">Baja</option>
@@ -117,13 +108,6 @@
                                             <option value="MEDIA">Media</option>
                                             <option value="ALTA">Alta</option>
                                             <option value="URGENTE">Urgente</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="edit-task-type-select" style="font-size: 0.75rem;">Tipo</label>
-                                        <select id="edit-task-type-select" class="form-select">
-                                            <option value="AREA">Oficial del Área</option>
-                                            <option value="PERSONAL">Personal / Privada</option>
                                         </select>
                                     </div>
                                 </div>
@@ -243,11 +227,11 @@
 
                             <form id="add-comment-form">
                                 <div class="form-group" style="margin-bottom: 0.5rem;">
-                                    <textarea id="comment-text-input" class="form-textarea" rows="2" placeholder="Escribe un comentario o actualización..." required></textarea>
+                                    <textarea id="comment-text-input" class="form-textarea" rows="2" placeholder="Escribe un comentario o actualización..."></textarea>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 0.75rem;">
                                     <label class="form-label" style="font-size: 0.75rem;">Adjuntar Evidencia (PDF, Excel, Imagen, etc.):</label>
-                                    <input type="file" id="comment-file-input" class="form-input" style="font-size: 0.75rem; padding: 0.3rem;">
+                                    <input type="file" id="comment-file-input" class="form-input" accept=".pdf,.jpg,.jpeg,.png,.webp,.xlsx,.xls,.docx,.csv,.txt" style="font-size: 0.75rem; padding: 0.3rem;">
                                 </div>
                                 <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">
                                     <span>Publicar Comentario / Evidencia</span>

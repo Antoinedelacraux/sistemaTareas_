@@ -7,7 +7,7 @@ import { STATE, isCurrentUserJefe } from './modules/state.js';
 import { apiFetch } from './modules/api.js';
 import { initTheme, openModal, closeModal, showToast } from './modules/ui.js';
 import { checkSession, doLogin, quickLogin, doLogout, registerLoginCallback } from './modules/auth.js';
-import { fetchUsers, fetchColumns, fetchTasks, renderKanban, executeTaskTransition, deleteAllPersonalTasks, registerKanbanCallbacks } from './modules/kanban.js';
+import { fetchUsers, fetchColumns, fetchTasks, renderKanban, executeTaskTransition, registerKanbanCallbacks } from './modules/kanban.js';
 import { openCreateTaskModal, handleCreateTask, openTaskDetailModal, loadTaskDetail, handleAddSubtask, toggleSubtask, deleteSubtask, handleAddComment, handleDeleteActiveTask, handleAddDependency, removeDependency, toggleTaskEditMode, handleSaveTaskEdit, registerTaskModalCallbacks } from './modules/task-modal.js';
 import { fetchPendingApprovals, fetchPendingApprovalsCount, approveTask, openReturnModal, handleReturnTaskSubmit, requestApproval, registerApprovalCallbacks } from './modules/approvals.js';
 import { loadHistoryTasks, filterHistoryTasks } from './modules/history.js';
@@ -119,39 +119,29 @@ export async function setScope(scope) {
     const approvalsView = document.getElementById('approvals-view');
     const memberFilter = document.getElementById('member-filter-select');
 
-    // Filtro de miembros no aplica en tablero de apoyo personal
     if (memberFilter) {
-        if (scope === 'personal' || !isCurrentUserJefe()) {
+        if (!isCurrentUserJefe()) {
             memberFilter.style.display = 'none';
-        } else if (isCurrentUserJefe() && (scope === 'area' || scope === 'team')) {
+        } else if (scope === 'area' || scope === 'team') {
             memberFilter.style.display = 'inline-block';
         }
     }
 
     const btnCreateTask = document.getElementById('btn-open-create-task');
     if (btnCreateTask) {
-        if (!isCurrentUserJefe() && scope === 'area') {
-            btnCreateTask.style.display = 'none';
-        } else {
-            btnCreateTask.style.display = 'inline-flex';
-        }
+        btnCreateTask.style.display = 'inline-flex';
     }
 
     const btnCreateColumn = document.getElementById('btn-open-create-column');
     if (btnCreateColumn) {
-        if ((scope === 'personal') || (isCurrentUserJefe() && (scope === 'area' || scope === 'team'))) {
+        if (isCurrentUserJefe() && (scope === 'area' || scope === 'team')) {
             btnCreateColumn.style.display = 'inline-flex';
         } else {
             btnCreateColumn.style.display = 'none';
         }
     }
 
-    const btnDeleteAllPersonal = document.getElementById('btn-delete-all-personal');
-    if (btnDeleteAllPersonal) {
-        btnDeleteAllPersonal.style.display = scope === 'personal' ? 'inline-flex' : 'none';
-    }
-
-    if (scope === 'area' || scope === 'personal' || scope === 'team') {
+    if (scope === 'area' || scope === 'team') {
         await fetchColumns();
     }
 
@@ -234,11 +224,6 @@ function initEventListeners() {
     const openCreateBtn = document.getElementById('btn-open-create-task');
     if (openCreateBtn) {
         openCreateBtn.addEventListener('click', openCreateTaskModal);
-    }
-
-    const deleteAllPersonalBtn = document.getElementById('btn-delete-all-personal');
-    if (deleteAllPersonalBtn) {
-        deleteAllPersonalBtn.addEventListener('click', deleteAllPersonalTasks);
     }
 
     const createTaskForm = document.getElementById('create-task-form');

@@ -20,66 +20,41 @@ export function registerTaskModalCallbacks({ onTaskUpdated }) {
 /**
  * Actualiza los campos y badges del modal de creación según el tipo seleccionado (AREA vs PERSONAL).
  */
-export function updateCreateTaskTypeUI(type) {
+export function updateCreateTaskTypeUI() {
     const user = STATE.currentUser;
     if (!user) return;
 
     const badge = document.getElementById('create-task-badge');
     const helpSpan = document.getElementById('assignee-help');
-    const typeHelp = document.getElementById('task-type-help');
     const assigneeSelect = document.getElementById('task-assignee');
     const groupApproval = document.getElementById('group-requires-approval');
     const requiresApproval = document.getElementById('task-requires-approval');
 
     assigneeSelect.innerHTML = '';
 
-    if (type === 'PERSONAL') {
-        if (badge) {
-            badge.className = 'badge badge-tipo-personal';
-            badge.textContent = 'TAREA PERSONAL';
-        }
-        if (typeHelp) {
-            typeHelp.textContent = 'Espacio de apoyo personal: Visible solo para ti. Las finalizadas se eliminan manualmente para limpiar el tablero.';
-        }
+    if (badge) {
+        badge.className = 'badge badge-tipo-area';
+        badge.textContent = 'TAREA DEL ÁREA';
+    }
+    if (groupApproval) groupApproval.style.display = 'block';
+    if (user.rol === 'ASISTENTE') {
         const opt = document.createElement('option');
         opt.value = user.id;
-        opt.textContent = `${user.nombre} (Autoasignado - Mi persona)`;
+        opt.textContent = `${user.nombre} (Autoasignado)`;
         opt.selected = true;
         assigneeSelect.appendChild(opt);
         assigneeSelect.disabled = true;
-        if (helpSpan) helpSpan.textContent = 'Tareas personales son privadas y de gestión individual.';
-        if (requiresApproval) requiresApproval.checked = false;
-        if (groupApproval) groupApproval.style.display = 'none';
+        if (helpSpan) helpSpan.textContent = 'Como asistente, las tareas creadas se asignan a tu responsabilidad.';
     } else {
-        if (badge) {
-            badge.className = 'badge badge-tipo-area';
-            badge.textContent = 'TAREA DEL ÁREA';
-        }
-        if (typeHelp) {
-            typeHelp.textContent = 'Oficial del área: Supervisada en equipo. Pasa al Historial tras 24h de finalizada.';
-        }
-        if (groupApproval) groupApproval.style.display = 'block';
-
-        if (user.rol === 'ASISTENTE') {
+        assigneeSelect.disabled = false;
+        if (helpSpan) helpSpan.textContent = 'Puedes asignar tareas a asistentes activos del área.';
+        STATE.users.filter(u => u.rol === 'ASISTENTE' || parseInt(u.id, 10) === parseInt(user.id, 10)).forEach(u => {
             const opt = document.createElement('option');
-            opt.value = user.id;
-            opt.textContent = `${user.nombre} (Autoasignado - Mi persona)`;
-            opt.selected = true;
+            opt.value = u.id;
+            opt.textContent = `${u.nombre} (${u.rol}) - ${u.cargo || ''}`;
+            if (parseInt(u.id, 10) === parseInt(user.id, 10)) opt.selected = true;
             assigneeSelect.appendChild(opt);
-            assigneeSelect.disabled = true;
-            if (helpSpan) helpSpan.textContent = 'Como asistente, las tareas creadas se asignan a tu responsabilidad.';
-        } else {
-            assigneeSelect.disabled = false;
-            if (helpSpan) helpSpan.textContent = 'Como jefatura autorizada, puedes asignar tareas a cualquier colaborador del equipo.';
-
-            STATE.users.forEach(u => {
-                const opt = document.createElement('option');
-                opt.value = u.id;
-                opt.textContent = `${u.nombre} (${u.rol}) - ${u.cargo || ''}`;
-                if (parseInt(u.id, 10) === parseInt(user.id, 10)) opt.selected = true;
-                assigneeSelect.appendChild(opt);
-            });
-        }
+        });
     }
 }
 
@@ -96,20 +71,7 @@ export function openCreateTaskModal() {
     document.getElementById('task-due-date').value = '';
     document.getElementById('task-requires-approval').checked = false;
 
-    // Si el usuario se encuentra en la Vista Personal, preselecciona PERSONAL por defecto
-    const defaultType = (STATE.currentScope === 'personal') ? 'PERSONAL' : 'AREA';
-    const typeSelect = document.getElementById('task-type');
-    if (typeSelect) {
-        typeSelect.value = defaultType;
-        if (!typeSelect._hasTypeChangeListener) {
-            typeSelect.addEventListener('change', (e) => {
-                updateCreateTaskTypeUI(e.target.value);
-            });
-            typeSelect._hasTypeChangeListener = true;
-        }
-    }
-
-    updateCreateTaskTypeUI(defaultType);
+    updateCreateTaskTypeUI();
     openModal('modal-create-task');
 }
 
@@ -121,13 +83,12 @@ export async function handleCreateTask(e) {
     const user = STATE.currentUser;
     const title = document.getElementById('task-title').value.trim();
     const desc = document.getElementById('task-description').value.trim();
-    const type = document.getElementById('task-type').value;
     const priority = document.getElementById('task-priority').value;
     const dueDate = document.getElementById('task-due-date').value || null;
     const requiresApproval = document.getElementById('task-requires-approval').checked;
 
     let assigneeId = parseInt(document.getElementById('task-assignee').value, 10);
-    if (user.rol === 'ASISTENTE' || type === 'PERSONAL') assigneeId = parseInt(user.id, 10);
+    if (user.rol === 'ASISTENTE') assigneeId = parseInt(user.id, 10);
 
     try {
         const res = await apiFetch('/api/tareas', {
@@ -136,11 +97,11 @@ export async function handleCreateTask(e) {
             body: JSON.stringify({
                 titulo: title,
                 descripcion: desc,
-                tipo_tarea: type,
+                tipo_tarea: 'AREA',
                 prioridad: priority,
                 responsable_id: assigneeId,
                 fecha_limite: dueDate,
-                requiere_aprobacion: (type === 'PERSONAL') ? 0 : (requiresApproval ? 1 : 0)
+                requiere_aprobacion: requiresApproval ? 1 : 0
             })
         });
         const result = await res.json();
@@ -148,18 +109,7 @@ export async function handleCreateTask(e) {
             closeModal('modal-create-task');
             showToast(`¡Tarea ${result.data.codigo} creada exitosamente!`, 'success');
             
-            // Si el tipo de tarea creada no coincide con la vista activa, cambiar fluidamente a la pestaña correspondiente
-            if (type === 'PERSONAL' && STATE.currentScope !== 'personal') {
-                if (window.setScope) {
-                    await window.setScope('personal');
-                }
-            } else if (type === 'AREA' && STATE.currentScope === 'personal') {
-                if (window.setScope) {
-                    await window.setScope('area');
-                }
-            } else {
-                await fetchTasks();
-            }
+            await fetchTasks();
             if (onTaskUpdatedCallback) onTaskUpdatedCallback();
         } else {
             showToast(result.error?.message || 'Error al crear tarea', 'error');
@@ -209,8 +159,8 @@ export async function loadTaskDetail(taskId) {
         document.getElementById('detail-due-date').textContent = task.fecha_limite || 'Sin fecha límite';
 
         const typeBadge = document.getElementById('detail-type-badge');
-        typeBadge.className = task.tipo_tarea === 'PERSONAL' ? 'badge badge-tipo-personal' : 'badge badge-tipo-area';
-        typeBadge.textContent = task.tipo_tarea;
+        typeBadge.className = 'badge badge-tipo-area';
+        typeBadge.textContent = 'ÁREA';
 
         const prioBadge = document.getElementById('detail-priority-badge');
         prioBadge.className = `badge badge-prioridad-${task.prioridad}`;
@@ -248,10 +198,8 @@ export async function loadTaskDetail(taskId) {
             if (addCommentForm) addCommentForm.style.display = 'block';
         }
 
-        // Configurar botones de acción según rol y tipo de tarea (Jefes: total; Asistentes: solo personal)
-        const isPersonal = task.tipo_tarea === 'PERSONAL';
-        const isOwner = user && (parseInt(task.creador_id, 10) === parseInt(user.id, 10) || parseInt(task.responsable_id, 10) === parseInt(user.id, 10));
-        const canModify = !isClosedForAssistant && (isJefe || (isPersonal && isOwner));
+        const isOwner = user && parseInt(task.responsable_id, 10) === parseInt(user.id, 10);
+        const canModify = !isClosedForAssistant && (isJefe || isOwner);
 
         const btnEdit = document.getElementById('btn-edit-task');
         const btnDelete = document.getElementById('btn-delete-task');
@@ -274,21 +222,16 @@ export async function loadTaskDetail(taskId) {
         }
         renderApprovalBox(task, approvals);
 
-        // Dependencias (DAG MVP-07): Innecesarias y ocultas en tareas personales
         const depsBox = document.getElementById('detail-deps-box');
-        if (isPersonal) {
-            if (depsBox) depsBox.style.display = 'none';
-        } else {
-            if (depsBox) depsBox.style.display = 'block';
-            try {
-                const depRes = await apiFetch(`/api/tareas/${taskId}/dependencias`);
-                const depJson = await depRes.json();
-                if (depJson.success) {
-                    renderDependenciesSection(task, depJson.data);
-                }
-            } catch (e) {
-                console.warn('Error al cargar dependencias', e);
+        if (depsBox) depsBox.style.display = 'block';
+        try {
+            const depRes = await apiFetch(`/api/tareas/${taskId}/dependencias`);
+            const depJson = await depRes.json();
+            if (depJson.success) {
+                renderDependenciesSection(task, depJson.data);
             }
+        } catch (e) {
+            console.warn('Error al cargar dependencias', e);
         }
 
     } catch {
@@ -412,15 +355,15 @@ export function renderCommentsList(comments) {
         card.className = 'comment-card';
 
         let attachmentHtml = '';
-        if (com.es_evidencia && com.archivo_nombre_original) {
-            const kb = Math.round((com.archivo_size_bytes || 0) / 1024);
+        if (com.adjunto) {
+            const kb = Math.max(1, Math.round((com.adjunto.size_bytes || 0) / 1024));
             attachmentHtml = `
                 <div class="comment-attachment">
                     <div class="attachment-info">
                         <svg class="icon-svg icon-svg-sm" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
-                        <span>${escapeHtml(com.archivo_nombre_original)} (${kb} KB)</span>
+                        <span>${escapeHtml(com.adjunto.nombre_original)} (${kb} KB)</span>
                     </div>
-                    <a href="/api/comentarios/${com.id}/archivo" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">
+                    <a href="${escapeHtml(com.adjunto.descarga_url)}" class="btn btn-outline btn-sm" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">
                         Descargar
                     </a>
                 </div>
@@ -429,7 +372,7 @@ export function renderCommentsList(comments) {
 
         card.innerHTML = `
             <div class="comment-header">
-                <span class="comment-author">${escapeHtml(com.autor_nombre || 'Usuario')}</span>
+                <span class="comment-author">${escapeHtml(com.usuario_primer_nombre || (com.usuario_nombre || 'Usuario').trim().split(/\s+/)[0])}</span>
                 <span class="comment-time">${formatDate(com.created_at)}</span>
             </div>
             <div class="comment-body">${escapeHtml(com.comentario)}</div>
@@ -449,12 +392,16 @@ export async function handleAddComment(e) {
     const fileInput = document.getElementById('comment-file-input');
     const comment = textarea.value.trim();
 
-    if (!comment) return;
+    const attachedFile = fileInput.files[0];
+    if (!comment && !attachedFile) {
+        showToast('Escribe un mensaje o adjunta un archivo.', 'warning');
+        return;
+    }
 
     const formData = new FormData();
     formData.append('comentario', comment);
-    if (fileInput.files.length > 0) {
-        formData.append('archivo', fileInput.files[0]);
+    if (attachedFile) {
+        formData.append('archivo', attachedFile);
     }
 
     try {
@@ -486,10 +433,7 @@ export async function handleDeleteActiveTask() {
     const task = STATE.activeTaskDetail;
     const user = STATE.currentUser;
     const isJefe = isCurrentUserJefe();
-    const isPersonal = task.tipo_tarea === 'PERSONAL';
-    const isOwner = user && (parseInt(task.creador_id, 10) === parseInt(user.id, 10) || parseInt(task.responsable_id, 10) === parseInt(user.id, 10));
-
-    if (!isJefe && (!isPersonal || !isOwner)) {
+    if (!isJefe) {
         showToast('No tienes autorización para eliminar esta tarea oficial del área', 'warning');
         return;
     }
@@ -759,10 +703,8 @@ export function toggleTaskEditMode(isEditing) {
         const task = STATE.activeTaskDetail;
         const user = STATE.currentUser;
         const isJefe = isCurrentUserJefe();
-        const isPersonal = task.tipo_tarea === 'PERSONAL';
-        const isOwner = user && (parseInt(task.creador_id, 10) === parseInt(user.id, 10) || parseInt(task.responsable_id, 10) === parseInt(user.id, 10));
-
-        if (!isJefe && (!isPersonal || !isOwner)) {
+        const isOwner = user && parseInt(task.responsable_id, 10) === parseInt(user.id, 10);
+        if (!isJefe && !isOwner) {
             showToast('No tienes autorización para editar esta tarea', 'warning');
             return;
         }
@@ -770,7 +712,6 @@ export function toggleTaskEditMode(isEditing) {
         document.getElementById('edit-task-title-input').value = task.titulo || '';
         document.getElementById('edit-task-desc-input').value = task.descripcion || '';
         document.getElementById('edit-task-priority-select').value = task.prioridad || 'MEDIA';
-        document.getElementById('edit-task-type-select').value = task.tipo_tarea || 'AREA';
         document.getElementById('edit-task-due-date-input').value = task.fecha_limite || '';
 
         const assigneeSelect = document.getElementById('edit-task-assignee-select');
@@ -784,7 +725,7 @@ export function toggleTaskEditMode(isEditing) {
             assigneeSelect.disabled = true;
         } else {
             assigneeSelect.disabled = false;
-            STATE.users.forEach(u => {
+            STATE.users.filter(u => u.rol === 'ASISTENTE' || parseInt(u.id, 10) === parseInt(user.id, 10)).forEach(u => {
                 const opt = document.createElement('option');
                 opt.value = u.id;
                 opt.textContent = `${u.nombre} (${u.rol})`;
@@ -805,9 +746,8 @@ export function toggleTaskEditMode(isEditing) {
             const task = STATE.activeTaskDetail;
             const user = STATE.currentUser;
             const isJefe = isCurrentUserJefe();
-            const isPersonal = task && task.tipo_tarea === 'PERSONAL';
-            const isOwner = task && user && (parseInt(task.creador_id, 10) === parseInt(user.id, 10) || parseInt(task.responsable_id, 10) === parseInt(user.id, 10));
-            const canModify = isJefe || (isPersonal && isOwner);
+            const isOwner = task && user && parseInt(task.responsable_id, 10) === parseInt(user.id, 10);
+            const canModify = isJefe || isOwner;
             editBtn.style.display = canModify ? 'inline-flex' : 'none';
         }
     }
@@ -823,10 +763,8 @@ export async function handleSaveTaskEdit(e) {
     const task = STATE.activeTaskDetail;
     const user = STATE.currentUser;
     const isJefe = isCurrentUserJefe();
-    const isPersonal = task.tipo_tarea === 'PERSONAL';
-    const isOwner = user && (parseInt(task.creador_id, 10) === parseInt(user.id, 10) || parseInt(task.responsable_id, 10) === parseInt(user.id, 10));
-
-    if (!isJefe && (!isPersonal || !isOwner)) {
+    const isOwner = user && parseInt(task.responsable_id, 10) === parseInt(user.id, 10);
+    if (!isJefe && !isOwner) {
         showToast('No tienes autorización para editar esta tarea', 'warning');
         return;
     }
@@ -835,7 +773,6 @@ export async function handleSaveTaskEdit(e) {
     const title = document.getElementById('edit-task-title-input').value.trim();
     const desc = document.getElementById('edit-task-desc-input').value.trim();
     const priority = document.getElementById('edit-task-priority-select').value;
-    const type = document.getElementById('edit-task-type-select').value;
     const dueDate = document.getElementById('edit-task-due-date-input').value || null;
     const assigneeId = parseInt(document.getElementById('edit-task-assignee-select').value, 10);
 
@@ -852,7 +789,7 @@ export async function handleSaveTaskEdit(e) {
                 titulo: title,
                 descripcion: desc,
                 prioridad: priority,
-                tipo_tarea: type,
+                tipo_tarea: 'AREA',
                 fecha_limite: dueDate,
                 responsable_id: assigneeId
             })

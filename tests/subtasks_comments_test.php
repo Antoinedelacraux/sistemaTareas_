@@ -337,7 +337,10 @@ $res = invokeCapture(function () use ($commentController, $userAsistente1) {
 $com1 = $res['json']['data']['comentario'] ?? [];
 testAssert(
     "T11: Asistente 1 registra comentario -> 201 Created y autor asociado",
-    $res['status'] === 201 && ($com1['usuario_id'] ?? 0) === 1 && ($com1['es_evidencia'] ?? true) === false
+    $res['status'] === 201 &&
+    ($com1['usuario_id'] ?? 0) === 1 &&
+    ($com1['usuario_primer_nombre'] ?? '') === 'Marco' &&
+    ($com1['es_evidencia'] ?? true) === false
 );
 
 // T12: Seguridad: Asistente 1 intenta comentar en Tarea 2 -> 403 Forbidden
@@ -413,6 +416,25 @@ testAssert(
     ($comEvidencia['es_evidencia'] ?? false) === true &&
     isset($comEvidencia['adjunto']['nombre_original']) &&
     $comEvidencia['adjunto']['nombre_original'] === 'informe_conciliacion_2026.pdf'
+);
+
+// T15b: una evidencia puede enviarse sin texto adicional.
+$tempSoloArchivo = tempnam(sys_get_temp_dir(), 'test_file_');
+file_put_contents($tempSoloArchivo, "Archivo de evidencia sin comentario");
+$res = invokeCapture(function () use ($commentController, $userAsistente1, $tempSoloArchivo) {
+    $commentController->create([
+        'user' => $userAsistente1,
+        'params' => ['id' => '1'],
+        'body' => [],
+        'files' => ['archivo' => [
+            'name' => 'evidencia.txt', 'tmp_name' => $tempSoloArchivo,
+            'error' => UPLOAD_ERR_OK, 'size' => filesize($tempSoloArchivo)
+        ]]
+    ]);
+});
+testAssert(
+    "T15b: Asistente envía evidencia sin texto -> 201 Created y adjunto descargable",
+    $res['status'] === 201 && !empty($res['json']['data']['comentario']['adjunto']['descarga_url'])
 );
 
 // T16 (Seguridad negativa): Intento de subir archivo con extensión prohibida (.php)
@@ -525,7 +547,7 @@ $res = invokeCapture(function () use ($router) {
 });
 testAssert(
     "T22: Router dispatch GET /api/tareas/1/comentarios -> 200 OK y 2 comentarios (uno con evidencia)",
-    $res['status'] === 200 && count($res['json']['data']['comentarios'] ?? []) === 2
+    $res['status'] === 200 && count($res['json']['data']['comentarios'] ?? []) === 3
 );
 
 // Limpiar archivos temporales de prueba

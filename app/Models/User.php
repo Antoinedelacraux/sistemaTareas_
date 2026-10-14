@@ -157,7 +157,12 @@ class User
     {
         $isJefe = in_array($currentUser['rol'] ?? '', [self::ROL_JEFE_PERSONAL, self::ROL_JEFE_PLANEAMIENTO], true);
         if ($isJefe) {
-            return true;
+            if ((int)$currentUser['id'] === $targetUserId) {
+                return true;
+            }
+
+            $target = self::findById($targetUserId);
+            return $target !== null && ($target['rol'] ?? null) === self::ROL_ASISTENTE;
         }
 
         return (int)$currentUser['id'] === $targetUserId;
@@ -188,7 +193,7 @@ class User
             return [
                 'valid'   => false,
                 'code'    => 'ERR_FORBIDDEN_ASSIGNMENT',
-                'message' => 'Los asistentes no tienen autorización para asignar tareas a otros colaboradores.'
+                'message' => 'Solo la jefatura puede asignar tareas y únicamente a asistentes activos.'
             ];
         }
 

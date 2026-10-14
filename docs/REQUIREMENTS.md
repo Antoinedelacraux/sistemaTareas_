@@ -4,7 +4,7 @@
 - RF-01 Autenticar usuarios con sesiones seguras y cambio rápido de rol para testing.
 - RF-02 Administrar roles de usuario: Jefatura (Planeamiento / Personal) y Asistentes.
 - RF-03 Crear tareas con título, descripción, prioridad, fecha límite y responsable.
-- RF-04 Gestión de roles y asignación: Jefatura asigna y reasigna a cualquiera; Asistentes pueden asignarse tareas y crear tareas de apoyo.
+- RF-04 Gestión de roles y asignación: Jefatura asigna y reasigna tareas a asistentes activos; Asistentes crean únicamente tareas autoasignadas.
 - RF-05 Tablero Kanban interactivo, rápido y fluido con columnas: Pendiente, En proceso, En revisión (opcional), Finalizada.
 - RF-06 Movimiento directo e inmediato de tarjetas (Drag & Drop y cambio por selector) sin bloqueos artificiales ni modales forzados.
 - RF-07 Ficha de tarea enriquecida (estilo Trello/Notion): edición de campos, estado, prioridad y fechas.
@@ -16,8 +16,8 @@
 
 ## Reglas de negocio prácticas
 - RN-01 La experiencia de usuario debe ser ágil y libre de fricción: mover una tarjeta a cualquier columna debe reflejarse inmediatamente.
-- RN-02 Roles colaborativos: El asistente tiene su vista por defecto en sus tareas asignadas, pero puede consultar el tablero general del equipo para saber en qué están sus compañeros.
-- RN-03 Asignaciones: Jefes pueden asignar y reasignar tareas a cualquier miembro del equipo.
+- RN-02 Roles colaborativos: El asistente solo visualiza sus tareas asignadas; la jefatura visualiza todas las tareas de Área.
+- RN-03 Asignaciones: Jefes pueden asignar y reasignar tareas a asistentes activos; asistentes solo se autoasignan.
 - RN-04 Toda finalización registra automáticamente fecha y hora de término.
 - RN-05 Al reabrir una tarea hacia otra columna, la fecha de finalización se limpia automáticamente.
 - RN-06 Subida de archivos segura: extensiones controladas (PDF, imágenes, hojas de cálculo, documentos), nombres hasheados para evitar colisiones y límite de 10 MB.

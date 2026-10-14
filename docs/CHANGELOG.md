@@ -1,5 +1,12 @@
 # Changelog
 
+## [Sin versión - Tablero único de Área] - 2026-10-14
+### Modificado
+- Retirada la Vista Personal, su borrado masivo y sus flujos de creación/columnas; las tareas nuevas se fuerzan a Área.
+- Asistentes: creación autoasignada y visibilidad limitada a sus tareas. Jefaturas: supervisión total y asignación limitada a asistentes activos.
+- Comentarios y evidencias alineados: primer nombre del autor, adjuntos guardados de forma segura y descarga autorizada; se permite enviar un archivo sin texto.
+- La SPA se sirve desde `index.php` en Apache para usar los partials vigentes en lugar de la copia histórica `index.html`.
+
 ## [Sin version] - 2026-10-14
 ### Modificado
 - Login con panel de imagen corporativa de mayor contraste para `TAL S.A.`, `Área de Planeamiento` y la descripción operativa.

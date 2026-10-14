@@ -84,7 +84,7 @@ class TaskController
     }
 
     /**
-     * Crea una nueva tarea (personal o del área).
+     * Crea una nueva tarea del área.
      * POST /api/tareas
      */
     public function create(array $request): void
@@ -116,13 +116,8 @@ class TaskController
         }
         $body['prioridad'] = $prioridad;
 
-        // Validación de tipo de tarea
-        $tipoTarea = strtoupper(trim((string)($body['tipo_tarea'] ?? Task::TIPO_AREA)));
-        if (!in_array($tipoTarea, [Task::TIPO_PERSONAL, Task::TIPO_AREA], true)) {
-            Response::error("El tipo de tarea debe ser 'PERSONAL' o 'AREA'.", 422, 'ERR_VALIDATION_FAILED');
-            return;
-        }
-        $body['tipo_tarea'] = $tipoTarea;
+        // El sistema opera con un único tablero compartido de Área.
+        $body['tipo_tarea'] = Task::TIPO_AREA;
 
         // Validación de fecha límite si fue provista
         if (!empty($body['fecha_limite'])) {
@@ -283,28 +278,4 @@ class TaskController
         ]);
     }
 
-    /**
-     * Elimina en bloque únicamente las tareas personales del usuario autenticado.
-     * DELETE /api/tareas/personales
-     */
-    public function deleteAllPersonal(array $request): void
-    {
-        $currentUser = $request['user'] ?? null;
-        if (!$currentUser) {
-            Response::error('Autenticación requerida.', 401, 'ERR_UNAUTHORIZED');
-            return;
-        }
-
-        try {
-            $total = Task::deleteAllPersonalForUser($currentUser);
-            Response::json([
-                'eliminadas' => $total,
-                'mensaje' => $total === 1
-                    ? 'Se eliminó 1 tarea personal.'
-                    : "Se eliminaron {$total} tareas personales."
-            ]);
-        } catch (\Throwable $exception) {
-            Response::error('No fue posible eliminar las tareas personales.', 500, 'ERR_PERSONAL_BULK_DELETE');
-        }
-    }
 }

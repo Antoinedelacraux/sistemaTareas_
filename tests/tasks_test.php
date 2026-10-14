@@ -201,7 +201,7 @@ $res = invokeCapture(function () use ($taskController) {
 });
 testAssert("T01: GET /api/tareas sin usuario retorna 401 Unauthorized", $res['status'] === 401);
 
-// T02: Asistente 1 crea tarea PERSONAL para sí mismo (RF-03, RN-01)
+// T02: Asistente crea una tarea del Área; el servidor ignora cualquier tipo legado.
 $reqCrearPersonal = [
     'user' => $userAsistente1,
     'body' => [
@@ -216,8 +216,9 @@ $res = invokeCapture(function () use ($taskController, $reqCrearPersonal) {
 });
 $tareaPersonalAsist1 = $res['json']['data']['tarea'] ?? [];
 testAssert(
-    "T02: Asistente 1 crea tarea PERSONAL -> 201 Created con responsable = 1 y código correlativo",
+    "T02: Asistente crea tarea del Área autoasignada aunque envíe un tipo legado",
     $res['status'] === 201 &&
+    ($tareaPersonalAsist1['tipo_tarea'] ?? '') === 'AREA' &&
     ($tareaPersonalAsist1['responsable_id'] ?? 0) === 1 &&
     ($tareaPersonalAsist1['creador_id'] ?? 0) === 1 &&
     str_starts_with($tareaPersonalAsist1['codigo'] ?? '', 'TAR-')
@@ -318,14 +319,14 @@ $res = invokeCapture(function () use ($taskController, $userJefe) {
     $taskController->index(['user' => $userJefe, 'query' => []]);
 });
 $tareasJefe = $res['json']['data']['tareas'] ?? [];
-// Debe ver las 2 tareas AREA del equipo (T04 y T05), pero NO la tarea PERSONAL privada de Asistente 1 (RN-01)
+// Jefatura ve todas las tareas del Área, incluidas las creadas por asistentes.
 $idsJefe = array_column($tareasJefe, 'id');
 testAssert(
-    "T08: [Alcance Jefatura RN-01] Jefe lista tareas y ve las del ÁREA del equipo, excluyendo tareas personales privadas",
+    "T08: Jefe lista todas las tareas del Área del equipo",
     $res['status'] === 200 &&
     in_array($tareaAreaAsist1['id'], $idsJefe, true) &&
     in_array($tareaJefeAsist2['id'], $idsJefe, true) &&
-    !in_array($tareaPersonalAsist1['id'], $idsJefe, true)
+    in_array($tareaPersonalAsist1['id'], $idsJefe, true)
 );
 
 // T09 (Detalle positivo): Asistente 1 consulta su propia tarea de área
@@ -364,7 +365,7 @@ testAssert(
     $res['status'] === 200 && ($res['json']['data']['tarea']['id'] ?? 0) === $tareaJefeAsist2['id']
 );
 
-// T12 (Privacidad de Tareas Personales RN-01): Jefe intenta ver tarea personal de Asistente 1
+// T12: la tarea creada por asistente es una tarea compartida de Área y Jefatura puede supervisarla.
 $res = invokeCapture(function () use ($taskController, $userJefe, $tareaPersonalAsist1) {
     $taskController->show([
         'user'   => $userJefe,
@@ -372,8 +373,8 @@ $res = invokeCapture(function () use ($taskController, $userJefe, $tareaPersonal
     ]);
 });
 testAssert(
-    "T12: [Privacidad RN-01] Jefe intenta ver tarea personal de Asistente 1 -> 403 Forbidden",
-    $res['status'] === 403 && ($res['json']['error']['code'] ?? '') === 'ERR_FORBIDDEN_TASK_ACCESS'
+    "T12: Jefe puede supervisar tarea de Área creada por Asistente -> 200 OK",
+    $res['status'] === 200 && ($res['json']['data']['tarea']['tipo_tarea'] ?? '') === 'AREA'
 );
 
 // T13: Consulta ID inexistente -> 404 Not Found

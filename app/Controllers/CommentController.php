@@ -88,12 +88,6 @@ class CommentController
         $body = $request['body'] ?? [];
         $comentario = trim((string)($body['comentario'] ?? ''));
 
-        if ($comentario === '') {
-            Response::error("El texto del comentario no puede estar vacío.", 422, 'ERR_VALIDATION_FAILED');
-            return;
-        }
-
-        $esEvidencia = !empty($body['es_evidencia']);
         $archivoData = null;
 
         // Procesar archivo adjunto si fue enviado
@@ -106,6 +100,13 @@ class CommentController
                 return;
             }
         }
+
+        if ($comentario === '' && $archivoData === null) {
+            Response::error("Debe escribir un comentario o adjuntar un archivo.", 422, 'ERR_VALIDATION_FAILED');
+            return;
+        }
+
+        $esEvidencia = !empty($body['es_evidencia']) || $archivoData !== null;
 
         $nuevo = Comment::create(
             $taskId,

@@ -22,9 +22,7 @@ class BoardController
     {
         $currentUser = $request['user'] ?? null;
         if (!$currentUser) { Response::error('Autenticación requerida.', 401, 'ERR_UNAUTHORIZED'); return; }
-        $scope = strtolower((string)(($request['query'] ?? [])['scope'] ?? 'area'));
-        $ambito = $scope === 'personal' ? BoardColumn::AMBITO_PERSONAL : BoardColumn::AMBITO_AREA;
-        $columnas = BoardColumn::listAllActive($ambito, $ambito === BoardColumn::AMBITO_PERSONAL ? (int)$currentUser['id'] : null);
+        $columnas = BoardColumn::listAllActive(BoardColumn::AMBITO_AREA);
         Response::json([
             'columnas' => $columnas,
             'total'    => count($columnas)
@@ -45,9 +43,7 @@ class BoardController
         }
 
         $filters = $request['query'] ?? [];
-        $scope = strtolower((string)($filters['scope'] ?? 'area'));
-        $ambito = $scope === 'personal' ? BoardColumn::AMBITO_PERSONAL : BoardColumn::AMBITO_AREA;
-        $columnas = BoardColumn::listAllActive($ambito, $ambito === BoardColumn::AMBITO_PERSONAL ? (int)$currentUser['id'] : null);
+        $columnas = BoardColumn::listAllActive(BoardColumn::AMBITO_AREA);
         $todasLasTareas = Task::listForUser($currentUser, $filters);
 
         // Agrupar tareas por columna_id
@@ -156,9 +152,7 @@ class BoardController
         }
 
         $isJefe = in_array($currentUser['rol'] ?? '', [\App\Models\User::ROL_JEFE_PERSONAL, \App\Models\User::ROL_JEFE_PLANEAMIENTO], true) || \App\Models\User::isJefe($currentUser);
-        $scope = strtolower((string)(($request['body'] ?? [])['scope'] ?? 'area'));
-        $isPersonal = $scope === 'personal';
-        if (!$isJefe && !$isPersonal) {
+        if (!$isJefe) {
             Response::error("Solo el personal de Jefatura está autorizado para gestionar columnas del tablero.", 403, 'ERR_FORBIDDEN_ACTION');
             return;
         }
@@ -189,8 +183,8 @@ class BoardController
             'nombre'      => $nombre,
             'color_hex'   => $colorHex,
             'tipo_estado' => $tipoEstado,
-            'ambito'      => $isPersonal ? BoardColumn::AMBITO_PERSONAL : BoardColumn::AMBITO_AREA,
-            'usuario_id'  => $isPersonal ? (int)$currentUser['id'] : null
+            'ambito'      => BoardColumn::AMBITO_AREA,
+            'usuario_id'  => null
         ]);
 
         Response::json([
@@ -218,7 +212,7 @@ class BoardController
         }
         $column = BoardColumn::findById($id);
         $isJefe = in_array($currentUser['rol'] ?? '', [\App\Models\User::ROL_JEFE_PERSONAL, \App\Models\User::ROL_JEFE_PLANEAMIENTO], true) || \App\Models\User::isJefe($currentUser);
-        if (!$column || (($column['ambito'] === BoardColumn::AMBITO_AREA && !$isJefe) || ($column['ambito'] === BoardColumn::AMBITO_PERSONAL && (int)$column['usuario_id'] !== (int)$currentUser['id']))) {
+        if (!$column || $column['ambito'] !== BoardColumn::AMBITO_AREA || !$isJefe) {
             Response::error('No posee autorización para gestionar esta columna.', 403, 'ERR_FORBIDDEN_ACTION'); return;
         }
 
@@ -255,7 +249,7 @@ class BoardController
         }
         $column = BoardColumn::findById($id);
         $isJefe = in_array($currentUser['rol'] ?? '', [\App\Models\User::ROL_JEFE_PERSONAL, \App\Models\User::ROL_JEFE_PLANEAMIENTO], true) || \App\Models\User::isJefe($currentUser);
-        if (!$column || (($column['ambito'] === BoardColumn::AMBITO_AREA && !$isJefe) || ($column['ambito'] === BoardColumn::AMBITO_PERSONAL && (int)$column['usuario_id'] !== (int)$currentUser['id']))) {
+        if (!$column || $column['ambito'] !== BoardColumn::AMBITO_AREA || !$isJefe) {
             Response::error('No posee autorización para eliminar esta columna.', 403, 'ERR_FORBIDDEN_ACTION'); return;
         }
 

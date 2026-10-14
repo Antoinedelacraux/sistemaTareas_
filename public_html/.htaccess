@@ -10,6 +10,9 @@ ServerSignature Off
     RewriteEngine On
     RewriteBase /
 
+    # La interfaz vigente se ensambla desde index.php; evitar servir la copia histórica.
+    RewriteRule ^index\.html$ / [R=302,L]
+
     # 1. Enrutar peticiones a la API REST hacia public_html/api/index.php
     RewriteRule ^api(/.*)?$ api/index.php [QSA,L]
 
@@ -18,8 +21,8 @@ ServerSignature Off
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
 
-    # 3. Enrutar todas las demás rutas a index.html (SPA client-side routing)
-    RewriteRule ^ index.html [L]
+    # 3. Enrutar todas las demás rutas a index.php (SPA client-side routing)
+    RewriteRule ^ index.php [L]
 </IfModule>
 
 # Cabeceras de Seguridad Básicas

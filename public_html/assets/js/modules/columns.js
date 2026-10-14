@@ -27,7 +27,7 @@ export const TRELLO_PALETTE = [
  */
 export function openCreateColumnModal() {
     editingColumnId = null;
-    document.getElementById('column-modal-title').textContent = STATE.currentScope === 'personal' ? 'Nueva Columna Personal' : 'Nueva Columna del Área';
+    document.getElementById('column-modal-title').textContent = 'Nueva Columna del Área';
     document.getElementById('column-name-input').value = '';
     document.getElementById('column-type-select').value = 'EN_PROCESO';
     document.getElementById('btn-delete-column').style.display = 'none';
@@ -106,7 +106,7 @@ export async function handleSaveColumn(e) {
                 nombre,
                 tipo_estado: tipoEstado,
                 color_hex: colorHex,
-                scope: STATE.currentScope === 'personal' ? 'personal' : 'area'
+                scope: 'area'
             })
         });
 

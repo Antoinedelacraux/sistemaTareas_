@@ -147,6 +147,7 @@ class Comment
             'tarea_id'       => (int)$row['tarea_id'],
             'usuario_id'     => (int)$row['usuario_id'],
             'usuario_nombre' => $row['usuario_nombre'] ?? null,
+            'usuario_primer_nombre' => self::firstName((string)($row['usuario_nombre'] ?? '')),
             'usuario_email'  => $row['usuario_email'] ?? null,
             'usuario_rol'    => $row['usuario_rol'] ?? null,
             'comentario'     => $row['comentario'],
@@ -159,5 +160,11 @@ class Comment
             ] : null,
             'created_at'     => $row['created_at']
         ];
+    }
+
+    private static function firstName(string $name): string
+    {
+        $parts = preg_split('/\s+/', trim($name));
+        return $parts[0] ?? '';
     }
 }

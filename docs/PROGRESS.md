@@ -2,6 +2,12 @@
 
 ## Registro de avances
 
+### 2026-10-14 — VISTAS-03: tablero único de Área y evidencias
+- **Estado:** completado.
+- **Alcance:** RF-03, RF-04, RF-09; RN-02, RN-03, RN-06.
+- **Cambios:** se retiró la Vista Personal, su borrado masivo, sus selectores y endpoint; las tareas nuevas se fuerzan a Área. Asistentes crean/gestionan solo sus tareas autoasignadas y las jefaturas ven todas las tareas de Área y asignan a asistentes activos. En evidencias se muestra el primer nombre, se guarda el adjunto y se descarga por ruta autorizada; se permite archivo sin texto.
+- **Pruebas:** `php tests/subtasks_comments_test.php` (23/23 PASS), `php tests/tasks_test.php` (24/24 PASS) y lint PHP sin errores. Node.js no está instalado para comprobación estática de JavaScript.
+
 ### 2026-10-14 — LOGIN-UI-01: Contraste y espaciado del acceso
 - **Estado:** implementado, pendiente de validación visual en navegador.
 - **Cambios:** se reforzó el overlay sobre `login_hero.jpg`, se ajustaron proporciones de la tarjeta, padding, gaps, inputs, botón principal y cuentas demo; se añadió breakpoint móvil y se reemplazaron flechas de texto por SVG.

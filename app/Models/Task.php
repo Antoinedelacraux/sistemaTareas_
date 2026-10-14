@@ -118,49 +118,23 @@ class Task
             INNER JOIN tableros_columnas c ON t.columna_id = c.id
             INNER JOIN usuarios uc ON t.creador_id = uc.id
             INNER JOIN usuarios ur ON t.responsable_id = ur.id
-            WHERE ((t.tipo_tarea = 'AREA' AND c.ambito = 'AREA')
-                OR (t.tipo_tarea = 'PERSONAL' AND c.ambito = 'PERSONAL' AND c.usuario_id = t.responsable_id))
+            WHERE t.tipo_tarea = 'AREA' AND c.ambito = 'AREA'
         ";
 
         $params = [];
 
-        // Filtro por alcance estricto según rol y vista solicitada (RN-01, RN-02, RN-05)
-        $scope = strtolower(trim((string)($filters['scope'] ?? $filters['alcance'] ?? '')));
-        $tipoFilter = !empty($filters['tipo']) ? strtoupper(trim((string)$filters['tipo'])) : null;
-
-        if ($scope === 'personal' || $tipoFilter === 'PERSONAL') {
-            // Vista Personal: exclusivamente tareas personales del usuario autenticado
-            $sql .= " AND t.tipo_tarea = 'PERSONAL' AND (t.responsable_id = :current_user_id OR t.creador_id = :current_user_id)";
+        if (!$isJefe) {
+            $sql .= " AND t.responsable_id = :current_user_id";
             $params[':current_user_id'] = $userId;
-            // En Vista Personal las tareas permanecen hasta que el usuario decida borrarlas (no expiran al historial)
-        } elseif ($scope === 'team') {
-            // Tablero del equipo (jefatura): todas las tareas de área
-            $sql .= " AND t.tipo_tarea = 'AREA'";
-            $cutoff24h = gmdate('Y-m-d H:i:s', time() - 86400);
-            if (!empty($filters['solo_archivadas'])) {
-                $sql .= " AND c.tipo_estado = 'FINALIZADA' AND t.fecha_finalizada IS NOT NULL AND t.fecha_finalizada <= :cutoff_historial";
-                $params[':cutoff_historial'] = $cutoff24h;
-            } elseif (empty($filters['incluir_archivadas'])) {
-                $sql .= " AND NOT (c.tipo_estado = 'FINALIZADA' AND t.fecha_finalizada IS NOT NULL AND t.fecha_finalizada <= :cutoff_kanban)";
-                $params[':cutoff_kanban'] = $cutoff24h;
-            }
-        } else {
-            // Vista Área (scope 'area' o general): exclusivamente tareas oficiales del área
-            $sql .= " AND t.tipo_tarea = 'AREA'";
-            if (!$isJefe) {
-                // Asistente solo ve las tareas del área donde es responsable o creador
-                $sql .= " AND (t.responsable_id = :current_user_id OR t.creador_id = :current_user_id)";
-                $params[':current_user_id'] = $userId;
-            }
-            // Regla de expiración de 24h para tareas oficiales del área hacia el historial
-            $cutoff24h = gmdate('Y-m-d H:i:s', time() - 86400);
-            if (!empty($filters['solo_archivadas'])) {
-                $sql .= " AND c.tipo_estado = 'FINALIZADA' AND t.fecha_finalizada IS NOT NULL AND t.fecha_finalizada <= :cutoff_historial";
-                $params[':cutoff_historial'] = $cutoff24h;
-            } elseif (empty($filters['incluir_archivadas'])) {
-                $sql .= " AND NOT (c.tipo_estado = 'FINALIZADA' AND t.fecha_finalizada IS NOT NULL AND t.fecha_finalizada <= :cutoff_kanban)";
-                $params[':cutoff_kanban'] = $cutoff24h;
-            }
+        }
+
+        $cutoff24h = gmdate('Y-m-d H:i:s', time() - 86400);
+        if (!empty($filters['solo_archivadas'])) {
+            $sql .= " AND c.tipo_estado = 'FINALIZADA' AND t.fecha_finalizada IS NOT NULL AND t.fecha_finalizada <= :cutoff_historial";
+            $params[':cutoff_historial'] = $cutoff24h;
+        } elseif (empty($filters['incluir_archivadas'])) {
+            $sql .= " AND NOT (c.tipo_estado = 'FINALIZADA' AND t.fecha_finalizada IS NOT NULL AND t.fecha_finalizada <= :cutoff_kanban)";
+            $params[':cutoff_kanban'] = $cutoff24h;
         }
 
         // Filtro opcional por columna_id
@@ -288,10 +262,7 @@ class Task
         $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true);
         $userId = (int)$currentUser['id'];
         $respId = (int)$task['responsable_id'];
-        $creadorId = (int)$task['creador_id'];
-
-        // Si es el responsable o creador, siempre puede verla
-        if ($userId === $respId || $userId === $creadorId) {
+        if ($userId === $respId && $task['tipo_tarea'] === self::TIPO_AREA) {
             return true;
         }
 
@@ -315,22 +286,12 @@ class Task
         $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true) || User::isJefe($currentUser);
         $userId = (int)$currentUser['id'];
         $respId = (int)$task['responsable_id'];
-        $creadorId = (int)$task['creador_id'];
-
         if (($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
             return false;
         }
 
-        if ($isJefe) {
-            return $task['tipo_tarea'] === self::TIPO_AREA || $userId === $respId || $userId === $creadorId;
-        }
-
-        // Asistentes solo tienen permiso de edición sobre sus tareas personales
-        if ($task['tipo_tarea'] === self::TIPO_PERSONAL && ($userId === $respId || $userId === $creadorId)) {
-            return true;
-        }
-
-        return false;
+        if ($isJefe) return $task['tipo_tarea'] === self::TIPO_AREA;
+        return $task['tipo_tarea'] === self::TIPO_AREA && $userId === $respId;
     }
 
     /**
@@ -343,23 +304,12 @@ class Task
     {
         $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true) || User::isJefe($currentUser);
         $userId = (int)$currentUser['id'];
-        $respId = (int)$task['responsable_id'];
-        $creadorId = (int)$task['creador_id'];
-
         if (($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
             return false;
         }
 
-        if ($isJefe) {
-            return $task['tipo_tarea'] === self::TIPO_AREA || $userId === $respId || $userId === $creadorId;
-        }
-
-        // Asistentes solo pueden eliminar sus tareas personales
-        if ($task['tipo_tarea'] === self::TIPO_PERSONAL && ($userId === $respId || $userId === $creadorId)) {
-            return true;
-        }
-
-        return false;
+        if ($isJefe) return $task['tipo_tarea'] === self::TIPO_AREA;
+        return $task['tipo_tarea'] === self::TIPO_AREA && $userId === (int)$task['responsable_id'];
     }
 
     /**
@@ -371,17 +321,12 @@ class Task
         $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true) || User::isJefe($currentUser);
         $userId = (int)$currentUser['id'];
         $respId = (int)$task['responsable_id'];
-        $creadorId = (int)$task['creador_id'];
-
         if (($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
             return false;
         }
 
-        if ($isJefe) {
-            return $task['tipo_tarea'] === self::TIPO_AREA || $userId === $respId || $userId === $creadorId;
-        }
-
-        return $userId === $respId || $userId === $creadorId;
+        if ($isJefe) return $task['tipo_tarea'] === self::TIPO_AREA;
+        return $task['tipo_tarea'] === self::TIPO_AREA && $userId === $respId;
     }
 
     /**
@@ -394,8 +339,6 @@ class Task
         $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true) || User::isJefe($currentUser);
         $userId = (int)$currentUser['id'];
         $respId = (int)$task['responsable_id'];
-        $creadorId = (int)$task['creador_id'];
-
         if (($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
             return false;
         }
@@ -404,7 +347,7 @@ class Task
             return true;
         }
 
-        return ($userId === $respId || $userId === $creadorId);
+        return $task['tipo_tarea'] === self::TIPO_AREA && $userId === $respId;
     }
 
     /**
@@ -428,26 +371,21 @@ class Task
         $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true);
         $userId = (int)$currentUser['id'];
 
-        $tipoTarea = !empty($data['tipo_tarea']) ? strtoupper(trim((string)$data['tipo_tarea'])) : self::TIPO_AREA;
-        if (!in_array($tipoTarea, [self::TIPO_AREA, self::TIPO_PERSONAL], true)) {
-            $tipoTarea = self::TIPO_AREA;
-        }
+        $tipoTarea = self::TIPO_AREA;
 
-        // Regla RF-05, RN-03: Asistente solo puede autoasignarse.
-        // Tareas personales siempre se autoasignan al creador propio.
-        if (!$isJefe || $tipoTarea === self::TIPO_PERSONAL) {
+        // Asistentes solo pueden autoasignarse; jefatura puede asignar a asistentes.
+        if (!$isJefe) {
             $responsableId = $userId;
         } else {
             $responsableId = !empty($data['responsable_id']) ? (int)$data['responsable_id'] : $userId;
         }
 
-        // Tareas personales son de apoyo interno; no requieren circuito formal de aprobación
-        $requiereAprobacion = ($tipoTarea === self::TIPO_PERSONAL) ? 0 : (!empty($data['requiere_aprobacion']) ? 1 : 0);
+        $requiereAprobacion = !empty($data['requiere_aprobacion']) ? 1 : 0;
 
         $codigo = self::generateCodigo();
         $now = gmdate('Y-m-d H:i:s');
-        $ambitoColumna = $tipoTarea === self::TIPO_PERSONAL ? BoardColumn::AMBITO_PERSONAL : BoardColumn::AMBITO_AREA;
-        $propietarioColumna = $tipoTarea === self::TIPO_PERSONAL ? $responsableId : null;
+        $ambitoColumna = BoardColumn::AMBITO_AREA;
+        $propietarioColumna = null;
         $columna = !empty($data['columna_id']) ? BoardColumn::findById((int)$data['columna_id']) : null;
         if (!$columna || $columna['ambito'] !== $ambitoColumna || ($ambitoColumna === BoardColumn::AMBITO_PERSONAL && (int)$columna['usuario_id'] !== $propietarioColumna)) {
             $columna = BoardColumn::findByTipoEstado(BoardColumn::ESTADO_PENDIENTE, $ambitoColumna, $propietarioColumna);
@@ -496,7 +434,7 @@ class Task
             [
                 'codigo'         => $codigo,
                 'titulo'         => $data['titulo'],
-                'tipo_tarea'     => $data['tipo_tarea'] ?? self::TIPO_AREA,
+                'tipo_tarea'     => self::TIPO_AREA,
                 'responsable_id' => $responsableId
             ]
         );
@@ -649,40 +587,6 @@ class Task
     }
 
     /**
-     * Elimina todas las tareas personales pertenecientes al usuario autenticado.
-     * Nunca incluye tareas de Área ni tareas personales de otros usuarios.
-     */
-    public static function deleteAllPersonalForUser(array $currentUser): int
-    {
-        $db = Database::getConnection();
-        $userId = (int)$currentUser['id'];
-
-        $scope = "t.tipo_tarea = 'PERSONAL'
-            AND (t.responsable_id = :user_id OR t.creador_id = :user_id)";
-
-        $db->beginTransaction();
-        try {
-            $countStmt = $db->prepare("SELECT COUNT(*) FROM tareas t WHERE {$scope}");
-            $countStmt->execute([':user_id' => $userId]);
-            $total = (int)$countStmt->fetchColumn();
-
-            if ($total > 0) {
-                $deleteStmt = $db->prepare("DELETE FROM tareas WHERE tipo_tarea = 'PERSONAL' AND (responsable_id = :user_id OR creador_id = :user_id)");
-                $deleteStmt->execute([':user_id' => $userId]);
-                Audit::log($userId, 'TAREA', 0, 'ELIMINAR_MASIVO_PERSONAL', null, 'ELIMINADAS', ['total' => $total]);
-            }
-
-            $db->commit();
-            return $total;
-        } catch (\Throwable $exception) {
-            if ($db->inTransaction()) {
-                $db->rollBack();
-            }
-            throw $exception;
-        }
-    }
-
-    /**
      * Ejecuta la transición de una tarea a otra columna del tablero Kanban (RF-11, RF-12, RN-06, RN-10, RN-11, RN-12, RN-13).
      * Aplica validaciones atómicas para confirmación de cierre y requerimiento de aprobación.
      *
@@ -738,8 +642,7 @@ class Task
         $fechaFinalizada = $task['fecha_finalizada'];
         $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true);
 
-        $ambitoEsperado = ($task['tipo_tarea'] ?? self::TIPO_AREA) === self::TIPO_PERSONAL ? BoardColumn::AMBITO_PERSONAL : BoardColumn::AMBITO_AREA;
-        if (($nuevaColumna['ambito'] ?? BoardColumn::AMBITO_AREA) !== $ambitoEsperado || ($ambitoEsperado === BoardColumn::AMBITO_PERSONAL && (int)($nuevaColumna['usuario_id'] ?? 0) !== (int)$task['responsable_id'])) {
+        if (($nuevaColumna['ambito'] ?? BoardColumn::AMBITO_AREA) !== BoardColumn::AMBITO_AREA) {
             return ['success' => false, 'status' => 422, 'code' => 'ERR_COLUMN_SCOPE_MISMATCH', 'message' => 'La columna de destino no pertenece al tablero de esta tarea.'];
         }
 

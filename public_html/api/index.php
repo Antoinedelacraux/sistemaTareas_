@@ -55,7 +55,6 @@ use App\Controllers\BoardController;
 $router->get('/api/tareas', [TaskController::class, 'index'], [AuthMiddleware::class]);
 $router->get('/api/tareas/{id}', [TaskController::class, 'show'], [AuthMiddleware::class]);
 $router->post('/api/tareas', [TaskController::class, 'create'], [AuthMiddleware::class]);
-$router->delete('/api/tareas/personales', [TaskController::class, 'deleteAllPersonal'], [AuthMiddleware::class]);
 $router->put('/api/tareas/{id}', [TaskController::class, 'update'], [AuthMiddleware::class]);
 $router->patch('/api/tareas/{id}', [TaskController::class, 'update'], [AuthMiddleware::class]);
 $router->delete('/api/tareas/{id}', [TaskController::class, 'delete'], [AuthMiddleware::class]);
