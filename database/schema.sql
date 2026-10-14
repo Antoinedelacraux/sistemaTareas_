@@ -52,11 +52,15 @@ CREATE TABLE IF NOT EXISTS `tableros_columnas` (
   `orden` SMALLINT UNSIGNED NOT NULL DEFAULT 1,
   `tipo_estado` ENUM('PENDIENTE', 'EN_PROCESO', 'BLOQUEADA', 'EN_REVISION', 'FINALIZADA') NOT NULL,
   `color_hex` VARCHAR(7) NOT NULL DEFAULT '#64748b',
+  `ambito` ENUM('AREA', 'PERSONAL') NOT NULL DEFAULT 'AREA',
+  `usuario_id` INT UNSIGNED NULL,
   `activo` TINYINT(1) NOT NULL DEFAULT 1,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   INDEX `idx_columnas_tipo_estado` (`tipo_estado`),
-  INDEX `idx_columnas_orden` (`orden`)
+  INDEX `idx_columnas_orden` (`orden`),
+  INDEX `idx_columnas_ambito_usuario` (`ambito`, `usuario_id`, `activo`, `orden`),
+  CONSTRAINT `fk_columnas_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------

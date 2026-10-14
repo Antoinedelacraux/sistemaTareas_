@@ -136,6 +136,8 @@ class Database
                 orden INTEGER NOT NULL DEFAULT 1,
                 tipo_estado TEXT NOT NULL,
                 color_hex TEXT NOT NULL DEFAULT '#64748b',
+                ambito TEXT NOT NULL DEFAULT 'AREA',
+                usuario_id INTEGER NULL,
                 activo INTEGER NOT NULL DEFAULT 1,
                 created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
             );
@@ -247,10 +249,10 @@ class Database
         $colCount = (int)$pdo->query("SELECT COUNT(*) FROM tableros_columnas")->fetchColumn();
         if ($colCount === 0) {
             $pdo->exec("
-                INSERT INTO tableros_columnas (id, nombre, orden, tipo_estado, color_hex, activo) VALUES
-                (1, 'Pendiente', 1, 'PENDIENTE', '#64748b', 1),
-                (2, 'En proceso', 2, 'EN_PROCESO', '#2563eb', 1),
-                (3, 'Bloqueada', 3, 'BLOQUEADA', '#e11d48', 1),
+                INSERT INTO tableros_columnas (id, nombre, orden, tipo_estado, color_hex, ambito, activo) VALUES
+                (1, 'Pendiente', 1, 'PENDIENTE', '#64748b', 'AREA', 1),
+                (2, 'En proceso', 2, 'EN_PROCESO', '#2563eb', 'AREA', 1),
+                (3, 'Bloqueada', 3, 'BLOQUEADA', '#e11d48', 'AREA', 1),
                 (4, 'En revisión', 4, 'EN_REVISION', '#d97706', 1),
                 (5, 'Finalizada', 5, 'FINALIZADA', '#059669', 1);
             ");

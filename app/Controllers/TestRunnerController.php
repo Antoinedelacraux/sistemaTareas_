@@ -217,9 +217,14 @@ class TestRunnerController
                 'responsable_id' => $asistente['id']
             ], $asistente);
 
+            $colFinPersonal = BoardColumn::findByTipoEstado('FINALIZADA', BoardColumn::AMBITO_PERSONAL, (int)$asistente['id']);
+            if (!$colFinPersonal) {
+                throw new \Exception("No existe columna FINALIZADA en el tablero personal.");
+            }
+
             $fecha35hAtras = gmdate('Y-m-d H:i:s', time() - (35 * 3600));
             $db->prepare("UPDATE tareas SET columna_id = :col_id, fecha_finalizada = :ff WHERE id = :id")
-               ->execute([':col_id' => $colFin['id'], ':ff' => $fecha35hAtras, ':id' => $tareaPersonal['id']]);
+               ->execute([':col_id' => $colFinPersonal['id'], ':ff' => $fecha35hAtras, ':id' => $tareaPersonal['id']]);
 
             // Comprobar Vista Área (scope=area): solo tareas de AREA
             $areaTasks = Task::listForUser($asistente, ['scope' => 'area']);

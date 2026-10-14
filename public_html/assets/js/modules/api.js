@@ -5,15 +5,12 @@
  */
 
 export function getAuthToken() {
-    return localStorage.getItem('auth_token') || '';
+    return '';
 }
 
 export function setAuthToken(token) {
-    if (token) {
-        localStorage.setItem('auth_token', token);
-    } else {
-        localStorage.removeItem('auth_token');
-    }
+    // La cookie HttpOnly es la única fuente de autenticación del navegador.
+    localStorage.removeItem('auth_token');
 }
 
 /**
@@ -25,11 +22,6 @@ export function setAuthToken(token) {
 export async function apiFetch(url, options = {}) {
     options.headers = options.headers || {};
     options.credentials = 'include';
-
-    const token = getAuthToken();
-    if (token && !options.headers['Authorization']) {
-        options.headers['Authorization'] = `Bearer ${token}`;
-    }
 
     return fetch(url, options);
 }

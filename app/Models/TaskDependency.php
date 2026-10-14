@@ -121,7 +121,7 @@ class TaskDependency
 
         // 6. Regla RN-08: Si la predecesora NO está en FINALIZADA y la tarea no está en FINALIZADA,
         // bloquear automáticamente la tarea sucesora si estaba en PENDIENTE o EN_PROCESO.
-        $colBloqueada = BoardColumn::findByTipoEstado('BLOQUEADA');
+        $colBloqueada = BoardColumn::findByTipoEstado('BLOQUEADA', BoardColumn::AMBITO_AREA);
         $autoBloqueada = false;
 
         $predFinalizada = ($predecesora['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA;
@@ -216,7 +216,7 @@ class TaskDependency
         // Si la tarea estaba BLOQUEADA y ya no le quedan predecesoras pendientes, desbloquear automáticamente
         if (($tarea['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_BLOQUEADA) {
             if (!self::hasPendingPredecessors($tareaId)) {
-                $colPendiente = BoardColumn::findByTipoEstado('PENDIENTE');
+                $colPendiente = BoardColumn::findByTipoEstado('PENDIENTE', BoardColumn::AMBITO_AREA);
                 if ($colPendiente) {
                     $now = gmdate('Y-m-d H:i:s');
                     $stmtUnlock = $db->prepare("UPDATE tareas SET columna_id = :col_id, updated_at = :now WHERE id = :id");
@@ -480,7 +480,7 @@ class TaskDependency
             return [];
         }
 
-        $colPendiente = BoardColumn::findByTipoEstado('PENDIENTE');
+        $colPendiente = BoardColumn::findByTipoEstado('PENDIENTE', BoardColumn::AMBITO_AREA);
         if (!$colPendiente) {
             return [];
         }
@@ -558,7 +558,7 @@ class TaskDependency
             return [];
         }
 
-        $colBloqueada = BoardColumn::findByTipoEstado('BLOQUEADA');
+        $colBloqueada = BoardColumn::findByTipoEstado('BLOQUEADA', BoardColumn::AMBITO_AREA);
         if (!$colBloqueada) {
             return [];
         }

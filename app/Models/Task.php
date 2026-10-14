@@ -118,7 +118,8 @@ class Task
             INNER JOIN tableros_columnas c ON t.columna_id = c.id
             INNER JOIN usuarios uc ON t.creador_id = uc.id
             INNER JOIN usuarios ur ON t.responsable_id = ur.id
-            WHERE 1=1
+            WHERE ((t.tipo_tarea = 'AREA' AND c.ambito = 'AREA')
+                OR (t.tipo_tarea = 'PERSONAL' AND c.ambito = 'PERSONAL' AND c.usuario_id = t.responsable_id))
         ";
 
         $params = [];
@@ -449,6 +450,13 @@ class Task
 
         $codigo = self::generateCodigo();
         $now = gmdate('Y-m-d H:i:s');
+        $ambitoColumna = $tipoTarea === self::TIPO_PERSONAL ? BoardColumn::AMBITO_PERSONAL : BoardColumn::AMBITO_AREA;
+        $propietarioColumna = $tipoTarea === self::TIPO_PERSONAL ? $responsableId : null;
+        $columna = !empty($data['columna_id']) ? BoardColumn::findById((int)$data['columna_id']) : null;
+        if (!$columna || $columna['ambito'] !== $ambitoColumna || ($ambitoColumna === BoardColumn::AMBITO_PERSONAL && (int)$columna['usuario_id'] !== $propietarioColumna)) {
+            $columna = BoardColumn::findByTipoEstado(BoardColumn::ESTADO_PENDIENTE, $ambitoColumna, $propietarioColumna);
+        }
+        if (!$columna) throw new \RuntimeException('No existe una columna Pendiente válida para esta tarea.', 422);
 
         $sql = "
             INSERT INTO tareas (
@@ -468,7 +476,7 @@ class Task
             ':titulo'              => trim((string)$data['titulo']),
             ':descripcion'         => !empty($data['descripcion']) ? trim((string)$data['descripcion']) : null,
             ':tipo_tarea'          => $tipoTarea,
-            ':columna_id'          => !empty($data['columna_id']) ? (int)$data['columna_id'] : 1, // 1 = Pendiente
+            ':columna_id'          => (int)$columna['id'],
             ':prioridad'           => !empty($data['prioridad']) ? strtoupper(trim((string)$data['prioridad'])) : self::PRIORIDAD_MEDIA,
             ':creador_id'          => $userId,
             ':responsable_id'      => $responsableId,
@@ -699,6 +707,11 @@ class Task
         $estadoDestino = $nuevaColumna['tipo_estado'];
         $fechaFinalizada = $task['fecha_finalizada'];
         $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true);
+
+        $ambitoEsperado = ($task['tipo_tarea'] ?? self::TIPO_AREA) === self::TIPO_PERSONAL ? BoardColumn::AMBITO_PERSONAL : BoardColumn::AMBITO_AREA;
+        if (($nuevaColumna['ambito'] ?? BoardColumn::AMBITO_AREA) !== $ambitoEsperado || ($ambitoEsperado === BoardColumn::AMBITO_PERSONAL && (int)($nuevaColumna['usuario_id'] ?? 0) !== (int)$task['responsable_id'])) {
+            return ['success' => false, 'status' => 422, 'code' => 'ERR_COLUMN_SCOPE_MISMATCH', 'message' => 'La columna de destino no pertenece al tablero de esta tarea.'];
+        }
 
         // Regla RN-08: Si la tarea posee dependencias predecesoras pendientes, no puede avanzarse
         if (in_array($estadoDestino, [BoardColumn::ESTADO_EN_PROCESO, BoardColumn::ESTADO_FINALIZADA], true)) {

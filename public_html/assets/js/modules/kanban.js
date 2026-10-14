@@ -55,7 +55,8 @@ export function renderMemberFilterOptions() {
  */
 export async function fetchColumns() {
     try {
-        const res = await apiFetch('/api/tableros/columnas');
+        const scope = STATE.currentScope === 'personal' ? 'personal' : 'area';
+        const res = await apiFetch(`/api/tableros/columnas?scope=${scope}`);
         const json = await res.json();
         if (json.success) {
             STATE.columns = json.data?.columnas || (Array.isArray(json.data) ? json.data : []);

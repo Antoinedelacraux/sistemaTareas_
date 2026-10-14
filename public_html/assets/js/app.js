@@ -139,11 +139,15 @@ export async function setScope(scope) {
 
     const btnCreateColumn = document.getElementById('btn-open-create-column');
     if (btnCreateColumn) {
-        if (isCurrentUserJefe() && (scope === 'area' || scope === 'personal' || scope === 'team')) {
+        if ((scope === 'personal') || (isCurrentUserJefe() && (scope === 'area' || scope === 'team'))) {
             btnCreateColumn.style.display = 'inline-flex';
         } else {
             btnCreateColumn.style.display = 'none';
         }
+    }
+
+    if (scope === 'area' || scope === 'personal' || scope === 'team') {
+        await fetchColumns();
     }
 
     if (scope === 'history') {
