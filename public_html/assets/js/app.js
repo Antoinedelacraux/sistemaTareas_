@@ -7,7 +7,7 @@ import { STATE, isCurrentUserJefe } from './modules/state.js';
 import { apiFetch } from './modules/api.js';
 import { initTheme, openModal, closeModal, showToast } from './modules/ui.js';
 import { checkSession, doLogin, quickLogin, doLogout, registerLoginCallback } from './modules/auth.js';
-import { fetchUsers, fetchColumns, fetchTasks, renderKanban, executeTaskTransition, registerKanbanCallbacks } from './modules/kanban.js';
+import { fetchUsers, fetchColumns, fetchTasks, renderKanban, executeTaskTransition, registerKanbanCallbacks } from './modules/kanban.js?v=1.5.9';
 import { openCreateTaskModal, handleCreateTask, openTaskDetailModal, loadTaskDetail, handleAddSubtask, toggleSubtask, deleteSubtask, handleAddComment, handleDeleteActiveTask, handleAddDependency, removeDependency, toggleTaskEditMode, handleSaveTaskEdit, registerTaskModalCallbacks } from './modules/task-modal.js';
 import { fetchPendingApprovals, fetchPendingApprovalsCount, approveTask, openReturnModal, handleReturnTaskSubmit, requestApproval, registerApprovalCallbacks } from './modules/approvals.js';
 import { loadHistoryTasks, filterHistoryTasks } from './modules/history.js';

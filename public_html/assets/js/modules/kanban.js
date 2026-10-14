@@ -121,6 +121,8 @@ export function renderKanban() {
         filteredTasks = filteredTasks.filter(t => t.prioridad === STATE.priorityFilter);
     }
 
+    const isJefe = isCurrentUserJefe();
+
     // Renderizar las columnas
     STATE.columns.forEach(col => {
         const colTasks = filteredTasks.filter(t => parseInt(t.columna_id, 10) === parseInt(col.id, 10));

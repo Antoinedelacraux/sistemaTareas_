@@ -6,7 +6,7 @@
 import { apiFetch } from './api.js';
 import { STATE, isCurrentUserJefe } from './state.js';
 import { escapeHtml, formatDate, showToast, openModal, closeModal } from './ui.js';
-import { fetchTasks } from './kanban.js';
+import { fetchTasks } from './kanban.js?v=1.5.9';
 
 let onApprovalActionCallback = null;
 

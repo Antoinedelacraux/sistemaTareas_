@@ -2,6 +2,7 @@
 
 ## Estado actual verificable
 - Corrección de carga Kanban: `public_html/.htaccess` establece `DirectoryIndex index.php`; la raíz del sitio utiliza los partials actuales y no la copia histórica `index.html`.
+- Se corrigió `isJefe` en `public_html/assets/js/modules/kanban.js`; el error impedía agregar columnas al DOM aunque la API respondiera correctamente.
 - VISTAS-03 completado: un único tablero de Área. La Vista Personal dejó de estar expuesta por UI y API; los datos personales históricos no se eliminaron.
 - Comentarios/evidencias: se muestra el primer nombre del autor; archivos permitidos se almacenan bajo `storage/uploads` y se descargan por endpoint autorizado. QA backend: 23/23 en `subtasks_comments_test.php` y 24/24 en `tasks_test.php`.
 - LOGIN-UI-01 implementado: imagen corporativa con overlay de contraste, textos institucionales legibles, espaciado revisado y layout responsive. Pendiente: validación visual final con el navegador en escritorio y móvil.

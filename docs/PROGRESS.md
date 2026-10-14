@@ -12,6 +12,7 @@
 - **Estado:** completado.
 - **Cambios:** Apache ahora declara `DirectoryIndex index.php`, para que el acceso a la raíz cargue el ensamblador modular vigente y no `index.html` histórico. Se actualizó la versión del módulo principal para renovar la caché del navegador.
 - **Verificación:** `GET /` local entrega el markup de Kanban modular; `GET /api/tableros/kanban` autenticado devuelve columnas y tareas.
+- **Corrección adicional:** se restauró la declaración de jefatura usada por `renderKanban()`, que estaba provocando un `ReferenceError` antes de pintar las columnas.
 
 ### 2026-10-14 — LOGIN-UI-01: Contraste y espaciado del acceso
 - **Estado:** implementado, pendiente de validación visual en navegador.
