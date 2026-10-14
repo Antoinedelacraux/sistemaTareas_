@@ -1,6 +1,7 @@
 # Traspaso entre sesiones (leer primero)
 
 ## Estado actual verificable
+- CICLO-01 completado: el cierre en `FINALIZADA` conserva la tarea 24 horas en Kanban; Jefatura puede forzar el archivo inmediato. Las tareas vencidas muestran una franja roja e icono, y el historial indica si terminaron en plazo. La reapertura de un cierre queda limitada en backend a Jefatura y a una columna `EN_PROCESO`.
 - Corrección de carga Kanban: `public_html/.htaccess` establece `DirectoryIndex index.php`; la raíz del sitio utiliza los partials actuales y no la copia histórica `index.html`.
 - Se corrigió `isJefe` en `public_html/assets/js/modules/kanban.js`; el error impedía agregar columnas al DOM aunque la API respondiera correctamente.
 - VISTAS-03 completado: un único tablero de Área. La Vista Personal dejó de estar expuesta por UI y API; los datos personales históricos no se eliminaron.
@@ -21,7 +22,7 @@
 - Ver D-001 a D-022 en `docs/DECISIONS.md`.
 
 ## Bloqueos y pendientes
-- Sin bloqueos técnicos. 10 de 10 pruebas automatizadas superadas con 100% PASS.
+- Sin bloqueos técnicos para CICLO-01. Pendiente de validación visual final de la tarjeta vencida y del botón de archivo inmediato. La suite integral conserva fallos heredados por expectativas de permisos antiguas.
 
 ## Próximo paso recomendado
 1. Ingresar en el navegador a `http://127.0.0.1:8000` (o recargar con `Ctrl + F5` para actualizar a `v1.5.7`).

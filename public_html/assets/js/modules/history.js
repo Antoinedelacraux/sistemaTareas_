@@ -99,7 +99,7 @@ export function renderHistoryTable(tasks) {
     if (!tasks || tasks.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="7" style="text-align: center; padding: 3rem 1.5rem; color: var(--text-muted);">
+                <td colspan="8" style="text-align: center; padding: 3rem 1.5rem; color: var(--text-muted);">
                     <div style="margin-bottom: 0.5rem;"><svg class="icon-svg" style="width: 2rem; height: 2rem; color: var(--text-muted);" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></div>
                     <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.35rem;">
                         No hay tareas archivadas en el historial
@@ -142,6 +142,13 @@ export function renderHistoryTable(tasks) {
                 </td>
                 <td>${prioBadge}</td>
                 <td>${tipoBadge}</td>
+                <td>
+                    ${t.cumplida_en_plazo === true
+                        ? '<span class="badge" style="background: #dcfce7; color: #166534;">En plazo</span>'
+                        : t.cumplida_en_plazo === false
+                            ? '<span class="badge" style="background: #fee2e2; color: #b91c1c;">Fuera de plazo</span>'
+                            : '<span style="font-size: 0.75rem; color: var(--text-muted);">Sin fecha límite</span>'}
+                </td>
                 <td>
                     <div style="font-size: 0.8rem; font-weight: 600; color: #059669;">
                         ${formatDate(t.fecha_finalizada)}

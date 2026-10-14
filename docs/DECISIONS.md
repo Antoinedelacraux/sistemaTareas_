@@ -54,4 +54,7 @@
     3. *PHP 8.2+ + MySQL 8 / MariaDB + SPA moderna:* Seleccionada. Es el entorno 100% nativo de Ferozo, ofrece soporte nativo para Apache/mod_rewrite, base de datos administrada con phpMyAdmin, cero demonios propensos a caídas y rendimiento óptimo para el equipo de 5 usuarios y escalabilidad modular.
   - **Decisión:** Implementar backend en PHP 8.2+ con arquitectura monolítica modular (API REST limpia, PDO con transacciones, validaciones en backend), base de datos relacional MySQL/MariaDB (InnoDB), y frontend SPA moderno (HTML5 semántico, Vanilla CSS de alta fidelidad, JavaScript modular) servido en `public_html`.
   - **Consecuencias:** Despliegue directo sin fricción en DonWeb, soporte garantizado en Apache/.htaccess, máxima velocidad de respuesta y mantenimiento simple.
-  - **Aprobador:** Usuario / Responsable del proyecto.
+- **Aprobador:** Usuario / Responsable del proyecto.
+
+## Decisión posterior
+- D-025 Ciclo de cierre y vencimientos: una tarea aprobada o ubicada en `FINALIZADA` se cierra y permanece 24 horas en el tablero antes de pasar al historial. Asistentes solo la visualizan; Jefatura puede editarla, eliminarla o reabrirla únicamente en `EN_PROCESO`, y puede archivarla inmediatamente. Las tarjetas vencidas se distinguen visualmente y el historial registra el cumplimiento del plazo.

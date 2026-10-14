@@ -278,4 +278,34 @@ class TaskController
         ]);
     }
 
+    /**
+     * Cierra una tarea por decisión de Jefatura y la deja disponible de inmediato en Historial.
+     * POST /api/tareas/{id}/finalizar-inmediatamente
+     */
+    public function finalizeImmediately(array $request): void
+    {
+        $currentUser = $request['user'] ?? null;
+        if (!$currentUser) {
+            Response::error('Autenticación requerida.', 401, 'ERR_UNAUTHORIZED');
+            return;
+        }
+
+        $id = (int)($request['params']['id'] ?? 0);
+        if ($id <= 0) {
+            Response::error('Identificador de tarea inválido.', 400, 'ERR_INVALID_ID');
+            return;
+        }
+
+        $result = Task::finalizeImmediately($id, $currentUser);
+        if (!$result['success']) {
+            Response::error($result['message'], $result['status'], $result['code']);
+            return;
+        }
+
+        Response::json([
+            'tarea' => $result['tarea'],
+            'mensaje' => $result['mensaje']
+        ]);
+    }
+
 }

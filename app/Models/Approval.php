@@ -150,6 +150,7 @@ class Approval
      */
     public static function resolver(int $tareaId, int $resolutorId, string $accion, ?string $observaciones = null): array
     {
+        Task::ensureHistorySchema();
         $db = Database::getConnection();
 
         $stmt = $db->prepare("SELECT * FROM tareas WHERE id = :id");
@@ -231,6 +232,7 @@ class Approval
                     UPDATE tareas
                     SET columna_id = :col_id,
                         fecha_finalizada = :now,
+                        historial_inmediato = 0,
                         updated_at = :now
                     WHERE id = :id
                 ");
@@ -340,6 +342,7 @@ class Approval
                     UPDATE tareas
                     SET columna_id = :col_id,
                         fecha_finalizada = NULL,
+                        historial_inmediato = 0,
                         updated_at = :now
                     WHERE id = :id
                 ");

@@ -1,5 +1,14 @@
 # Changelog
 
+## [Sin versión - Ciclo de cierre y vencimientos] - 2026-10-14
+### Agregado
+- Archivo automático al historial tras 24 horas en `FINALIZADA` y acción exclusiva de Jefatura para archivar de inmediato.
+- Indicador rojo e icono de vencimiento en tarjetas activas; columna de cumplimiento en Historial.
+
+### Modificado
+- Asistentes consultan tareas finalizadas sin editarlas ni eliminarlas; Jefatura puede editar, eliminar o reabrirlas hacia `EN_PROCESO`.
+- El selector de estado de columna muestra solamente los nombres de los estados.
+
 ## [Sin versión - Tablero único de Área] - 2026-10-14
 ### Modificado
 - Retirada la Vista Personal, su borrado masivo y sus flujos de creación/columnas; las tareas nuevas se fuerzan a Área.

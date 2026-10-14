@@ -6,7 +6,7 @@
 import { apiFetch } from './api.js';
 import { STATE, isCurrentUserJefe } from './state.js';
 import { escapeHtml, formatDate, showToast, openModal, closeModal } from './ui.js';
-import { fetchTasks } from './kanban.js?v=1.5.9';
+import { fetchTasks } from './kanban.js?v=1.6.0';
 import { renderApprovalBox } from './approvals.js';
 
 let onTaskUpdatedCallback = null;
@@ -169,10 +169,13 @@ export async function loadTaskDetail(taskId) {
         const user = STATE.currentUser;
         const isJefe = isCurrentUserJefe();
         const isFinalizada = (task.columna_tipo_estado === 'FINALIZADA');
-        const isClosedForAssistant = isFinalizada;
+        const isClosedForAssistant = isFinalizada && !isJefe;
 
         const colSelect = document.getElementById('detail-column-select');
-        colSelect.innerHTML = STATE.columns.map(c => `
+        const selectableColumns = isFinalizada && isJefe
+            ? STATE.columns.filter(c => parseInt(c.id, 10) === parseInt(task.columna_id, 10) || c.tipo_estado === 'EN_PROCESO')
+            : STATE.columns;
+        colSelect.innerHTML = selectableColumns.map(c => `
             <option value="${c.id}" ${parseInt(c.id, 10) === parseInt(task.columna_id, 10) ? 'selected' : ''}>
                 ${escapeHtml(c.nombre)}
             </option>
@@ -203,8 +206,10 @@ export async function loadTaskDetail(taskId) {
 
         const btnEdit = document.getElementById('btn-edit-task');
         const btnDelete = document.getElementById('btn-delete-task');
+        const btnFinalizeImmediately = document.getElementById('btn-finalize-immediately');
         if (btnEdit) btnEdit.style.display = canModify ? 'inline-flex' : 'none';
-        if (btnDelete) btnDelete.style.display = canModify ? 'inline-flex' : 'none';
+        if (btnDelete) btnDelete.style.display = isJefe ? 'inline-flex' : 'none';
+        if (btnFinalizeImmediately) btnFinalizeImmediately.style.display = isJefe && !task.historial_inmediato ? 'inline-flex' : 'none';
 
         // Desactivar modo edición si estuviera activo
         toggleTaskEditMode(false);
@@ -454,6 +459,35 @@ export async function handleDeleteActiveTask() {
         }
     } catch {
         showToast('Error de conexión al eliminar la tarea', 'error');
+    }
+}
+
+/** Finaliza una tarea por decisión de Jefatura y la publica en el historial sin espera. */
+export async function handleFinalizeImmediately() {
+    const task = STATE.activeTaskDetail;
+    if (!task || !isCurrentUserJefe()) {
+        showToast('Solo Jefatura puede finalizar y archivar una tarea de inmediato', 'warning');
+        return;
+    }
+
+    if (!confirm(`¿Finalizar y enviar inmediatamente al historial la tarea "${task.titulo}"?`)) {
+        return;
+    }
+
+    try {
+        const res = await apiFetch(`/api/tareas/${task.id}/finalizar-inmediatamente`, { method: 'POST' });
+        const result = await res.json();
+        if (!result.success) {
+            showToast(result.error?.message || 'No se pudo finalizar la tarea', 'error');
+            return;
+        }
+
+        showToast(result.data?.mensaje || 'Tarea finalizada y archivada', 'success');
+        closeModal('modal-task-detail');
+        await fetchTasks();
+        if (onTaskUpdatedCallback) onTaskUpdatedCallback();
+    } catch {
+        showToast('Error de conexión al finalizar la tarea', 'error');
     }
 }
 

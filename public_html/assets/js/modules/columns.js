@@ -7,7 +7,7 @@
 import { apiFetch } from './api.js';
 import { STATE } from './state.js';
 import { showToast, openModal, closeModal } from './ui.js';
-import { fetchColumns, fetchTasks } from './kanban.js?v=1.5.9';
+import { fetchColumns, fetchTasks } from './kanban.js?v=1.6.0';
 
 let editingColumnId = null;
 

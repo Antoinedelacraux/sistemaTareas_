@@ -161,6 +161,15 @@
   border-color: #64748b;
 }
 
+.task-card.task-card-overdue {
+  border-left: 4px solid #dc2626;
+  background: linear-gradient(90deg, rgba(254, 226, 226, 0.82) 0, var(--bg-surface) 18%);
+}
+
+.task-card.task-card-overdue:hover {
+  border-color: #dc2626;
+}
+
 .task-card-header {
   display: flex;
   align-items: center;
@@ -253,6 +262,11 @@
   gap: 0.65rem;
   font-size: 0.75rem;
   color: var(--text-muted);
+}
+
+.task-due-chip-overdue {
+  color: #b91c1c;
+  font-weight: 700;
 }
 
 .task-quick-move {

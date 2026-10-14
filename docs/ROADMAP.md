@@ -41,3 +41,6 @@ Indicadores avanzados, exportaciones Excel, reglas avanzadas de automatización.
 
 ## Plantilla de tarea
 ID | prioridad | estado | objetivo | RF/RN | archivos/módulos | criterios de aceptación | riesgos | pruebas | evidencia | commit.
+
+## Avance registrado
+- [x] CICLO-01 Cierre automático, archivo a 24h/inmediato, reapertura de Jefatura y control de vencimientos. [COMPLETADO]

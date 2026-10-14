@@ -1,5 +1,12 @@
 # Registro de avances
 
+### 2026-10-14 — CICLO-01: cierre, archivo y vencimientos
+- **Estado:** completado.
+- **Alcance:** RF-05, RF-07, RF-13; RN-04, RN-05, RN-08 y RN-09.
+- **Cambios:** las tareas finalizadas se conservan 24 horas en Kanban y luego se archivan; Jefatura puede ejecutar un cierre y archivo inmediato. Los asistentes quedan en modo consulta sobre tareas finalizadas; Jefatura puede editar, eliminar o reabrir solo hacia `EN_PROCESO`. Se añadió la marca persistente `historial_inmediato`, estado de cumplimiento en Historial y señal roja con icono para vencimientos. El selector de estado de columnas usa únicamente los nombres de estado.
+- **Pruebas:** lint de PHP en los archivos modificados, `git diff --check` y prueba aislada en SQLite en memoria: PASS para cierre, reapertura exclusiva de Jefatura, archivo inmediato y cálculo de vencimiento. La suite `php tests/run_all.php` conserva fallos heredados/expectativas previas, incluidos casos que esperan que un asistente elimine o reabra tareas; no se consideran evidencia de regresión de esta regla nueva.
+- **Pendiente:** validación visual final en navegador del indicador de vencimiento y de la acción de archivo inmediato.
+
 ## Registro de avances
 
 ### 2026-10-14 — VISTAS-03: tablero único de Área y evidencias

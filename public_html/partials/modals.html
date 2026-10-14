@@ -256,6 +256,10 @@
                     <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     <span>Eliminar Tarea</span>
                 </button>
+                <button type="button" id="btn-finalize-immediately" class="btn btn-outline" style="color: #047857; border-color: rgba(5, 150, 105, 0.45);" onclick="handleFinalizeImmediately()">
+                    <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                    <span>Finalizar y archivar</span>
+                </button>
                 <button type="button" class="btn btn-primary" onclick="closeModal('modal-task-detail')">Cerrar</button>
             </div>
         </div>
@@ -357,10 +361,11 @@
                     <div class="form-group">
                         <label class="form-label" for="column-type-select">Estado Operativo Asociado *</label>
                         <select id="column-type-select" class="form-select" required>
-                            <option value="PENDIENTE">Pendiente / Por hacer (Sin restricción operativa)</option>
-                            <option value="EN_PROCESO" selected>En Proceso / En curso (Sin restricción operativa)</option>
-                            <option value="EN_REVISION">Revisión / Aprobación (Envía automáticamente a Módulo Aprobaciones)</option>
-                            <option value="FINALIZADA">Finalizada / Cumplida (Se cierra para Asistente, solo Jefes interactúan)</option>
+                            <option value="PENDIENTE">Pendiente</option>
+                            <option value="EN_PROCESO" selected>En proceso</option>
+                            <option value="BLOQUEADA">Bloqueada</option>
+                            <option value="EN_REVISION">En revisión</option>
+                            <option value="FINALIZADA">Finalizada</option>
                         </select>
                         <span class="form-help">Determina el comportamiento operativo de las tareas colocadas en esta columna.</span>
                     </div>

@@ -208,16 +208,21 @@ export function createTaskCardElement(task) {
     const isJefe = isCurrentUserJefe();
     const isFinalizada = (task.columna_tipo_estado === 'FINALIZADA');
     const isClosedForAssistant = isFinalizada;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dueDate = task.fecha_limite ? new Date(`${task.fecha_limite}T00:00:00`) : null;
+    const isOverdue = !!(dueDate && dueDate < today && !isFinalizada);
+    const canDrag = !isFinalizada || isJefe;
 
     const card = document.createElement('div');
-    card.className = `task-card ${isClosedForAssistant ? 'task-card-closed' : ''}`;
-    card.setAttribute('draggable', isClosedForAssistant ? 'false' : 'true');
+    card.className = `task-card ${isClosedForAssistant ? 'task-card-closed' : ''} ${isOverdue ? 'task-card-overdue' : ''}`;
+    card.setAttribute('draggable', canDrag ? 'true' : 'false');
     card.setAttribute('tabindex', '0');
     card.setAttribute('role', 'button');
     card.setAttribute('aria-label', `Tarea ${task.codigo}: ${task.titulo} ${isClosedForAssistant ? '(Cerrada)' : ''}`);
 
     // Eventos de arrastre nativo solo si no está cerrada para el usuario
-    if (!isClosedForAssistant) {
+    if (canDrag) {
         card.addEventListener('dragstart', (e) => {
             e.dataTransfer.setData('text/plain', task.id);
             e.dataTransfer.effectAllowed = 'move';
@@ -258,8 +263,9 @@ export function createTaskCardElement(task) {
 
     const commentsCount = parseInt(task.total_comentarios || 0, 10);
     const dueDateBadge = task.fecha_limite ? `
-        <span class="task-due-chip" title="Fecha límite: ${task.fecha_limite}">
+        <span class="task-due-chip ${isOverdue ? 'task-due-chip-overdue' : ''}" title="${isOverdue ? 'Tarea vencida: ' : 'Fecha límite: '}${task.fecha_limite}">
             <svg class="icon-svg icon-svg-sm" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            ${isOverdue ? '<svg class="icon-svg icon-svg-sm" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.3 3.3 2.5 17a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0z"></path></svg>' : ''}
             <span>${escapeHtml(task.fecha_limite)}</span>
         </span>
     ` : '';

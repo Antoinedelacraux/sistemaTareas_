@@ -22,6 +22,41 @@ class Task
     public const PRIORIDAD_ALTA = 'ALTA';
     public const PRIORIDAD_URGENTE = 'URGENTE';
 
+    /** @var array<int, bool> */
+    private static array $historySchemaReady = [];
+
+    /** Asegura la marca usada para enviar cierres inmediatos al historial. */
+    public static function ensureHistorySchema(): void
+    {
+        $db = Database::getConnection();
+        $connectionId = spl_object_id($db);
+        if (!empty(self::$historySchemaReady[$connectionId])) {
+            return;
+        }
+
+        $driver = $db->getAttribute(PDO::ATTR_DRIVER_NAME);
+        $exists = false;
+        if ($driver === 'sqlite') {
+            foreach ($db->query('PRAGMA table_info(tareas)')->fetchAll() as $column) {
+                if (($column['name'] ?? '') === 'historial_inmediato') {
+                    $exists = true;
+                    break;
+                }
+            }
+            if (!$exists) {
+                $db->exec('ALTER TABLE tareas ADD COLUMN historial_inmediato INTEGER NOT NULL DEFAULT 0');
+            }
+        } else {
+            $stmt = $db->query("SHOW COLUMNS FROM tareas LIKE 'historial_inmediato'");
+            $exists = (bool)$stmt->fetch();
+            if (!$exists) {
+                $db->exec('ALTER TABLE tareas ADD COLUMN historial_inmediato TINYINT(1) NOT NULL DEFAULT 0');
+            }
+        }
+
+        self::$historySchemaReady[$connectionId] = true;
+    }
+
     /**
      * Genera un código correlativo único con formato TAR-YYYY-NNNN garantizando unicidad absoluta.
      */
@@ -62,6 +97,7 @@ class Task
      */
     public static function findById(int $id): ?array
     {
+        self::ensureHistorySchema();
         $db = Database::getConnection();
         $sql = "
             SELECT 
@@ -100,6 +136,7 @@ class Task
      */
     public static function listForUser(array $currentUser, array $filters = []): array
     {
+        self::ensureHistorySchema();
         $db = Database::getConnection();
         $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true);
         $userId = (int)$currentUser['id'];
@@ -130,10 +167,10 @@ class Task
 
         $cutoff24h = gmdate('Y-m-d H:i:s', time() - 86400);
         if (!empty($filters['solo_archivadas'])) {
-            $sql .= " AND c.tipo_estado = 'FINALIZADA' AND t.fecha_finalizada IS NOT NULL AND t.fecha_finalizada <= :cutoff_historial";
+            $sql .= " AND c.tipo_estado = 'FINALIZADA' AND t.fecha_finalizada IS NOT NULL AND (t.historial_inmediato = 1 OR t.fecha_finalizada <= :cutoff_historial)";
             $params[':cutoff_historial'] = $cutoff24h;
         } elseif (empty($filters['incluir_archivadas'])) {
-            $sql .= " AND NOT (c.tipo_estado = 'FINALIZADA' AND t.fecha_finalizada IS NOT NULL AND t.fecha_finalizada <= :cutoff_kanban)";
+            $sql .= " AND NOT (c.tipo_estado = 'FINALIZADA' AND t.fecha_finalizada IS NOT NULL AND (t.historial_inmediato = 1 OR t.fecha_finalizada <= :cutoff_kanban))";
             $params[':cutoff_kanban'] = $cutoff24h;
         }
 
@@ -188,6 +225,7 @@ class Task
      */
     public static function listArchived(array $currentUser, array $filters = []): array
     {
+        self::ensureHistorySchema();
         $db = Database::getConnection();
         $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true) || User::isJefe($currentUser);
         if (!$isJefe) {
@@ -215,7 +253,7 @@ class Task
             INNER JOIN usuarios ur ON t.responsable_id = ur.id
             WHERE c.tipo_estado = 'FINALIZADA'
               AND t.fecha_finalizada IS NOT NULL
-              AND t.fecha_finalizada <= :cutoff
+              AND (t.historial_inmediato = 1 OR t.fecha_finalizada <= :cutoff)
               AND t.tipo_tarea = 'AREA'
         ";
 
@@ -250,6 +288,8 @@ class Task
             $formatted['horas_desde_finalizada'] = !empty($row['fecha_finalizada'])
                 ? round((time() - strtotime($row['fecha_finalizada'])) / 3600, 1)
                 : null;
+            $formatted['historial_inmediato'] = (bool)($row['historial_inmediato'] ?? false);
+            $formatted['cumplida_en_plazo'] = self::wasCompletedOnTime($row);
             return $formatted;
         }, $rows);
     }
@@ -277,8 +317,8 @@ class Task
 
     /**
      * Valida si un usuario tiene autorización para editar una tarea.
-     * - Si la tarea está FINALIZADA, queda cerrada y disponible solo para consulta.
-     * - Jefes: pueden editar cualquier tarea del área y sus propias tareas personales.
+     * - En FINALIZADA, solo Jefatura conserva la facultad de edición.
+     * - Jefes: pueden editar cualquier tarea del área.
      * - Asistentes: en Vista Área NO pueden editar. En Vista Personal tienen todos los permisos.
      */
     public static function canEdit(array $currentUser, array $task): bool
@@ -286,46 +326,33 @@ class Task
         $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true) || User::isJefe($currentUser);
         $userId = (int)$currentUser['id'];
         $respId = (int)$task['responsable_id'];
-        if (($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
-            return false;
-        }
-
         if ($isJefe) return $task['tipo_tarea'] === self::TIPO_AREA;
         return $task['tipo_tarea'] === self::TIPO_AREA && $userId === $respId;
     }
 
     /**
      * Valida si un usuario tiene autorización para eliminar una tarea.
-     * - Si la tarea está FINALIZADA, queda bloqueada para edición individual.
-     * - Jefes: pueden eliminar cualquier tarea del área y sus propias tareas personales.
-     * - Asistentes: en Vista Área NO pueden eliminar. En Vista Personal pueden eliminar sus tareas personales.
+     * - Solo Jefatura puede eliminar tareas del área, incluso si están finalizadas.
      */
     public static function canDelete(array $currentUser, array $task): bool
     {
         $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true) || User::isJefe($currentUser);
-        $userId = (int)$currentUser['id'];
-        if (($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
-            return false;
-        }
-
-        if ($isJefe) return $task['tipo_tarea'] === self::TIPO_AREA;
-        return $task['tipo_tarea'] === self::TIPO_AREA && $userId === (int)$task['responsable_id'];
+        return $isJefe && $task['tipo_tarea'] === self::TIPO_AREA;
     }
 
     /**
      * Valida si un usuario puede transicionar una tarea en el tablero Kanban.
-     * Si la tarea está FINALIZADA, la tarea está cerrada (no se puede mover).
+     * Una tarea FINALIZADA solo puede ser reabierta por Jefatura hacia EN_PROCESO.
      */
     public static function canTransition(array $currentUser, array $task): bool
     {
         $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true) || User::isJefe($currentUser);
         $userId = (int)$currentUser['id'];
         $respId = (int)$task['responsable_id'];
+        if ($isJefe) return $task['tipo_tarea'] === self::TIPO_AREA;
         if (($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
             return false;
         }
-
-        if ($isJefe) return $task['tipo_tarea'] === self::TIPO_AREA;
         return $task['tipo_tarea'] === self::TIPO_AREA && $userId === $respId;
     }
 
@@ -339,12 +366,11 @@ class Task
         $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true) || User::isJefe($currentUser);
         $userId = (int)$currentUser['id'];
         $respId = (int)$task['responsable_id'];
-        if (($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
-            return false;
-        }
-
         if ($isJefe) {
             return true;
+        }
+        if (($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
+            return false;
         }
 
         return $task['tipo_tarea'] === self::TIPO_AREA && $userId === $respId;
@@ -598,6 +624,7 @@ class Task
      */
     public static function transition(int $id, int $nuevaColumnaId, array $options, array $currentUser): array
     {
+        self::ensureHistorySchema();
         $task = self::findById($id);
         if (!$task) {
             return [
@@ -641,6 +668,11 @@ class Task
         $estadoDestino = $nuevaColumna['tipo_estado'];
         $fechaFinalizada = $task['fecha_finalizada'];
         $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true);
+
+        if ($task['columna_tipo_estado'] === BoardColumn::ESTADO_FINALIZADA
+            && (!$isJefe || $estadoDestino !== BoardColumn::ESTADO_EN_PROCESO)) {
+            return ['success' => false, 'status' => 422, 'code' => 'ERR_REOPEN_TARGET_INVALID', 'message' => 'Una tarea finalizada solo puede ser reabierta por Jefatura en una columna En proceso.'];
+        }
 
         if (($nuevaColumna['ambito'] ?? BoardColumn::AMBITO_AREA) !== BoardColumn::AMBITO_AREA) {
             return ['success' => false, 'status' => 422, 'code' => 'ERR_COLUMN_SCOPE_MISMATCH', 'message' => 'La columna de destino no pertenece al tablero de esta tarea.'];
@@ -691,10 +723,12 @@ class Task
         $db = Database::getConnection();
         $now = gmdate('Y-m-d H:i:s');
 
+        $historialInmediato = 0;
         $stmt = $db->prepare("
             UPDATE tareas
             SET columna_id = :columna_id,
                 fecha_finalizada = :fecha_finalizada,
+                historial_inmediato = :historial_inmediato,
                 updated_at = :updated_at
             WHERE id = :id
         ");
@@ -702,6 +736,7 @@ class Task
         $stmt->execute([
             ':columna_id'       => $nuevaColumnaId,
             ':fecha_finalizada' => $fechaFinalizada,
+            ':historial_inmediato' => $historialInmediato,
             ':updated_at'       => $now,
             ':id'               => $id
         ]);
@@ -758,6 +793,47 @@ class Task
         ];
     }
 
+    /** Cierra una tarea por decisión de Jefatura y la publica de inmediato en el historial. */
+    public static function finalizeImmediately(int $id, array $currentUser): array
+    {
+        self::ensureHistorySchema();
+        $task = self::findById($id);
+        if (!$task) {
+            return ['success' => false, 'status' => 404, 'code' => 'ERR_TASK_NOT_FOUND', 'message' => 'Tarea no encontrada.'];
+        }
+        $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true) || User::isJefe($currentUser);
+        if (!$isJefe || $task['tipo_tarea'] !== self::TIPO_AREA) {
+            return ['success' => false, 'status' => 403, 'code' => 'ERR_FORBIDDEN_ACTION', 'message' => 'Solo Jefatura puede finalizar y archivar una tarea de inmediato.'];
+        }
+
+        $finalColumn = BoardColumn::findByTipoEstado(BoardColumn::ESTADO_FINALIZADA, BoardColumn::AMBITO_AREA);
+        if (!$finalColumn) {
+            return ['success' => false, 'status' => 422, 'code' => 'ERR_FINAL_COLUMN_NOT_FOUND', 'message' => 'No existe una columna Finalizada activa.'];
+        }
+
+        if ($task['columna_tipo_estado'] !== BoardColumn::ESTADO_FINALIZADA) {
+            $result = self::transition($id, (int)$finalColumn['id'], ['confirmacion_cierre' => true, 'aprobado' => true], $currentUser);
+            if (!$result['success']) {
+                return $result;
+            }
+        }
+
+        $db = Database::getConnection();
+        $db->prepare('UPDATE tareas SET historial_inmediato = 1, updated_at = :now WHERE id = :id')
+            ->execute([':now' => gmdate('Y-m-d H:i:s'), ':id' => $id]);
+        Audit::log((int)$currentUser['id'], 'TAREA', $id, 'FINALIZACION_INMEDIATA', $task['columna_tipo_estado'], BoardColumn::ESTADO_FINALIZADA, ['historial_inmediato' => true]);
+
+        return ['success' => true, 'tarea' => self::findById($id), 'mensaje' => 'Tarea finalizada y enviada inmediatamente al historial.'];
+    }
+
+    private static function wasCompletedOnTime(array $task): ?bool
+    {
+        if (empty($task['fecha_limite']) || empty($task['fecha_finalizada'])) {
+            return null;
+        }
+        return strtotime((string)$task['fecha_finalizada']) <= strtotime((string)$task['fecha_limite'] . ' 23:59:59');
+    }
+
     /**
      * Formatea un registro de tarea para salida JSON estandarizada.
      */
@@ -785,6 +861,7 @@ class Task
             'revisor_nombre'      => $row['revisor_nombre'] ?? null,
             'fecha_limite'        => $row['fecha_limite'] ?? null,
             'fecha_finalizada'    => $row['fecha_finalizada'] ?? null,
+            'historial_inmediato' => (bool)($row['historial_inmediato'] ?? false),
             'created_at'          => $row['created_at'],
             'updated_at'          => $row['updated_at']
         ];

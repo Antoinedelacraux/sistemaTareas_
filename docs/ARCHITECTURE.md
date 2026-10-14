@@ -32,3 +32,6 @@ Monolito modular estructurado por capas y dominios, con API REST desacoplada, SP
 
 ## Documento vivo
 Describir aquí decisiones técnicas reales a medida que se aprueben y se implementen. No afirmar que algo ya existe sin inspección del código.
+
+## Cierre e historial
+El cierre de una tarea conserva `fecha_finalizada`; `historial_inmediato` permite a Jefatura omitir únicamente la espera de 24 horas, sin alterar la trazabilidad del estado.

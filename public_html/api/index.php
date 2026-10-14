@@ -58,6 +58,7 @@ $router->post('/api/tareas', [TaskController::class, 'create'], [AuthMiddleware:
 $router->put('/api/tareas/{id}', [TaskController::class, 'update'], [AuthMiddleware::class]);
 $router->patch('/api/tareas/{id}', [TaskController::class, 'update'], [AuthMiddleware::class]);
 $router->delete('/api/tareas/{id}', [TaskController::class, 'delete'], [AuthMiddleware::class]);
+$router->post('/api/tareas/{id}/finalizar-inmediatamente', [TaskController::class, 'finalizeImmediately'], [AuthMiddleware::class]);
 
 // -----------------------------------------------------------------------------
 // Rutas de Tablero Kanban y Transiciones de Estado (MVP-04)

@@ -156,6 +156,7 @@ class Database
                 revisor_id INTEGER,
                 fecha_limite TEXT,
                 fecha_finalizada TEXT,
+                historial_inmediato INTEGER NOT NULL DEFAULT 0,
                 created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (columna_id) REFERENCES tableros_columnas(id),
