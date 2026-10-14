@@ -2,6 +2,12 @@
 
 ## Registro de avances
 
+### 2026-10-14 — LOGIN-UI-01: Contraste y espaciado del acceso
+- **Estado:** implementado, pendiente de validación visual en navegador.
+- **Cambios:** se reforzó el overlay sobre `login_hero.jpg`, se ajustaron proporciones de la tarjeta, padding, gaps, inputs, botón principal y cuentas demo; se añadió breakpoint móvil y se reemplazaron flechas de texto por SVG.
+- **Criterios:** identidad visible y legible sobre la imagen, jerarquía clara y controles con separación consistente.
+- **Pruebas:** `php -l public_html/index.php`, entrega HTTP de `/` y `/assets/css/login.css` con HTTP 200; `git diff --check` PASS.
+
 ### 2026-10-14 — VISTAS-02: Limpieza personal y cierre de columna
 - **Estado:** implementado, pendiente de validacion visual del usuario.
 - **Objetivo y RF/RN:** RF-05, RF-07, RN-01, RN-04, RN-07.

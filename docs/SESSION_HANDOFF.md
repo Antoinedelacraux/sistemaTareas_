@@ -1,6 +1,7 @@
 # Traspaso entre sesiones (leer primero)
 
 ## Estado actual verificable
+- LOGIN-UI-01 implementado: imagen corporativa con overlay de contraste, textos institucionales legibles, espaciado revisado y layout responsive. Pendiente: validación visual final con el navegador en escritorio y móvil.
 - VISTAS-02 implementado: borrado masivo seguro de tareas personales, candado en columna finalizada y tareas finalizadas en modo solo lectura. QA: lint PHP, auth 19/19 y diagnostico web 10/10 PASS; `tasks_test.php` mantiene 4 fallos heredados de alcance y Node.js no esta instalado. Pendiente: confirmar visualmente el boton y la explicacion del candado en navegador.
 - Repositorio Git con arquitectura modular completa y operativa en desarrollo local (`PHP 8.4.25` + `SQLite`).
 - **Fase 1.5+ / V1.5.7 COMPLETADA (Modularización de Archivos Extensos, Aislamiento Estricto del Login y Skill):**

@@ -1,6 +1,12 @@
 # Changelog
 
 ## [Sin version] - 2026-10-14
+### Modificado
+- Login con panel de imagen corporativa de mayor contraste para `TAL S.A.`, `Área de Planeamiento` y la descripción operativa.
+- Mejorada la escala de espaciado, jerarquía tipográfica, tamaño de controles y adaptación responsive del formulario de acceso.
+- Flechas de cuentas demo reemplazadas por iconos SVG accesibles.
+
+## [Sin version] - 2026-10-14
 ### Agregado
 - Boton **Borrar todo** en la Vista Personal. Requiere confirmacion y la API elimina exclusivamente tareas personales propias del usuario autenticado.
 - Indicador de candado profesional en la cabecera de columnas `FINALIZADA`; al seleccionarlo explica el cierre de solo lectura.
