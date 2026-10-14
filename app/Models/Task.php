@@ -362,15 +362,23 @@ class Task
         $stmt = $db->prepare($sql);
         $stmt->execute($params);
 
+        $esReasignacion = isset($data['responsable_id']) && (int)$data['responsable_id'] !== (int)$currentTask['responsable_id'];
+        $accionAudit = $esReasignacion ? 'REASIGNAR' : 'ACTUALIZAR';
+        $detallesAudit = ['cambios' => array_keys($data)];
+        if ($esReasignacion) {
+            $detallesAudit['responsable_anterior_id'] = (int)$currentTask['responsable_id'];
+            $detallesAudit['responsable_nuevo_id'] = (int)$data['responsable_id'];
+        }
+
         // Registrar en auditoría
         Audit::log(
             $userId,
             'TAREA',
             $id,
-            'ACTUALIZAR',
+            $accionAudit,
             $currentTask['columna_tipo_estado'] ?? null,
             $currentTask['columna_tipo_estado'] ?? null,
-            ['cambios' => array_keys($data)]
+            $detallesAudit
         );
 
         $updatedTask = self::findById($id);

@@ -324,9 +324,128 @@
   9. `php tests/notifications_automation_test.php`: 33/33 PASS (100%).
   - Total acumulado: 188 pruebas automatizadas superadas con 100% PASS, 0 fallos, 0 regresiones.
 - **Documentación actualizada:** `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
-- **Git:** Checkpoint pendiente de confirmación.
+- **Git:** Checkpoint `c550616` (`feat(notifications): add idempotent notifications and automation engine MVP-08`).
 - **Deuda técnica / riesgos:** Ninguna.
 - **Siguiente paso verificable:** MVP-09 (Historial, auditoría, dashboard básico y métricas de cierre).
+
+### 2026-10-13 — MVP-09: Historial, auditoría inmutable, dashboard operativo y métricas de cierre
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-18, RF-19, RN-02, RN-13. Implementar la bitácora inmutable de auditoría para todas las acciones operativas del sistema (creación, transiciones, aprobaciones, devoluciones y reasignaciones con detalle JSON), y el dashboard operativo en tiempo real con KPIs de cumplimiento, alertas de plazos (vencidas / por vencer en ≤ 7 días), distribución de estados Kanban, prioridades activas y balance de carga de trabajo del equipo para Jefatura.
+- **Componentes desarrollados:**
+  1. **Modelo de Auditoría Inmutable (`app/Models/Audit.php`):**
+     - Métodos `getByTask(int $tareaId, int $limit)` y `getRecent(int $limit, ?string $entityType, ?int $userId)`.
+     - Formateador `format(array $row)` con decodificación de `detalles_json`.
+  2. **Trazabilidad de Reasignación en Tareas (`app/Models/Task.php`):**
+     - Detección explícita de cambio de `responsable_id` en `update()`, registrando la acción `'REASIGNAR'` con actor, responsable anterior y responsable nuevo.
+  3. **Servicio de Métricas y KPIs (`app/Services/DashboardService.php`):**
+     - Método `getMetrics(array $currentUser, string $scope)`:
+       - Filtrado estricto por alcance y rol (RF-19): global/área para Jefatura; auto-filtrado a tareas propias para Asistentes.
+       - Cálculo de total de tareas, completadas, activas, y % de tasa de cumplimiento.
+       - Conteo por estado Kanban (`BACKLOG`, `EN_PROCESO`, `BLOQUEADA`, `EN_REVISION`, `FINALIZADA`).
+       - Detección de alertas de plazo: tareas vencidas (`fecha_limite < CURDATE()`) y por vencer en los próximos 7 días.
+       - Desglose de tareas activas por prioridad (`URGENTE`, `ALTA`, `MEDIA`, `BAJA`).
+       - Balance de carga de trabajo individual del equipo (`balance_equipo`): solo visible para Jefatura, reportando total asignadas, activas, finalizadas y atrasadas por miembro.
+  4. **Controladores REST (`app/Controllers/AuditController.php` y `DashboardController.php`):**
+     - `GET /api/tareas/{id}/historial`: Timeline cronológico de auditoría con validación de permisos anti-IDOR (`Task::canView`).
+     - `GET /api/auditoria`: Bitácora general para Jefatura / filtrada por usuario para Asistentes.
+     - `GET /api/dashboard/metricas`: Métricas agregadas y balance de equipo.
+  5. **Interfaz de Usuario SPA (`public_html/index.html`, `public_html/assets/css/app.css`, `public_html/assets/js/app.js`):**
+     - Pestaña `#tab-dashboard-view` en los controles superiores.
+     - Vista interactiva `#dashboard-view` con 4 tarjetas KPI (`Total`, `Tasa de Cumplimiento %`, `En Progreso / Revisión`, `Alertas de Plazo`).
+     - Barras horizontales con colores temáticos para estados Kanban y niveles de prioridad.
+     - Sección `#dashboard-team-section` con tabla responsiva de balance de equipo para Jefatura.
+     - Contenedor `#detail-audit-box` y timeline `#detail-audit-timeline` en el modal de detalle de tarea para visualización inmutable con actores, fechas y eventos.
+- **Archivos creados/modificados:**
+  - `app/Models/Audit.php`
+  - `app/Models/Task.php`
+  - `app/Services/DashboardService.php` (nuevo)
+  - `app/Controllers/AuditController.php` (nuevo)
+  - `app/Controllers/DashboardController.php` (nuevo)
+  - `public_html/api/index.php`
+  - `public_html/index.html`
+  - `public_html/assets/css/app.css`
+  - `public_html/assets/js/app.js`
+  - `tests/dashboard_audit_test.php` (nuevo)
+  - `docs/ROADMAP.md`
+  - `docs/PROGRESS.md`
+  - `docs/SESSION_HANDOFF.md`
+  - `docs/CHANGELOG.md`
+- **Decisiones y motivo:**
+  - Auditoría inmutable de solo inserción (sin endpoints de modificación o eliminación).
+  - Los asistentes nunca pueden acceder al balance general del equipo ni a la auditoría de tareas privadas ajenas (validación estricta 403 Forbidden anti-IDOR).
+- **Pruebas ejecutadas:**
+  1. `php tests/dashboard_audit_test.php`: 34/34 PASS (100%).
+  2. Suite completa de regresión (9 suites): 222/222 PASS (100%), 0 fallos, 0 regresiones.
+- **Documentación actualizada:** `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`.
+- **Git:** Checkpoint pendiente.
+- **Deuda técnica / riesgos:** Ninguna.
+- **Siguiente paso verificable:** MVP-10 (QA integral, seguridad y piloto con 5 usuarios).
+
+### 2026-10-13 — MVP-10: QA integral, auditoría de seguridad OWASP/anti-IDOR y simulación piloto con 5 usuarios
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-01 a RF-19, RN-01 a RN-15. Culminar formalmente la **Fase 1 (MVP)** mediante:
+  1. Auditoría exhaustiva de seguridad (anti-IDOR/BOLA, RBAC estricto, inyección de código, validación de extensiones de archivos en upload).
+  2. Verificación de la matriz de los 12 criterios de aceptación mínima V1.2.
+  3. Simulación completa de extremo a extremo del flujo colaborativo entre los 5 usuarios reales del Área de Planeamiento de TAL S.A.
+  4. Manual operativo y guía de despliegue en producción en Web Hosting DonWeb Ferozo (`docs/DEPLOYMENT_AND_PILOT_GUIDE.md`).
+- **Componentes desarrollados:**
+  1. **Suite de QA y Seguridad E2E (`tests/qa_security_pilot_test.php`):**
+     - **Parte 1 (Auditoría de Seguridad y Pruebas Negativas):**
+       - 1.1: RBAC RN-03: Asistente 1 no puede asignar tareas a Asistente 2 (403 Forbidden).
+       - 1.2: Anti-IDOR RN-02: Asistente 2 no puede consultar tareas personales privadas de Asistente 1 (403 Forbidden).
+       - 1.3: Anti-IDOR RF-18: Asistente 2 no puede ver la bitácora de auditoría de tareas ajenas no autorizadas (403 Forbidden).
+       - 1.4: Anti-IDOR RF-10: Asistente 2 no puede inyectar subtareas en tareas ajenas (403 Forbidden).
+       - 1.5: Anti-IDOR RF-10: Asistente 2 no puede comentar en tareas ajenas privadas (403 Forbidden).
+       - 1.6: Anti-IDOR RN-02: Asistente 2 no puede marcar como leída la notificación de Asistente 1 (403 Forbidden).
+       - 1.7: RBAC RF-13: Asistente no tiene acceso a la bandeja de aprobaciones de Jefatura (403 Forbidden).
+       - 1.8: File Security: Bloqueo de subida de scripts y ejecutables (`.php`, `.exe`, `.sh`, `.py`) y admisión exclusiva de formatos seguros (`.pdf`, `.xlsx`, `.jpg`, etc.).
+     - **Parte 2 (Matriz de los 12 Criterios de Aceptación Mínima V1.2):**
+       - Criterio 1: Asistente crea para sí, consulta y actualiza tarea del área.
+       - Criterio 2: Asistente asignando a compañero denegado por API.
+       - Criterio 3: Consultar ID ajeno denegado por API.
+       - Criterio 4: Jefatura asigna tarea a Asistente y aparece en su bandeja de área.
+       - Criterio 5: Cancelar confirmación mantiene intacto el estado de la tarea (RN-11).
+       - Criterio 6: Confirmación aceptada finaliza tarea sin aprobación y activa dependientes elegibles (RN-11, RF-16).
+       - Criterio 7: Tarea con aprobación requiere revisión y dictamen de jefatura (RN-10); devolución exige observaciones no vacías (RN-12).
+       - Criterio 8: 3 ramas paralelas (DAG): 2/3 completadas mantiene bloqueada sucesora; 3/3 la habilita atómicamente a PENDIENTE (RN-08, RF-16).
+       - Criterio 9: Renombrado de columna conserva tipo funcional `FINALIZADA` (RN-06).
+       - Criterio 10: Idempotencia estricta previene duplicación ante reintentos (RN-15).
+       - Criterio 11: Auditoría inmutable registra quién, cuándo y qué cambió (RF-18, RN-13).
+       - Criterio 12: Reglas Apache `.htaccess`, aislamiento fuera de la raíz pública y configuración de entorno presentes.
+     - **Parte 3 (Simulación E2E con 5 Usuarios de TAL S.A.):**
+       - Paso 1: Elena Vega (Jefe Planeamiento) asigna tarea oficial a Marco Chumbes (Asistente 1).
+       - Paso 2: Marco recibe notificación de nueva tarea asignada (`TAREA_ASIGNADA`).
+       - Paso 3: Marco desglosa y completa el 100% de subtareas del checklist.
+       - Paso 4: Marco añade comentario con evidencia y solicita aprobación formal (pasa a `EN_REVISION`).
+       - Paso 5: Elena recibe notificación de aprobación solicitada y la revisa en su bandeja de pendientes.
+       - Paso 6: Elena emite dictamen favorable (`APROBAR`) y la tarea pasa a `FINALIZADA`.
+       - Paso 7: Roberto (Jefe Personal) y Elena consultan el Dashboard Operativo y el Balance de Carga del equipo.
+       - Paso 8: Asistente 3 comprueba que sus métricas están aisladas y no puede ver el balance general del equipo.
+  2. **Guía y Manual de Despliegue en DonWeb Ferozo (`docs/DEPLOYMENT_AND_PILOT_GUIDE.md`):**
+     - Checklist pre-despliegue (PHP 8.2+, extensiones obligatorias, `mod_rewrite`, MySQL 8/InnoDB).
+     - Esquema de directorios en Ferozo con código PHP (`app/`) y almacenamiento (`storage/`) aislados de la raíz pública (`public_html/`).
+     - Instrucciones de importación de base de datos (`schema.sql` y `seeds.sql`).
+     - Configuración de variables de entorno de producción `.env` seguras.
+     - Guía de inicio rápido para asistentes y jefatura.
+     - Plan de contingencia, backups y rollback.
+- **Archivos creados/modificados:**
+  - `tests/qa_security_pilot_test.php` (nuevo)
+  - `docs/DEPLOYMENT_AND_PILOT_GUIDE.md` (nuevo)
+  - `docs/ROADMAP.md`
+  - `docs/PROGRESS.md`
+  - `docs/SESSION_HANDOFF.md`
+  - `docs/CHANGELOG.md`
+- **Decisiones y motivo:**
+  - La Fase 1 (MVP) queda formalmente completada y lista para despliegue en producción en DonWeb Ferozo.
+  - El sistema cumple íntegramente con todos los requisitos funcionales (RF-01 a RF-19) y reglas de negocio (RN-01 a RN-15).
+- **Pruebas ejecutadas:**
+  - 10 suites de pruebas automatizadas en total con **250+ pruebas aprobadas con 100% PASS** (0 fallos, 0 regresiones).
+- **Documentación actualizada:** `docs/ROADMAP.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`, `docs/CHANGELOG.md`, `docs/DEPLOYMENT_AND_PILOT_GUIDE.md`.
+- **Git:** Checkpoint pendiente.
+- **Deuda técnica / riesgos:** Ninguna. Fase 1 finalizada.
+- **Siguiente paso:** Iniciar periodo de marcha blanca del piloto con los 5 usuarios de TAL S.A. en DonWeb Ferozo y planificar Fase 2.
+
+
 
 
 

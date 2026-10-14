@@ -294,6 +294,10 @@ async function onLoginSuccess() {
 function showLoginView() {
     document.getElementById('login-view').style.display = 'block';
     document.getElementById('kanban-view').style.display = 'none';
+    const dashView = document.getElementById('dashboard-view');
+    if (dashView) dashView.style.display = 'none';
+    const appView = document.getElementById('approvals-view');
+    if (appView) appView.style.display = 'none';
     document.getElementById('workspace-controls-bar').style.display = 'none';
     document.getElementById('user-profile-container').style.display = 'none';
     const notifContainer = document.getElementById('notifications-menu-container');
@@ -401,14 +405,22 @@ function setScope(scope) {
 
     const kanbanView = document.getElementById('kanban-view');
     const approvalsView = document.getElementById('approvals-view');
+    const dashboardView = document.getElementById('dashboard-view');
 
     if (scope === 'approvals') {
         if (kanbanView) kanbanView.style.display = 'none';
+        if (dashboardView) dashboardView.style.display = 'none';
         if (approvalsView) approvalsView.style.display = 'block';
         fetchPendingApprovals();
-    } else {
-        if (kanbanView) kanbanView.style.display = 'block';
+    } else if (scope === 'dashboard') {
+        if (kanbanView) kanbanView.style.display = 'none';
         if (approvalsView) approvalsView.style.display = 'none';
+        if (dashboardView) dashboardView.style.display = 'block';
+        loadDashboardMetrics();
+    } else {
+        if (dashboardView) dashboardView.style.display = 'none';
+        if (approvalsView) approvalsView.style.display = 'none';
+        if (kanbanView) kanbanView.style.display = 'block';
         renderKanban();
     }
 }
@@ -777,6 +789,17 @@ async function loadTaskDetail(taskId) {
             }
         } catch (e) {
             console.warn('Error al cargar dependencias', e);
+        }
+
+        // Cargar historial de auditoría inmutable (MVP-09 / RF-18 / RN-13)
+        try {
+            const auditRes = await apiFetch(`/api/tareas/${taskId}/historial`);
+            const auditJson = await auditRes.json();
+            if (auditJson.success) {
+                renderAuditTimeline(auditJson.data);
+            }
+        } catch (e) {
+            console.warn('Error al cargar historial de auditoría', e);
         }
 
     } catch (err) {
@@ -1600,6 +1623,219 @@ async function markAllNotificationsRead() {
         showToast('Error de red al marcar notificaciones', 'error');
     }
 }
+
+// -----------------------------------------------------------------------------
+// Bitácora de Auditoría Inmutable (MVP-09 / RF-18 / RN-13)
+// -----------------------------------------------------------------------------
+function renderAuditTimeline(events) {
+    const container = document.getElementById('detail-audit-timeline');
+    const countBadge = document.getElementById('detail-audit-count');
+    if (!container) return;
+
+    container.innerHTML = '';
+    const list = Array.isArray(events) ? events : [];
+    if (countBadge) countBadge.textContent = list.length;
+
+    if (list.length === 0) {
+        container.innerHTML = '<div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 0.75rem;">No hay registros de auditoría aún.</div>';
+        return;
+    }
+
+    list.forEach(evt => {
+        const item = document.createElement('div');
+        item.className = 'audit-item';
+
+        const actionBadges = {
+            'CREAR': '<span class="badge badge-tipo-area" style="font-size: 0.7rem;">CREACIÓN</span>',
+            'TRANSICIONAR': '<span class="badge badge-prioridad-BAJA" style="font-size: 0.7rem;">TRANSICIÓN</span>',
+            'APROBAR': '<span class="badge" style="background-color: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; font-size: 0.7rem;">APROBADO</span>',
+            'DEVOLVER': '<span class="badge badge-prioridad-URGENTE" style="font-size: 0.7rem;">DEVUELTO</span>',
+            'SOLICITAR_APROBACION': '<span class="badge badge-prioridad-MEDIA" style="font-size: 0.7rem;">REVISIÓN</span>',
+            'REASIGNAR': '<span class="badge badge-prioridad-ALTA" style="font-size: 0.7rem;">REASIGNACIÓN</span>',
+            'ACTUALIZAR': '<span class="badge" style="background-color: var(--bg-surface-subtle); color: var(--text-muted); font-size: 0.7rem;">EDICIÓN</span>'
+        };
+
+        const badgeHtml = actionBadges[evt.accion] || `<span class="badge" style="font-size: 0.7rem;">${escapeHtml(evt.accion)}</span>`;
+
+        let detailsHtml = '';
+        const det = evt.detalles;
+        if (det) {
+            if (evt.accion === 'TRANSICIONAR') {
+                const origen = det.columna_origen_nombre || `Columna #${det.columna_origen_id || '?'}`;
+                const destino = det.columna_destino_nombre || `Columna #${det.columna_destino_id || '?'}`;
+                detailsHtml = `Cambió de <strong>${escapeHtml(origen)}</strong> ➔ <strong>${escapeHtml(destino)}</strong>`;
+                if (det.confirmacion_cierre) detailsHtml += ' (Cierre formal ratificado)';
+            } else if (evt.accion === 'DEVOLVER') {
+                detailsHtml = `<strong>Observaciones de Jefatura:</strong> "${escapeHtml(det.observaciones || '')}"`;
+            } else if (evt.accion === 'APROBAR') {
+                detailsHtml = `Dictamen favorable de cierre formal por Jefatura`;
+            } else if (evt.accion === 'REASIGNAR') {
+                detailsHtml = `Responsable reasignado (ID anterior: ${det.responsable_anterior_id || '-'} ➔ Nuevo: ${det.responsable_nuevo_id || '-'})`;
+            } else if (evt.accion === 'CREAR') {
+                detailsHtml = `Tarea registrada en el sistema`;
+            } else {
+                detailsHtml = typeof det === 'string' ? escapeHtml(det) : JSON.stringify(det);
+            }
+        }
+
+        item.innerHTML = `
+            <div class="audit-item-header">
+                ${badgeHtml}
+                <span class="audit-item-actor">${escapeHtml(evt.usuario_nombre || 'Sistema')}</span>
+                <span class="audit-item-time">${escapeHtml(evt.created_at || '')}</span>
+            </div>
+            ${detailsHtml ? `<div class="audit-item-details">${detailsHtml}</div>` : ''}
+        `;
+        container.appendChild(item);
+    });
+}
+
+// -----------------------------------------------------------------------------
+// Dashboard Operativo y Métricas (MVP-09 / RF-19)
+// -----------------------------------------------------------------------------
+async function loadDashboardMetrics() {
+    try {
+        const res = await apiFetch('/api/dashboard/metricas');
+        const json = await res.json();
+        if (json.success && json.data) {
+            renderDashboard(json.data);
+        } else {
+            showToast(json.error?.message || 'Error al cargar métricas del dashboard', 'error');
+        }
+    } catch (e) {
+        showToast('Error de red al consultar métricas', 'error');
+    }
+}
+
+function renderDashboard(data) {
+    const total = data.total || 0;
+    const completadas = data.completadas || 0;
+    const tasa = data.tasa_cumplimiento_pct || 0;
+    const activas = data.activas || 0;
+    const alertas = data.alertas || { vencidas: 0, por_vencer_7_dias: 0 };
+    const estados = data.estados || {};
+    const prioridades = data.prioridades_activas || {};
+
+    // KPIs principales
+    const elTotal = document.getElementById('kpi-total-tasks');
+    if (elTotal) elTotal.textContent = total;
+
+    const elScopeText = document.getElementById('kpi-scope-text');
+    if (elScopeText) {
+        elScopeText.textContent = (data.alcance === 'global' || data.alcance === 'area')
+            ? 'Tareas oficiales del área'
+            : 'Mis tareas asignadas';
+    }
+
+    const elRate = document.getElementById('kpi-completion-rate');
+    if (elRate) elRate.textContent = `${tasa}%`;
+
+    const elComp = document.getElementById('kpi-completed-tasks');
+    if (elComp) elComp.textContent = completadas;
+
+    const elActive = document.getElementById('kpi-active-tasks');
+    if (elActive) elActive.textContent = activas;
+
+    const elReview = document.getElementById('kpi-review-tasks');
+    if (elReview) elReview.textContent = estados['EN_REVISION'] || 0;
+
+    const elOverdue = document.getElementById('kpi-overdue-tasks');
+    if (elOverdue) elOverdue.textContent = alertas.vencidas || 0;
+
+    const elDueSoon = document.getElementById('kpi-due-soon-tasks');
+    if (elDueSoon) elDueSoon.textContent = alertas.por_vencer_7_dias || 0;
+
+    // Barras de distribución por estados Kanban
+    const statusContainer = document.getElementById('dashboard-status-bars');
+    if (statusContainer) {
+        statusContainer.innerHTML = '';
+        const statusMeta = [
+            { key: 'BACKLOG', label: 'Backlog / Planificación', color: '#6b7280' },
+            { key: 'EN_PROCESO', label: 'En Proceso Activo', color: '#2563eb' },
+            { key: 'BLOQUEADA', label: 'Bloqueada por Dependencia', color: '#dc2626' },
+            { key: 'EN_REVISION', label: 'En Revisión (Jefatura)', color: '#d97706' },
+            { key: 'FINALIZADA', label: 'Finalizada / Completada', color: '#16a34a' }
+        ];
+
+        statusMeta.forEach(meta => {
+            const count = estados[meta.key] || 0;
+            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+            const item = document.createElement('div');
+            item.className = 'dist-bar-item';
+            item.innerHTML = `
+                <div class="dist-bar-header">
+                    <span>${meta.label}</span>
+                    <strong>${count} <span style="font-size: 0.725rem; color: var(--text-muted); font-weight: normal;">(${pct}%)</span></strong>
+                </div>
+                <div class="dist-bar-track">
+                    <div class="dist-bar-fill" style="width: ${pct}%; background-color: ${meta.color};"></div>
+                </div>
+            `;
+            statusContainer.appendChild(item);
+        });
+    }
+
+    // Barras de distribución por prioridad
+    const prioContainer = document.getElementById('dashboard-priority-bars');
+    if (prioContainer) {
+        prioContainer.innerHTML = '';
+        const prioMeta = [
+            { key: 'URGENTE', label: '🔥 Urgente', color: '#dc2626' },
+            { key: 'ALTA', label: '⚡ Alta', color: '#ea580c' },
+            { key: 'MEDIA', label: '📌 Media', color: '#2563eb' },
+            { key: 'BAJA', label: '☕ Baja', color: '#64748b' }
+        ];
+
+        const totalPrios = Object.values(prioridades).reduce((a, b) => a + b, 0);
+
+        prioMeta.forEach(meta => {
+            const count = prioridades[meta.key] || 0;
+            const pct = totalPrios > 0 ? Math.round((count / totalPrios) * 100) : 0;
+            const item = document.createElement('div');
+            item.className = 'dist-bar-item';
+            item.innerHTML = `
+                <div class="dist-bar-header">
+                    <span>${meta.label}</span>
+                    <strong>${count} <span style="font-size: 0.725rem; color: var(--text-muted); font-weight: normal;">(${pct}%)</span></strong>
+                </div>
+                <div class="dist-bar-track">
+                    <div class="dist-bar-fill" style="width: ${pct}%; background-color: ${meta.color};"></div>
+                </div>
+            `;
+            prioContainer.appendChild(item);
+        });
+    }
+
+    // Balance de Carga del Equipo (Solo visible para Jefatura)
+    const teamSection = document.getElementById('dashboard-team-section');
+    const teamTbody = document.getElementById('dashboard-team-tbody');
+    if (teamSection && teamTbody) {
+        if (Array.isArray(data.balance_equipo) && data.balance_equipo.length > 0) {
+            teamSection.style.display = 'block';
+            teamTbody.innerHTML = '';
+
+            data.balance_equipo.forEach(member => {
+                const tr = document.createElement('tr');
+                const cargaBadgeClass = member.activas >= 4 ? 'badge-prioridad-URGENTE' : (member.activas >= 2 ? 'badge-prioridad-ALTA' : 'badge-tipo-area');
+                const roleBadge = member.usuario_rol === 'JEFE_PLANEAMIENTO' ? 'JEFE PLAN.' : (member.usuario_rol === 'JEFE_PERSONAL' ? 'JEFE PERS.' : 'ASISTENTE');
+
+                tr.innerHTML = `
+                    <td><strong>${escapeHtml(member.usuario_nombre)}</strong><br><span style="font-size: 0.725rem; color: var(--text-muted);">${escapeHtml(member.usuario_email)}</span></td>
+                    <td><span class="badge ${member.usuario_rol === 'ASISTENTE' ? 'badge-tipo-area' : 'badge-prioridad-ALTA'}">${roleBadge}</span></td>
+                    <td>${member.total_asignadas}</td>
+                    <td><strong style="color: var(--primary-600);">${member.activas}</strong></td>
+                    <td><span style="color: var(--status-done); font-weight: 600;">${member.finalizadas}</span></td>
+                    <td>${member.atrasadas > 0 ? `<strong style="color: #dc2626;">${member.atrasadas}</strong>` : '0'}</td>
+                    <td><span class="badge ${cargaBadgeClass}">${member.activas} activas</span></td>
+                `;
+                teamTbody.appendChild(tr);
+            });
+        } else {
+            teamSection.style.display = 'none';
+        }
+    }
+}
+
 
 
 

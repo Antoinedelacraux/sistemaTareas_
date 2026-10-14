@@ -83,6 +83,9 @@
                 <span>⚖️ Bandeja de Aprobaciones</span>
                 <span id="approvals-badge" class="badge badge-prioridad-ALTA" style="margin-left: 0.35rem; display: none;">0</span>
             </button>
+            <button id="tab-dashboard-view" class="tab-btn" data-scope="dashboard">
+                <span>📊 Dashboard & Métricas</span>
+            </button>
         </div>
 
         <div class="workspace-actions">
@@ -163,6 +166,92 @@
             </div>
             <div id="approvals-container" class="approvals-grid">
                 <!-- Tarjetas de aprobación cargadas dinámicamente -->
+            </div>
+        </div>
+
+        <!-- Vista de Dashboard Operativo y Métricas (MVP-09) -->
+        <div id="dashboard-view" style="display: none;">
+            <div class="dashboard-header" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main);">Dashboard Operativo y Métricas de Cierre</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Indicadores en tiempo real de avance, cumplimiento y carga operativa (RF-19).</p>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="loadDashboardMetrics()">🔄 Actualizar Métricas</button>
+            </div>
+
+            <!-- Grid de Indicadores Clave (KPIs) -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Total de Tareas</div>
+                    <div id="kpi-total-tasks" class="kpi-value">0</div>
+                    <div class="kpi-subtext" id="kpi-scope-text">En alcance actual</div>
+                </div>
+                <div class="kpi-card kpi-success">
+                    <div class="kpi-label">Tasa de Cumplimiento</div>
+                    <div id="kpi-completion-rate" class="kpi-value">0%</div>
+                    <div class="kpi-subtext"><span id="kpi-completed-tasks">0</span> finalizadas</div>
+                </div>
+                <div class="kpi-card kpi-warning">
+                    <div class="kpi-label">En Progreso / Revisión</div>
+                    <div id="kpi-active-tasks" class="kpi-value">0</div>
+                    <div class="kpi-subtext"><span id="kpi-review-tasks">0</span> en revisión</div>
+                </div>
+                <div class="kpi-card kpi-danger">
+                    <div class="kpi-label">Alertas de Plazo</div>
+                    <div id="kpi-overdue-tasks" class="kpi-value">0</div>
+                    <div class="kpi-subtext"><span id="kpi-due-soon-tasks">0</span> vencen en ≤ 7 días</div>
+                </div>
+            </div>
+
+            <!-- Gráficos / Distribuciones de Estados y Prioridades -->
+            <div class="dashboard-sections-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+                <!-- Desglose por Estado -->
+                <div class="section-box">
+                    <div class="section-box-title">
+                        <span>Distribución por Estados Kanban</span>
+                    </div>
+                    <div id="dashboard-status-bars" class="distribution-bars" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.85rem;">
+                        <!-- Barras de estado montadas dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Desglose por Prioridad -->
+                <div class="section-box">
+                    <div class="section-box-title">
+                        <span>Tareas Activas por Prioridad</span>
+                    </div>
+                    <div id="dashboard-priority-bars" class="distribution-bars" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.85rem;">
+                        <!-- Barras de prioridad montadas dinámicamente -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Balance de Carga del Equipo (Solo Jefatura) -->
+            <div id="dashboard-team-section" class="section-box" style="margin-top: 1.5rem; display: none;">
+                <div class="section-box-title">
+                    <span>👥 Balance de Carga de Trabajo del Equipo (Supervisión Jefatura)</span>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; margin-bottom: 1rem;">
+                    Monitoreo de tareas asignadas, en curso, finalizadas y atrasadas por cada integrante del área.
+                </p>
+                <div class="table-responsive">
+                    <table class="team-balance-table">
+                        <thead>
+                            <tr>
+                                <th>Miembro del Equipo</th>
+                                <th>Rol</th>
+                                <th>Total Asignadas</th>
+                                <th>En Curso</th>
+                                <th>Finalizadas</th>
+                                <th>Atrasadas</th>
+                                <th>Carga Activa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboard-team-tbody">
+                            <!-- Filas dinámicas -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
@@ -361,6 +450,20 @@
                                     <span>Publicar Comentario / Evidencia</span>
                                 </button>
                             </form>
+                        </div>
+
+                        <!-- Sección de Auditoría Inmutable (RF-18 / RN-13 MVP-09) -->
+                        <div class="section-box" style="margin-top: 1.25rem;">
+                            <div class="section-box-title">
+                                <span>📜 Bitácora de Auditoría Inmutable</span>
+                                <span id="detail-audit-count" class="badge badge-tipo-area">0</span>
+                            </div>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                                Trazabilidad cronológica inalterable de creación, transiciones, aprobaciones y reasignaciones (RN-13).
+                            </p>
+                            <div id="detail-audit-timeline" class="audit-timeline">
+                                <!-- Eventos de auditoría cargados dinámicamente -->
+                            </div>
                         </div>
                     </div>
                 </div>

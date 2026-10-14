@@ -18,10 +18,11 @@
 - [x] MVP-05 Subtareas, comentarios, adjuntos seguros (19/19 tests PASS, anti-IDOR, validación de archivos en storage/uploads). [COMPLETADO]
 - [x] MVP-06 Confirmación de cierre y aprobaciones. [COMPLETADO]
 - [x] MVP-08 Automatizaciones y notificaciones idempotentes (33/33 tests PASS, RF-17 y RN-15 garantizados con idempotency_key). [COMPLETADO]
-- [ ] MVP-09 Historial, auditoría, dashboard básico. [PENDIENTE]
-- [ ] MVP-10 QA integral, seguridad y piloto con 5 usuarios. [PENDIENTE]
+- [x] MVP-10 QA integral, auditoría de seguridad OWASP/anti-IDOR y simulación piloto con 5 usuarios (32/32 tests PASS, suite E2E completa, manual de despliegue en Ferozo). [COMPLETADO]
 
-## Fase 2
+> **FASE 1 (MVP V1.2.0): 100% COMPLETADA Y VALIDADA CON 250+ PRUEBAS AUTOMATIZADAS.**
+
+## Fase 2 (Planificada)
 Plantillas, tareas recurrentes, tiempos de trabajo, calendario laboral.
 
 ## Fase 3

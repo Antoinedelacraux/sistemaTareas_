@@ -105,6 +105,16 @@ $router->get('/api/notificaciones/resumen', [NotificationController::class, 'unr
 $router->patch('/api/notificaciones/{id}/leer', [NotificationController::class, 'markAsRead'], [AuthMiddleware::class]);
 $router->post('/api/notificaciones/marcar-todas-leidas', [NotificationController::class, 'markAllAsRead'], [AuthMiddleware::class]);
 
+// -----------------------------------------------------------------------------
+// Rutas de Historial, Auditoría y Dashboard (MVP-09)
+// -----------------------------------------------------------------------------
+use App\Controllers\AuditController;
+use App\Controllers\DashboardController;
+
+$router->get('/api/tareas/{id}/historial', [AuditController::class, 'taskHistory'], [AuthMiddleware::class]);
+$router->get('/api/auditoria', [AuditController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/api/dashboard/metricas', [DashboardController::class, 'metrics'], [AuthMiddleware::class]);
+
 // Rutas base informativas
 $router->get('/api', function () {
     Response::json([
@@ -156,6 +166,13 @@ $router->get('/api', function () {
                 'resumen'        => 'GET /api/notificaciones/resumen',
                 'marcar_leida'   => 'PATCH /api/notificaciones/{id}/leer',
                 'marcar_todas'   => 'POST /api/notificaciones/marcar-todas-leidas'
+            ],
+            'auditoria' => [
+                'historial_tarea'=> 'GET /api/tareas/{id}/historial',
+                'eventos'        => 'GET /api/auditoria'
+            ],
+            'dashboard' => [
+                'metricas'       => 'GET /api/dashboard/metricas'
             ]
         ]
     ]);

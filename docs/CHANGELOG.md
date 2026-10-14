@@ -1,6 +1,47 @@
 # Changelog
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
+## [V1.2.0 - MVP Completo: QA Integral, Seguridad y Piloto con 5 Usuarios] - 2026-10-13 (MVP-10)
+### Añadido
+- Culminación integral de la **Fase 1 (MVP)** del Sistema de Gestión y Seguimiento de Tareas de TAL S.A.
+- Suite de pruebas de aceptación y auditoría de seguridad E2E `tests/qa_security_pilot_test.php` que verifica sistemáticamente:
+  - Pruebas negativas y RBAC: Prevención de asignación indebida de asistentes a compañeros (**RN-03**).
+  - Protección anti-IDOR/BOLA en todas las entidades: Tareas personales privadas, subtareas, comentarios, historial de auditoría y notificaciones (**RN-02, RN-05**).
+  - Validación de los 12 criterios de aceptación mínima V1.2 (autoasignación, visibilidad por rol, confirmación de cierre RN-11, aprobaciones formales RN-10/RN-12, ramas paralelas y motor DAG RN-08/RF-16, conservación de tipo funcional RN-06, idempotencia RN-15, e historial inmutable RF-18/RN-13).
+  - Seguridad en subida de archivos: Bloqueo de ejecutables y scripts en `UploadHandler` y reglas Apache `storage/uploads/.htaccess`.
+  - Simulación colaborativa de extremo a extremo con los 5 usuarios reales del Área de Planeamiento de TAL S.A.
+- Manual y guía completa de despliegue en producción para Web Hosting DonWeb Ferozo (`docs/DEPLOYMENT_AND_PILOT_GUIDE.md`):
+  - Requisitos de servidor (PHP 8.2+, extensiones obligatorias, `mod_rewrite`, MySQL 8/InnoDB).
+  - Aislamiento de directorios (`app/` y `storage/` fuera de la raíz pública).
+  - Procedimiento de importación en phpMyAdmin (`schema.sql` y `seeds.sql`).
+  - Configuración de variables de entorno `.env` en producción.
+  - Manual de usuario rápido para Asistentes y Jefatura.
+  - Plan de contingencia, backups diarios y procedimiento de rollback.
+
+## [Sin versión - Historial, Auditoría Inmutable y Dashboard Operativo] - 2026-10-13 (MVP-09)
+### Añadido
+- Módulo completo de auditoría inmutable y dashboard operativo con métricas de cierre (**Fase 1: MVP-09**).
+- Modelo relacional `app/Models/Audit.php` y tabla `auditoria_log` para registro inalterable de eventos críticos (**RF-18, RN-13**).
+- Registro diferenciado de reasignación (`REASIGNAR`) en `Task::update`, documentando actor, responsable anterior y responsable nuevo en `detalles_json`.
+- Servicio central de KPIs `app/Services/DashboardService.php` con filtrado por alcance y rol (**RF-19**):
+  - Total de tareas, completadas, activas y cálculo de % tasa de cumplimiento.
+  - Conteo por estado Kanban (`BACKLOG`, `EN_PROCESO`, `BLOQUEADA`, `EN_REVISION`, `FINALIZADA`).
+  - Alertas de plazos: tareas vencidas (`fecha_limite < CURDATE()`) y tareas por vencer en ≤ 7 días.
+  - Desglose de tareas activas por nivel de prioridad (`URGENTE`, `ALTA`, `MEDIA`, `BAJA`).
+  - Matriz de balance de carga de trabajo por integrante del equipo (`balance_equipo`) con tareas asignadas, activas, completadas y atrasadas (restringido a roles de Jefatura).
+- Controlador `app/Controllers/AuditController.php`:
+  - `GET /api/tareas/{id}/historial`: Timeline de eventos inmutables de una tarea con protección anti-IDOR (**RN-02**, 403 Forbidden para asistentes en tareas no autorizadas).
+  - `GET /api/auditoria`: Consulta global para Jefatura y auto-filtrada por usuario para Asistentes.
+- Controlador `app/Controllers/DashboardController.php`:
+  - `GET /api/dashboard/metricas`: Despacho de métricas según alcance (`global`, `area`, `personal`).
+- Interfaz gráfica SPA (`index.html`, `app.css`, `app.js`):
+  - Pestaña `#tab-dashboard-view` ("📊 Dashboard & Métricas") en la barra de control.
+  - Vista `#dashboard-view` con grid de tarjetas KPI (`Total`, `Tasa de Cumplimiento`, `En Progreso / Revisión`, `Alertas de Plazo`).
+  - Barras horizontales temáticas con porcentajes para distribución de estados Kanban y prioridades activas.
+  - Sección `#dashboard-team-section` con tabla responsiva de balance de equipo visible únicamente para roles de Jefatura.
+  - Contenedor `#detail-audit-box` y timeline `#detail-audit-timeline` en el modal de detalle para trazabilidad inmutable de cambios.
+- Suite de pruebas automatizadas `tests/dashboard_audit_test.php` con 34 casos de prueba (100% PASS), alcanzando un acumulado de 222 pruebas superadas en el proyecto.
+
 ## [Sin versión - Automatizaciones y Notificaciones Idempotentes] - 2026-10-13 (MVP-08)
 ### Añadido
 - Módulo completo de eventos automatizados y notificaciones internas con garantía estricta de idempotencia (**Fase 1: MVP-08**).
