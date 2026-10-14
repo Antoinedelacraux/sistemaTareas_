@@ -305,6 +305,7 @@ class Task
 
     /**
      * Valida si un usuario tiene autorización para editar una tarea.
+     * - Si la tarea está FINALIZADA y el usuario no es jefe, la tarea está cerrada (no modificable).
      * - Jefes: pueden editar cualquier tarea del área y sus propias tareas personales.
      * - Asistentes: en Vista Área NO pueden editar. En Vista Personal tienen todos los permisos.
      */
@@ -314,6 +315,11 @@ class Task
         $userId = (int)$currentUser['id'];
         $respId = (int)$task['responsable_id'];
         $creadorId = (int)$task['creador_id'];
+
+        // Tarea finalizada se cierra completamente para Asistentes (solo Jefes pueden interactuar)
+        if (!$isJefe && ($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
+            return false;
+        }
 
         if ($isJefe) {
             return $task['tipo_tarea'] === self::TIPO_AREA || $userId === $respId || $userId === $creadorId;
@@ -329,6 +335,7 @@ class Task
 
     /**
      * Valida si un usuario tiene autorización para eliminar una tarea.
+     * - Si la tarea está FINALIZADA y el usuario no es jefe, queda bloqueada.
      * - Jefes: pueden eliminar cualquier tarea del área y sus propias tareas personales.
      * - Asistentes: en Vista Área NO pueden eliminar. En Vista Personal pueden eliminar sus tareas personales.
      */
@@ -338,6 +345,11 @@ class Task
         $userId = (int)$currentUser['id'];
         $respId = (int)$task['responsable_id'];
         $creadorId = (int)$task['creador_id'];
+
+        // Tarea finalizada se cierra completamente para Asistentes
+        if (!$isJefe && ($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
+            return false;
+        }
 
         if ($isJefe) {
             return $task['tipo_tarea'] === self::TIPO_AREA || $userId === $respId || $userId === $creadorId;
@@ -353,7 +365,7 @@ class Task
 
     /**
      * Valida si un usuario puede transicionar una tarea en el tablero Kanban.
-     * Asistentes pueden mover sus tareas asignadas o creadas.
+     * Si la tarea está FINALIZADA y el usuario es Asistente, la tarea está cerrada (no se puede mover).
      */
     public static function canTransition(array $currentUser, array $task): bool
     {
@@ -362,11 +374,52 @@ class Task
         $respId = (int)$task['responsable_id'];
         $creadorId = (int)$task['creador_id'];
 
+        // Tarea finalizada se cierra completamente para Asistentes
+        if (!$isJefe && ($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
+            return false;
+        }
+
         if ($isJefe) {
             return $task['tipo_tarea'] === self::TIPO_AREA || $userId === $respId || $userId === $creadorId;
         }
 
         return $userId === $respId || $userId === $creadorId;
+    }
+
+    /**
+     * Valida si un usuario puede gestionar checklist/subtareas en una tarea.
+     * Asistentes pueden gestionar checklist en tareas asignadas o creadas por ellos,
+     * EXCEPTO si la tarea está FINALIZADA (se cierra para Asistentes; solo Jefes interactúan).
+     */
+    public static function canManageChecklist(array $currentUser, array $task): bool
+    {
+        $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true) || User::isJefe($currentUser);
+        $userId = (int)$currentUser['id'];
+        $respId = (int)$task['responsable_id'];
+        $creadorId = (int)$task['creador_id'];
+
+        if (($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
+            return $isJefe;
+        }
+
+        if ($isJefe) {
+            return true;
+        }
+
+        return ($userId === $respId || $userId === $creadorId);
+    }
+
+    /**
+     * Valida si un usuario puede interactuar con una tarea (comentarios, evidencias, transiciones).
+     * Si la tarea está FINALIZADA, solo los roles de Jefes pueden interactuar con ella.
+     */
+    public static function canInteract(array $currentUser, array $task): bool
+    {
+        $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true) || User::isJefe($currentUser);
+        if (!$isJefe && ($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -654,7 +707,7 @@ class Task
                     'success' => false,
                     'status'  => 409,
                     'code'    => 'ERR_TASK_BLOCKED_BY_DEPENDENCIES',
-                    'message' => 'No se puede mover la tarea porque posee dependencias predecesoras pendientes que no han finalizado (Regla RN-08).'
+                    'message' => 'No se puede mover la tarea porque posee dependencias predecesoras pendientes que no han finalizado.'
                 ];
             }
         }
@@ -677,7 +730,7 @@ class Task
                     'success' => false,
                     'status'  => 422,
                     'code'    => 'ERR_CONFIRMATION_REQUIRED',
-                    'message' => 'Se requiere confirmación explícita para finalizar tareas sin aprobación (RN-11).'
+                    'message' => 'Se requiere confirmación para finalizar la tarea.'
                 ];
             }
 

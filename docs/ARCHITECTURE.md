@@ -7,11 +7,14 @@ Monolito modular estructurado por capas y dominios, con API REST desacoplada, SP
 - **Plataforma de Alojamiento:** DonWeb Web Hosting tradicional (Panel Ferozo, Apache 2.4 / LiteSpeed con `mod_rewrite` y `.htaccess`).
 - **Backend:** PHP 8.2+ (orientado a objetos, tipado estricto, PSR-4, API REST modular con enrutamiento limpio, transacciones PDO contra MySQL).
 - **Base de Datos:** MySQL 8 / MariaDB (motor InnoDB, transacciones ACID, integridad referencial con claves foráneas, administrable en phpMyAdmin de Ferozo).
-- **Frontend:** SPA moderna de alta fidelidad estética (HTML5 semántico, Vanilla CSS estructurado con Design Tokens / Variables CSS, modo oscuro/claro, transiciones fluidas, JavaScript modular nativo o empaquetado para `public_html`).
+- **Frontend:** SPA moderna de alta fidelidad estética estructurada bajo separación estricta de responsabilidades:
+  - **Partials HTML (`public_html/partials/`):** Descomposición atómica de vistas (`head.html`, `header.html`, `workspace_bar.html`, `login.html`, `kanban.html`, `approvals.html`, `history.html`, `modals.html`, `footer.html`). Ensamblado limpio mediante `public_html/index.php` con compatibilidad estática en `index.html`.
+  - **CSS Modular por Dominios (`public_html/assets/css/`):** Estilos desacoplados (`variables.css`, `base.css`, `header.css`, `login.css`, `kanban.css`, `views.css`, `modals.css`, `footer.css`) orquestados por `app.css` vía `@import`.
+  - **Aislamiento de Login:** Regla de exclusividad mutua: la pantalla de Login y el espacio privado nunca coexisten visualmente; `login.css` desacoplado y sin directivas `!important` que impidan la manipulación dinámica del DOM desde `auth.js`.
 - **Seguridad de Sesiones:** Autenticación con credenciales protegidas con `password_hash()` (Argon2id/Bcrypt), cookies de sesión o tokens con atributos `HttpOnly; SameSite=Strict; Secure`.
 - **Estructura en Servidor Ferozo:**
-  - `public_html/`: Punto de entrada público (`index.html`, assets frontend, y único `api/index.php` para enrutamiento de la API vía `.htaccess`).
-  - `app/` o `src/` (fuera del DocumentRoot o protegido por `.htaccess` `Require all denied`): Código de dominio, lógica de negocio, configuración, migraciones y modelos, inaccesible directamente por URL.
+  - `public_html/`: Punto de entrada público (`index.php`, `index.html`, `partials/`, assets frontend y `api/index.php` para enrutamiento de la API vía `.htaccess`).
+  - `app/`: Modelos, controladores, servicios y lógica de negocio protegida.
 - **Notificaciones:** Notificaciones internas dentro de la aplicación; soporte para correo SMTP autenticado opcional posterior.
 
 ## Módulos lógicos

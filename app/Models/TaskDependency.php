@@ -96,7 +96,7 @@ class TaskDependency
         // 5. Regla RN-07: Comprobar que no forme un ciclo en el DAG
         if (self::wouldCreateCycle($tareaId, $predecesoraId)) {
             throw new RuntimeException(
-                "No se puede agregar la dependencia: formaría un ciclo en el grafo de tareas (Regla RN-07).",
+                "No se puede agregar la dependencia: formaría una referencia circular cerrada entre tareas.",
                 409
             );
         }
@@ -145,7 +145,7 @@ class TaskDependency
                     $tarea['columna_tipo_estado'],
                     'BLOQUEADA',
                     [
-                        'motivo'           => 'Bloqueo automático: predecesora ' . $predecesora['codigo'] . ' aún no finalizada (RN-08)',
+                        'motivo'           => 'Bloqueo automático: predecesora ' . $predecesora['codigo'] . ' aún no finalizada',
                         'predecesora_id'   => $predecesoraId,
                         'predecesora_cod'  => $predecesora['codigo']
                     ]
@@ -519,7 +519,7 @@ class TaskDependency
                         'BLOQUEADA',
                         'PENDIENTE',
                         [
-                            'motivo'            => 'Todas las tareas predecesoras alcanzaron estado FINALIZADA (RN-08, RN-16)',
+                            'motivo'            => 'Todas las tareas predecesoras alcanzaron estado FINALIZADA',
                             'gatillada_por_id'  => $completedTaskId
                         ]
                     );
@@ -595,7 +595,7 @@ class TaskDependency
                     $succTask['columna_tipo_estado'],
                     'BLOQUEADA',
                     [
-                        'motivo'            => 'Reapertura de predecesora ' . $reopenedTaskId . ' (RN-14)',
+                        'motivo'            => 'Reapertura de predecesora ' . $reopenedTaskId,
                         'gatillada_por_id'  => $reopenedTaskId
                     ]
                 );

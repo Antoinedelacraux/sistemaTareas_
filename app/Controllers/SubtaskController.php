@@ -74,8 +74,8 @@ class SubtaskController
             return;
         }
 
-        if (!Task::canEdit($currentUser, $task)) {
-            Response::error("No posee permisos para agregar subtareas a esta tarea.", 403, 'ERR_FORBIDDEN_ACTION');
+        if (!Task::canManageChecklist($currentUser, $task)) {
+            Response::error("No posee permisos para agregar subtareas a esta tarea o la tarea se encuentra finalizada.", 403, 'ERR_FORBIDDEN_ACTION');
             return;
         }
 
@@ -121,8 +121,8 @@ class SubtaskController
         }
 
         $task = Task::findById((int)$subtask['tarea_id']);
-        if (!$task || !Task::canEdit($currentUser, $task)) {
-            Response::error("No posee permisos para modificar esta subtarea.", 403, 'ERR_FORBIDDEN_ACTION');
+        if (!$task || !Task::canManageChecklist($currentUser, $task)) {
+            Response::error("No posee permisos para modificar esta subtarea o la tarea se encuentra finalizada.", 403, 'ERR_FORBIDDEN_ACTION');
             return;
         }
 
@@ -160,8 +160,8 @@ class SubtaskController
         }
 
         $task = Task::findById((int)$subtask['tarea_id']);
-        if (!$task || !Task::canEdit($currentUser, $task)) {
-            Response::error("No posee permisos para eliminar esta subtarea.", 403, 'ERR_FORBIDDEN_ACTION');
+        if (!$task || !Task::canManageChecklist($currentUser, $task)) {
+            Response::error("No posee permisos para eliminar esta subtarea o la tarea se encuentra finalizada.", 403, 'ERR_FORBIDDEN_ACTION');
             return;
         }
 

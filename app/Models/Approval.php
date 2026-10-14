@@ -291,7 +291,7 @@ class Approval
             // DEVOLVER (RN-12): Exige observaciones obligatorias no vacías
             $observacionesLimpias = $observaciones !== null ? trim($observaciones) : '';
             if ($observacionesLimpias === '') {
-                throw new InvalidArgumentException("Las observaciones son obligatorias al devolver una tarea (Regla RN-12).", 422);
+                throw new InvalidArgumentException("Las observaciones son obligatorias al devolver una tarea para corrección.", 422);
             }
 
             // Columna destino: EN_PROCESO
@@ -432,11 +432,11 @@ class Approval
 
         $sql = "
             SELECT 
-                a.id AS aprobacion_id,
-                a.tarea_id,
-                a.estado AS estado_aprobacion,
+                COALESCE(a.id, 0) AS aprobacion_id,
+                t.id AS tarea_id,
+                COALESCE(a.estado, 'PENDIENTE') AS estado_aprobacion,
                 a.comentario_entrega,
-                a.fecha_solicitud,
+                COALESCE(a.fecha_solicitud, t.updated_at, t.created_at) AS fecha_solicitud,
                 t.codigo AS tarea_codigo,
                 t.titulo AS tarea_titulo,
                 t.descripcion AS tarea_descripcion,
@@ -446,14 +446,18 @@ class Approval
                 u_resp.id AS responsable_id,
                 u_resp.nombre AS responsable_nombre,
                 u_resp.cargo AS responsable_cargo,
-                u_rev.id AS revisor_id,
-                u_rev.nombre AS revisor_nombre
-            FROM tarea_aprobaciones a
-            JOIN tareas t ON a.tarea_id = t.id
+                COALESCE(u_rev.id, t.revisor_id) AS revisor_id,
+                COALESCE(u_rev.nombre, 'Sin asignar') AS revisor_nombre,
+                c.nombre AS columna_nombre,
+                c.tipo_estado AS columna_tipo_estado
+            FROM tareas t
+            JOIN tableros_columnas c ON t.columna_id = c.id
             JOIN usuarios u_resp ON t.responsable_id = u_resp.id
-            LEFT JOIN usuarios u_rev ON a.revisor_id = u_rev.id
-            WHERE a.estado = 'PENDIENTE'
-            ORDER BY a.fecha_solicitud ASC
+            LEFT JOIN tarea_aprobaciones a ON a.tarea_id = t.id AND a.estado = 'PENDIENTE'
+            LEFT JOIN usuarios u_rev ON COALESCE(a.revisor_id, t.revisor_id) = u_rev.id
+            WHERE (c.tipo_estado = 'EN_REVISION' OR a.estado = 'PENDIENTE')
+            GROUP BY t.id
+            ORDER BY fecha_solicitud ASC
         ";
 
         $stmt = $db->query($sql);

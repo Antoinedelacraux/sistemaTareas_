@@ -27,7 +27,7 @@ export function renderApprovalBox(task, approvals) {
         box.innerHTML = `
             <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
                 <span aria-hidden="true">ℹ️</span>
-                <span>Esta tarea no requiere circuito formal de aprobación (cierre directo con confirmación de usuario, RN-11).</span>
+                <span>Esta tarea no requiere circuito formal de aprobación (cierre directo con confirmación de finalización).</span>
             </div>
         `;
         return;
@@ -44,7 +44,7 @@ export function renderApprovalBox(task, approvals) {
     let html = `
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
             <div style="display: flex; align-items: center; gap: 0.4rem;">
-                <span style="font-weight: 700; font-size: 0.85rem; color: var(--text-main);">Circuito de Aprobación Formal (RN-10)</span>
+                <span style="font-weight: 700; font-size: 0.85rem; color: var(--text-main);">Circuito de Aprobación Formal</span>
             </div>
             <span class="badge ${task.estado === 'FINALIZADA' ? 'badge-prioridad-BAJA' : (task.estado === 'EN_REVISION' ? 'badge-prioridad-ALTA' : 'badge-tipo-area')}">
                 ${task.estado === 'FINALIZADA' ? 'APROBADA Y CERRADA' : (task.estado === 'EN_REVISION' ? 'EN REVISIÓN' : 'REQUIERE APROBACIÓN')}
@@ -197,8 +197,8 @@ export function renderApprovalsList(approvals) {
             </div>
             <h4 class="approval-card-title">${escapeHtml(appr.tarea_titulo)}</h4>
             <div class="approval-meta-row">
-                <span><strong>Solicitante:</strong> ${escapeHtml(appr.solicitante_nombre || 'Usuario')}</span>
-                <span>${formatDate(appr.created_at)}</span>
+                <span><strong>Responsable:</strong> ${escapeHtml(appr.responsable_nombre || appr.solicitante_nombre || 'Usuario')}</span>
+                <span>${formatDate(appr.fecha_solicitud || appr.created_at)}</span>
             </div>
             <div class="approval-actions">
                 <button class="btn btn-outline btn-sm" onclick="openTaskDetailModal(${appr.tarea_id})">
@@ -283,7 +283,7 @@ export async function handleReturnTaskSubmit(e) {
     const observaciones = obsEl ? obsEl.value.trim() : '';
 
     if (!observaciones) {
-        showToast('Regla RN-12: Las observaciones de devolución son obligatorias.', 'error');
+        showToast('Debe ingresar las observaciones de devolución para continuar.', 'error');
         return;
     }
 
@@ -299,7 +299,7 @@ export async function handleReturnTaskSubmit(e) {
         const result = await res.json();
         if (result.success) {
             closeModal('modal-return-task');
-            showToast('Tarea devuelta con observaciones registradas (RN-12)', 'info');
+            showToast('Tarea devuelta para corrección con observaciones registradas', 'info');
             const taskId = STATE.pendingReturnTaskId;
             STATE.pendingReturnTaskId = null;
             await fetchTasks();

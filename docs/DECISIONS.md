@@ -19,6 +19,19 @@
 - D-018 Separación Estricta de Vista Área vs Vista Personal: Separación de la navegación principal en dos pestañas dedicadas: "Vista Área" (para tareas oficiales de equipo sujetas a auditoría y regla 24h hacia el historial) y "Vista Personal" (tablero privado de auto-organización de cada colaborador donde las tareas finalizadas permanecen hasta su borrado manual por el propio usuario, sin enviarse al historial).
 - D-019 Centralización de Trazabilidad en Módulo de Historial y Modal de Tarea sin Scroll: Se retira la sección de bitácora del formulario de detalle para dejarla en el módulo de Historial de Jefatura. Se expande el modal a 1140px (95vw) con cuadrícula 1fr / 1fr balanceada para permitir visualizar la información de la tarea, checklist, dependencias, comentarios y selector de columna sin requerir barras de desplazamiento vertical.
 - D-020 Matriz de Permisos Diferenciada por Roles (Jefes vs Asistentes): Los Jefes de Planeamiento y Personal tienen control total (módulos, registros, dependencias, columnas, usuarios). Los asistentes tienen acceso a Vista Área (checklist, evidencias, comentarios, dependencias read-only, sin edición/borrado de tareas de área ni columnas) y Vista Personal (control total sin dependencias DAG).
+- D-021 Rediseño de Login Réplica Referencia y Lógica Operativa de Estados de Columna:
+  1. Login con tarjeta flotante orgánica split (panel curvo esmeralda con logo circular blanco TAL, bienvenida corporativa; panel derecho blanco con inputs alargados menta suave, botón píldora 'LOG IN' y accesos rápidos demostrativos).
+  2. Botón `+ Columna` en barra superior (`#workspace-controls-bar`) para jefaturas, evitando scroll horizontal/vertical innecesario.
+  3. Lógica operativa de estados en columnas:
+     - `Pendiente` y `En Proceso`: Sin restricciones operativas.
+     - `Revisión / Aprobación`: Tareas movidas a columnas de este estado ingresan de forma automática a la bandeja del Módulo de Aprobaciones para dictamen de Jefatura.
+     - `Finalizada / Cumplida`: Tarea cerrada para Asistentes (bloqueo total de interacción: arrastre, edición, checklist y comentarios); solo personal de Jefatura puede interactuar.
+- D-022 Modularización Arquitectónica del Frontend, Separación de Responsabilidades y Aislamiento Estricto del Login:
+  1. Descomposición del archivo HTML monolítico en 9 partials atómicos bajo `public_html/partials/` (`head.html`, `header.html`, `workspace_bar.html`, `login.html`, `kanban.html`, `approvals.html`, `history.html`, `modals.html`, `footer.html`).
+  2. Creación del ensamblador PHP `public_html/index.php` con fallback automático en `server.php` para despliegues dinámicos y estáticos.
+  3. Descomposición del CSS monolítico (2,857 líneas) en 8 hojas de estilo especializadas por dominio (`variables.css`, `base.css`, `header.css`, `login.css`, `kanban.css`, `views.css`, `modals.css`, `footer.css`), orquestadas mediante `@import` en `app.css`.
+  4. Aislamiento estricto de la vista de autenticación: `login.css` desacoplado y eliminación de bloqueos `!important` en display, garantizando que el Login y el Tablero Kanban sean estados visualmente mutuamente excluyentes.
+  5. Creación de la Skill `.agents/skills/modularizar-archivos-grandes/SKILL.md` para estandarizar el proceso en el repositorio.
 
 ## Propuestas pendientes de validación
 - P-001 Privacidad de tareas personales también ante jefes, exclusión de KPIs oficiales.

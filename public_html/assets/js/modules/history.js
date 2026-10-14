@@ -105,8 +105,7 @@ export function renderHistoryTable(tasks) {
                         No hay tareas archivadas en el historial
                     </div>
                     <p style="font-size: 0.8rem; max-width: 480px; margin: 0 auto; line-height: 1.4;">
-                        Las tareas finalizadas permanecen un máximo de <strong>24 horas</strong> en la columna de finalizadas del tablero Kanban.
-                        Transcurrido ese periodo, se trasladan automáticamente a este módulo reservado para Jefatura.
+                        Las tareas concluidas se conservan en el tablero activo y pasan automáticamente a este repositorio histórico para consulta, trazabilidad y auditoría de Jefatura.
                     </p>
                 </td>
             </tr>

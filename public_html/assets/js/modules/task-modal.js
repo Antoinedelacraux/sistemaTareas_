@@ -67,10 +67,10 @@ export function updateCreateTaskTypeUI(type) {
             opt.selected = true;
             assigneeSelect.appendChild(opt);
             assigneeSelect.disabled = true;
-            if (helpSpan) helpSpan.textContent = 'Regla RN-03: Los asistentes solo gestionan tareas asignadas a sí mismos.';
+            if (helpSpan) helpSpan.textContent = 'Como asistente, las tareas creadas se asignan a tu responsabilidad.';
         } else {
             assigneeSelect.disabled = false;
-            if (helpSpan) helpSpan.textContent = 'Regla RN-04: Como jefatura autorizada, puedes asignar tareas a cualquier miembro del equipo.';
+            if (helpSpan) helpSpan.textContent = 'Como jefatura autorizada, puedes asignar tareas a cualquier colaborador del equipo.';
 
             STATE.users.forEach(u => {
                 const opt = document.createElement('option');
@@ -216,25 +216,55 @@ export async function loadTaskDetail(taskId) {
         prioBadge.className = `badge badge-prioridad-${task.prioridad}`;
         prioBadge.textContent = task.prioridad;
 
+        const user = STATE.currentUser;
+        const isJefe = isCurrentUserJefe();
+        const isFinalizada = (task.columna_tipo_estado === 'FINALIZADA');
+        const isClosedForAssistant = (!isJefe && isFinalizada);
+
         const colSelect = document.getElementById('detail-column-select');
         colSelect.innerHTML = STATE.columns.map(c => `
             <option value="${c.id}" ${parseInt(c.id, 10) === parseInt(task.columna_id, 10) ? 'selected' : ''}>
                 ${escapeHtml(c.nombre)}
             </option>
         `).join('');
+        colSelect.disabled = isClosedForAssistant;
 
         const subtasks = subJson.success ? (subJson.data?.subtareas || (Array.isArray(subJson.data) ? subJson.data : [])) : [];
-        renderSubtasksList(subtasks);
+        renderSubtasksList(subtasks, isClosedForAssistant);
 
         const comments = comJson.success ? (comJson.data?.comentarios || (Array.isArray(comJson.data) ? comJson.data : [])) : [];
         renderCommentsList(comments);
 
+        // Control de formulario de comentarios y checklist para tareas finalizadas de asistentes
+        const addSubtaskForm = document.getElementById('add-subtask-form');
+        if (addSubtaskForm) {
+            addSubtaskForm.style.display = isClosedForAssistant ? 'none' : 'flex';
+        }
+
+        const addCommentForm = document.getElementById('add-comment-form');
+        let closedNotice = document.getElementById('detail-closed-notice');
+        if (isClosedForAssistant) {
+            if (addCommentForm) addCommentForm.style.display = 'none';
+            if (!closedNotice) {
+                closedNotice = document.createElement('div');
+                closedNotice.id = 'detail-closed-notice';
+                closedNotice.style.cssText = 'background: rgba(100, 116, 139, 0.08); border: 1px dashed var(--border-subtle); border-radius: var(--radius-sm); padding: 0.65rem; text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 0.75rem;';
+                closedNotice.innerHTML = '🔒 <strong>Tarea Finalizada:</strong> Cerrada para modificaciones por parte de Asistentes. Solo Jefatura puede interactuar.';
+                if (addCommentForm && addCommentForm.parentNode) {
+                    addCommentForm.parentNode.appendChild(closedNotice);
+                }
+            } else {
+                closedNotice.style.display = 'block';
+            }
+        } else {
+            if (addCommentForm) addCommentForm.style.display = 'block';
+            if (closedNotice) closedNotice.style.display = 'none';
+        }
+
         // Configurar botones de acción según rol y tipo de tarea (Jefes: total; Asistentes: solo personal)
-        const user = STATE.currentUser;
-        const isJefe = isCurrentUserJefe();
         const isPersonal = task.tipo_tarea === 'PERSONAL';
         const isOwner = user && (parseInt(task.creador_id, 10) === parseInt(user.id, 10) || parseInt(task.responsable_id, 10) === parseInt(user.id, 10));
-        const canModify = isJefe || (isPersonal && isOwner);
+        const canModify = !isClosedForAssistant && (isJefe || (isPersonal && isOwner));
 
         const btnEdit = document.getElementById('btn-edit-task');
         const btnDelete = document.getElementById('btn-delete-task');
@@ -282,7 +312,7 @@ export async function loadTaskDetail(taskId) {
 /**
  * Renderiza el checklist de subtareas con barra de progreso.
  */
-export function renderSubtasksList(subtasks) {
+export function renderSubtasksList(subtasks, isClosed = false) {
     const list = document.getElementById('detail-subtasks-list');
     if (!list) return;
     list.innerHTML = '';
@@ -304,10 +334,12 @@ export function renderSubtasksList(subtasks) {
         item.className = `subtask-item ${sub.completada ? 'completed' : ''}`;
         item.innerHTML = `
             <div class="subtask-left">
-                <input type="checkbox" ${sub.completada ? 'checked' : ''} aria-label="${escapeHtml(sub.titulo)}" onchange="toggleSubtask(${sub.id}, this.checked)">
+                <input type="checkbox" ${sub.completada ? 'checked' : ''} ${isClosed ? 'disabled' : ''} aria-label="${escapeHtml(sub.titulo)}" onchange="toggleSubtask(${sub.id}, this.checked)">
                 <span>${escapeHtml(sub.titulo)}</span>
             </div>
+            ${!isClosed ? `
             <button class="btn-close" style="font-size: 1rem; color: #ef4444;" aria-label="Eliminar subtarea" onclick="deleteSubtask(${sub.id})" title="Eliminar subtarea">&times;</button>
+            ` : ''}
         `;
         list.appendChild(item);
     });

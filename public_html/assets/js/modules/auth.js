@@ -17,8 +17,24 @@ export function registerLoginCallback(fn) {
  * Comprueba de manera instantánea si existe sesión activa.
  */
 export async function checkSession() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const hash = window.location.hash;
+    const isSessionActive = sessionStorage.getItem('tal_session_active') === 'true';
+
+    if (urlParams.has('login') || urlParams.has('logout') || hash === '#login' || !isSessionActive) {
+        if (urlParams.has('logout') || hash === '#login' || urlParams.has('login')) {
+            try {
+                await apiFetch('/api/auth/logout', { method: 'POST' });
+            } catch {}
+            setAuthToken(null);
+            resetState();
+        }
+        sessionStorage.removeItem('tal_session_active');
+        showLoginView();
+        return;
+    }
+
     const token = getAuthToken();
-    // Si no hay token en localStorage ni sesión guardada, mostrar login inmediatamente
     if (!token) {
         showLoginView();
         return;
@@ -67,6 +83,7 @@ export async function doLogin(email, password) {
 
         if (result.success && result.data) {
             STATE.currentUser = result.data.user || result.data.usuario;
+            sessionStorage.setItem('tal_session_active', 'true');
             if (result.data.token) {
                 setAuthToken(result.data.token);
             }
@@ -106,6 +123,7 @@ export async function doLogout() {
         // Ignorar fallo de red en logout
     }
 
+    sessionStorage.removeItem('tal_session_active');
     setAuthToken(null);
     resetState();
     showToast('Sesión cerrada correctamente', 'info');
@@ -203,6 +221,7 @@ export function renderUserBar() {
     const tabHistory = document.getElementById('tab-history-view');
     const memberFilter = document.getElementById('member-filter-select');
     const btnCreateUser = document.getElementById('btn-open-create-user');
+    const btnCreateColumn = document.getElementById('btn-open-create-column');
 
     if (isJefe) {
         if (tabTeam) tabTeam.style.display = 'inline-flex';
@@ -210,12 +229,16 @@ export function renderUserBar() {
         if (tabHistory) tabHistory.style.display = 'inline-flex';
         if (memberFilter) memberFilter.style.display = 'inline-block';
         if (btnCreateUser) btnCreateUser.style.display = 'inline-flex';
+        if (btnCreateColumn) {
+            btnCreateColumn.style.display = (STATE.currentScope === 'area' || STATE.currentScope === 'personal' || STATE.currentScope === 'team') ? 'inline-flex' : 'none';
+        }
     } else {
         if (tabTeam) tabTeam.style.display = 'none';
         if (tabApprovals) tabApprovals.style.display = 'none';
         if (tabHistory) tabHistory.style.display = 'none';
         if (memberFilter) memberFilter.style.display = 'none';
         if (btnCreateUser) btnCreateUser.style.display = 'none';
+        if (btnCreateColumn) btnCreateColumn.style.display = 'none';
 
         if (STATE.currentScope === 'team' || STATE.currentScope === 'approvals' || STATE.currentScope === 'history') {
             STATE.currentScope = 'area';

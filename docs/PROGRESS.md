@@ -2,6 +2,33 @@
 
 ## Registro de avances
 
+### 2026-10-14 — REFACTOR-MODULAR: Separación de Responsabilidades en Archivos Extensos, Aislamiento Estricto de Login y Creación de Skill
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-01, RF-02, RF-03, RN-01, RN-03, D-022. Descomponer archivos monolíticos extensos (>740 líneas HTML, >2850 líneas CSS) en componentes atómicos de responsabilidad única para mejorar escalabilidad, facilidad de edición futura y visualización predecible. Aislar completamente la vista de autenticación (Login) para evitar solapamientos con el tablero Kanban.
+- **Archivos creados/modificados:**
+  - `.agents/skills/modularizar-archivos-grandes/SKILL.md`: Creación de la Skill especializada para estandarizar la descomposición de monolitos en el proyecto.
+  - `public_html/partials/`: Creación de 9 partials atómicos (`head.html`, `header.html`, `workspace_bar.html`, `login.html`, `kanban.html`, `approvals.html`, `history.html`, `modals.html`, `footer.html`).
+  - `public_html/index.php`: Ensamblador limpio en PHP para inclusión nativa de partials.
+  - `server.php`: Configuración de enrutamiento SPA con prioridad hacia `index.php`.
+  - `public_html/assets/css/`: Descomposición de `app.css` (2,857 líneas) en 8 hojas de estilo especializadas:
+    - `variables.css`: Tokens de diseño y paletas temáticas.
+    - `base.css`: Reset, tipografía, botones base, badges, inputs y barras de progreso.
+    - `header.css`: Barra superior corporativa, perfil de usuario, campana de notificaciones y workspace bar.
+    - `login.css`: Vista de acceso 100% aislada, imagen lateral 3D TAL S.A. y accesos demo (sin directivas bloqueantes `!important`).
+    - `kanban.css`: Tablero kanban, columnas dinámicas, tarjetas de tarea y banner de vista personal.
+    - `views.css`: Aprobaciones técnicas, archivo histórico, balance de carga y auditoría.
+    - `modals.css`: Modales accesibles, detalle sin scroll, checklist, dependencias DAG y toasts.
+    - `footer.css`: Pie de página corporativo slim y pill de autodiagnóstico.
+    - `app.css`: Manifiesto orquestador que importa los módulos vía `@import`.
+  - `docs/DECISIONS.md`, `docs/ARCHITECTURE.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`.
+- **Decisiones y motivo:** D-022 formalizada. Se eliminó la regla `!important` en el display de `.login-view-container` que impedía a `auth.js` ocultar el login tras iniciar sesión. El Login y el Tablero Kanban son ahora visualmente mutuamente excluyentes.
+- **Pruebas ejecutadas:**
+  1. Suite de autodiagnóstico web: `/api/test-runner?format=json` superó 10 de 10 pruebas exitosas (100% PASS, 254.49 ms).
+  2. Verificación de renderizado y ensamblado nativo vía `http://127.0.0.1:8000/`.
+- **Documentación actualizada:** `docs/DECISIONS.md`, `docs/ARCHITECTURE.md`, `docs/PROGRESS.md`, `docs/SESSION_HANDOFF.md`.
+- **Deuda técnica / riesgos:** Ninguna.
+- **Siguiente paso verificable:** Continuar con la validación de usuario en el navegador local `http://127.0.0.1:8000`.
+
 ### 2026-10-13 — SETUP-00 / Inicialización y validación del entorno de agentes y documentación
 - **Estado:** completado
 - **Objetivo y RF/RN:** Inicializar y validar el entorno del workspace: perfiles de agentes, reglas permanentes, skills operativos, alineación con requisitos V1.2 (RF-01 a RF-19, RN-01 a RN-15).
@@ -727,8 +754,105 @@
   - `docs/PROGRESS.md`
   - `docs/SESSION_HANDOFF.md`
 - **Pruebas ejecutadas:**
-  - Diagnóstico autónomo web (`http://127.0.0.1:8000/api/test-runner?format=json`): **10 de 10 pruebas superadas (100% PASS, 271.03 ms)**.
+### 2026-10-14 — V1.5.4: Rediseño del Login Estilo Referencia, Botón + Columna Superior y Lógica Operativa de Estados en Columnas
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-01, RF-08, RF-10, RF-11, RF-12, RF-13, RN-01, RN-02, RN-03, RN-04, RN-06, RN-10, RN-11, RN-12.
+  1. **Rediseño del Login según imagen de referencia:**
+     - Tarjeta flotante orgánica split (`border-radius: 36px`, sombra suave y limpia, soporte Dark Theme).
+     - *Panel Izquierdo:* Curva orgánica fluida verde esmeralda con detalle blanco en la base, isotipo circular blanco con llama verde corporativa TAL, título "Welcome Back!", subtítulo descriptivo, botón píldora "SIGN IN" y pie de página "TAL S.A. | PLANEAMIENTO 2026".
+     - *Panel Derecho:* Título minúscula "welcome" en verde esmeralda, subtítulo "Login in to your account to continue", dos inputs alargados estilo píldora color menta pastel suave translúcido (`Email....................` y `Password....................`), enlace "Forgot your password?", botón principal verde esmeralda "LOG IN", y barra de chips de acceso rápido demostrativo para alternar entre perfiles (Marco Chumbes, Elena Vega, Roberto Sánchez) con un solo clic.
+  2. **Botón de Nueva Columna en Barra Superior (`+ Columna`):**
+     - Añadido el botón `#btn-open-create-column` en la barra de controles superior (`#workspace-controls-bar`) junto a `+ Usuario` y `Nueva Tarea`, para que los usuarios con rol de Jefatura no tengan que desplazarse horizontal ni verticalmente hasta el final del tablero. Control reactivo de visibilidad exclusivo para Jefes en las vistas Kanban (`area`, `personal`, `team`).
+  3. **Lógica Operativa de Estados Asociados a Columnas:**
+     - `Pendiente / Por hacer`: Sin lógica restrictiva operativa.
+     - `En Proceso / En curso`: Sin lógica restrictiva operativa.
+     - `Revisión / Aprobación (`EN_REVISION`):* Cualquier tarea que sea movida o arrastrada a una columna configurada con este estado genera automáticamente una solicitud de revisión formal e ingresa de inmediato a la bandeja del **Módulo de Aprobaciones**.
+     - `Finalizada / Cumplida (`FINALIZADA`):* La tarea queda formalmente **cerrada para Asistentes**; el asistente no puede arrastrarla (`draggable="false"`, badge `🔒 CERRADA`), no puede moverla desde el selector de columnas (bloqueado), no puede alterar subtareas del checklist, no puede editarla, ni eliminarla, ni agregar comentarios/evidencias (con aviso visual de tarea cerrada y validación 403 en backend). **Solamente los roles de Jefatura pueden interactuar con tareas finalizadas**.
+  4. **Actualización del Módulo de Aprobaciones:**
+     - `Approval::listPendientesForUser`: Consulta relacional unificada que identifica e incorpora de inmediato todas las tareas ubicadas en columnas con `c.tipo_estado = 'EN_REVISION'` o que posean un registro activo con `a.estado = 'PENDIENTE'`.
+     - `Approval::resolver`: Capacidad de resolver directamente tareas colocadas en revisión directa creando o actualizando el registro atómicamente.
+     - `BoardColumn.php` y `BoardController.php`: Normalización de valores amigables (`REVISION` ➔ `EN_REVISION`, `FINALIZADA` ➔ `FINALIZADA`, `EN_CURSO` ➔ `EN_PROCESO`, `POR_HACER` ➔ `PENDIENTE`).
+- **Archivos creados/modificados:**
+  - `public_html/index.html` (nuevo layout del login réplica con panel curvo esmeralda, botón `+ Columna`, opciones informativas de `#column-type-select`, script tag `v1.5.4`)
+  - `public_html/assets/css/app.css` (estilos para tarjeta split orgánica esmeralda, inputs píldora menta, botón `LOG IN`, chips demostrativos y `.task-card-closed`)
+  - `public_html/assets/js/modules/auth.js` (control de visibilidad de `#btn-open-create-column` para jefaturas)
+  - `public_html/assets/js/app.js` (control reactivo de visibilidad de `#btn-open-create-column` en `setScope`)
+  - `public_html/assets/js/modules/kanban.js` (bloqueo de arrastre y badge `🔒 CERRADA` en tareas finalizadas para asistentes)
+  - `public_html/assets/js/modules/task-modal.js` (bloqueo de selector de columnas, checklist en modo lectura, ocultamiento de formulario de comentarios y aviso de tarea cerrada para asistentes)
+  - `public_html/assets/js/modules/approvals.js` (lectura adecuada de responsable y fecha en tarjetas de aprobación)
+  - `app/Models/Approval.php` (`listPendientesForUser` con detección de tareas en columnas `EN_REVISION`)
+  - `app/Models/Task.php` (`canEdit`, `canDelete`, `canTransition`, `canManageChecklist`, `canInteract`, transición automática a `EN_REVISION`)
+  - `app/Controllers/SubtaskController.php` (validación de checklist con `Task::canManageChecklist`)
+  - `app/Controllers/CommentController.php` (bloqueo de comentarios en tareas finalizadas para asistentes con `Task::canInteract`)
+  - `app/Models/BoardColumn.php` y `app/Controllers/BoardController.php` (normalización de `tipo_estado`)
+  - `docs/DECISIONS.md` (registro de decisión D-021)
+  - `docs/CHANGELOG.md`
+  - `docs/PROGRESS.md`
+  - `docs/SESSION_HANDOFF.md`
+- **Pruebas ejecutadas:**
+  - Diagnóstico autónomo web (`http://127.0.0.1:8000/api/test-runner?format=json`): **10 de 10 pruebas superadas (100% PASS, 259.84 ms)**.
+  - Verificación de entrega HTTP de la SPA (`http://127.0.0.1:8000/index.html`).
+### 2026-10-14 — V1.5.5: Depuración de Códigos Técnicos Internos a Lenguaje Corporativo Final y Visibilidad de Pantalla de Login
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-01, RF-10, RF-11, RF-12, RF-13, RN-01, RN-03, RN-04, RN-07, RN-08, RN-10, RN-11, RN-12.
+  1. **Visibilidad Inmediata de la Pantalla de Login:**
+     - Identificada la causa por la que no se mostraba el login: `checkSession()` detectaba el token en `localStorage` o sesión activa de pruebas previas y auto-iniciaba sesión al cargar la página.
+     - Se vinculó el ciclo de vida de la sesión activa al ciclo de vida de la pestaña con `sessionStorage.getItem('tal_session_active')`. Al abrir el sistema en una pestaña nueva o sin sesión explícita, se presenta la pantalla de Login por defecto.
+     - Al cerrar sesión (`doLogout` / botón "Salir"), se limpia tanto `sessionStorage` como `localStorage` y cookies, regresando inmediatamente a la pantalla de login.
+     - Se habilitaron los parámetros de consulta `?login`, `?logout` y el hash `#login` para forzar la vista de login en cualquier momento.
+     - Adaptación completa de los textos de la maqueta de login de inglés a español formal corporativo (`¡Bienvenido!`, `Iniciar Sesión`, `Correo institucional (@planeamiento.tal)`, `Contraseña de acceso`, `INGRESAR AL SISTEMA`, etc.).
+  2. **Depuración Integral de Mensajes Técnicos Internos a Lenguaje Corporativo de Producción:**
+     - Eliminación de referencias a códigos de desarrollo (`RN-10`, `RN-12`, `RN-08`, `RN-11`, `RN-03`, `RN-04`, `RN-07`, `RF-05`) en frontend y backend:
+       - Subtítulo de Aprobaciones: "Tareas en revisión técnica pendientes de evaluación y dictamen por Jefatura."
+       - Subtítulo de Historial: "Archivo histórico de tareas concluidas para consulta y auditoría interna. Acceso exclusivo de Jefatura."
+       - Casilla de Aprobación: "Requiere aprobación de Jefatura para su cierre formal" (sin código RN-10).
+       - Alerta de Dependencias: "Esta tarea no puede iniciarse ni finalizarse hasta que todas sus tareas predecesoras alcancen el estado Finalizada." (sin Regla RN-08).
+       - Etiqueta de Devolución: "Observaciones de Jefatura para Subsanación *" (sin RN-12).
+       - Cabecera y textos de circuito: "Circuito de Aprobación Formal" (sin RN-10) y cierre sin aprobación (sin RN-11).
+       - Textos informativos de asignación en modal de tareas para asistente y jefatura en redacción fluida.
+       - Mensaje del repositorio histórico en tabla vacía: redacción clara sin tecnicismos temporales.
+       - Mensajes de error en backend (`Task.php`, `User.php`, `Approval.php`, `TaskDependency.php` y `TestRunnerController.php`) ajustados a redacción corporativa limpia.
+- **Archivos creados/modificados:**
+  - `public_html/index.html` (textos de login en español, eliminación de códigos de reglas en UI)
+  - `public_html/assets/js/modules/auth.js` (control de sesión con `tal_session_active`, forzado limpio de login)
+  - `public_html/assets/js/modules/approvals.js` (eliminación de RN-10, RN-11, RN-12 en toasts y cajas)
+  - `public_html/assets/js/modules/task-modal.js` (eliminación de RN-03 y RN-04 en textos de ayuda)
+  - `public_html/assets/js/modules/history.js` (redacción corporativa en mensaje de tabla vacía)
+  - `app/Controllers/TestRunnerController.php` (nombre de prueba depurado)
+  - `app/Models/Task.php` (mensajes de validación limpios)
+  - `app/Models/User.php` (mensaje de autorización de asignación limpio)
+  - `app/Models/Approval.php` (excepción de devolución limpia)
+  - `app/Models/TaskDependency.php` (excepciones y motivos de auditoría limpios)
+  - `docs/PROGRESS.md`
+  - `docs/SESSION_HANDOFF.md`
+- **Pruebas ejecutadas:**
+  - Diagnóstico autónomo web (`/api/test-runner`): 10 de 10 pruebas superadas (100% PASS).
 - **Git:** Listo para commit local.
-- **Siguiente paso:** Validación de usuario en el navegador tras refrescar la página.
+
+### 2026-10-14 — V1.5.6: Corrección Estructural del Login, Integración de Imagen Lateral y Acceso Directo
+- **Estado:** completado
+- **Objetivo y RF/RN:** RF-01, RF-02, RN-01, RN-03, RN-04.
+  1. **Detección y Corrección del Bloqueo Estructural:**
+     - Se identificó un tag `<select id="priority-filter-select">` no cerrado en la barra de controles que provocaba que el parser del navegador anidara todo el DOM subsiguiente (incluyendo `<main>` y `#login-view`) dentro del `<select>`, impidiendo su correcta visualización.
+     - Se cerró debidamente el `<select>` restaurando la jerarquía limpia del DOM.
+  2. **Diseño de Login con Imagen Lateral y Cuentas Demo:**
+     - Se reemplazaron las curvas decorativas por un diseño split corporativo confiable:
+       - **Columna lateral:** Imagen fotográfica / render corporativo 3D (`assets/img/login_hero.jpg`) con gradiente de contraste y distintivo oficial de TAL S.A. Área de Planeamiento.
+       - **Columna derecha:** Mensaje de bienvenida ("¡Bienvenido! Ingresa tus credenciales para acceder a tu espacio de trabajo"), formulario directo con iconos para usuario/correo y contraseña con botón principal "Ingresar al Sistema".
+       - **Sección de demostración:** Tres botones accesibles con iniciales y badges de rol para ingresar con un clic como Marco Chumbes (Asistente), Elena Vega (Jefa de Planeamiento) o Roberto Sánchez (Jefe de Personal).
+  3. **Visibilidad Inmediata Garantizada:**
+     - Se forzó `style="display: flex;"` inline en `#login-view` para garantizar su renderizado inmediato en el primer ciclo de renderizado.
+     - `checkSession()` mantiene visible el login por defecto a menos que exista una sesión activa explícita en la pestaña actual.
+- **Archivos creados/modificados:**
+  - `public_html/index.html` (cierre de `<select>`, nuevo layout de login con imagen `login_hero.jpg`, v1.5.6)
+  - `public_html/assets/css/app.css` (estilos para `.login-card-clean`, `.login-image-column`, `.btn-demo-account`)
+  - `public_html/assets/js/modules/auth.js` (simplificación de `checkSession`)
+  - `docs/PROGRESS.md`
+  - `docs/SESSION_HANDOFF.md`
+- **Pruebas ejecutadas:**
+  - Diagnóstico autónomo web (`/api/test-runner`): 10 de 10 pruebas superadas (100% PASS, 307.27 ms).
+  - Verificación de entrega HTTP de la SPA (`http://127.0.0.1:8000/index.html`).
+- **Git:** Listo para commit local.
+- **Siguiente paso:** Comunicar la solución final al usuario para que recargue y pruebe el login.
 
 

@@ -43,5 +43,9 @@ if ($uri !== '/' && file_exists($requestedFile) && !is_dir($requestedFile)) {
     return;
 }
 
-// 3. Para todas las demás rutas de cliente (SPA), servir public_html/index.html
-require $publicDir . '/index.html';
+// 3. Para todas las demás rutas de cliente (SPA), servir index.php modular o index.html
+if (file_exists($publicDir . '/index.php')) {
+    require $publicDir . '/index.php';
+} else {
+    require $publicDir . '/index.html';
+}

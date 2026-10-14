@@ -188,7 +188,7 @@ class User
             return [
                 'valid'   => false,
                 'code'    => 'ERR_FORBIDDEN_ASSIGNMENT',
-                'message' => 'Los asistentes no tienen autorización para asignar tareas a otros usuarios (RF-05, RN-03).'
+                'message' => 'Los asistentes no tienen autorización para asignar tareas a otros colaboradores.'
             ];
         }
 

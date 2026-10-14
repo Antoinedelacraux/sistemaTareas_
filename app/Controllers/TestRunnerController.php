@@ -130,7 +130,7 @@ class TestRunnerController
         });
 
         // 8. Circuito de Aprobación
-        $results[] = $this->runTest("8. Circuito de Aprobación Formal (RN-10, RN-12)", function () {
+        $results[] = $this->runTest("8. Circuito de Aprobación Formal", function () {
             $asistente = User::findByRol('ASISTENTE');
             $jefePlan = User::findByRol('JEFE_PLANEAMIENTO');
             $tarea = Task::create([

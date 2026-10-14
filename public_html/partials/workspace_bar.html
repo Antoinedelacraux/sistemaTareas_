@@ -1,0 +1,59 @@
+    <!-- Workspace Controls Bar (Pestañas de Alcance y Filtros) -->
+    <div id="workspace-controls-bar" class="workspace-bar" style="display: none;">
+        <div class="workspace-tabs" role="tablist" aria-label="Vistas del espacio de trabajo">
+            <button id="tab-area-tasks" class="tab-btn active" data-scope="area" role="tab" aria-selected="true" title="Tareas oficiales del Área">
+                <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                <span>Vista Área</span>
+            </button>
+            <button id="tab-personal-tasks" class="tab-btn" data-scope="personal" role="tab" aria-selected="false" title="Mi tablero de tareas personales">
+                <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <span>Vista Personal</span>
+            </button>
+            <button id="tab-team-board" class="tab-btn" data-scope="team" style="display: none;" role="tab" aria-selected="false" title="Tablero general del equipo">
+                <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <span>Tablero del Equipo</span>
+            </button>
+            <button id="tab-approvals-view" class="tab-btn" data-scope="approvals" style="display: none;" role="tab" aria-selected="false" title="Bandeja de Aprobaciones">
+                <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <span>Aprobaciones</span>
+            </button>
+            <button id="tab-history-view" class="tab-btn" data-scope="history" style="display: none;" role="tab" aria-selected="false" title="Historial de Tareas Archivadas">
+                <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline><path d="M4.93 4.93l4.24 4.24"></path></svg>
+                <span>Historial</span>
+            </button>
+        </div>
+
+        <div class="workspace-actions">
+            <div class="search-input-wrapper">
+                <svg class="search-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="task-search-input" class="search-input" placeholder="Buscar tarea o código..." aria-label="Buscar tareas por título o código">
+            </div>
+
+            <select id="member-filter-select" class="select-filter" style="display: none;" aria-label="Filtrar tareas por miembro del equipo">
+                <option value="">Todos los miembros</option>
+            </select>
+
+            <select id="priority-filter-select" class="select-filter" aria-label="Filtrar tareas por prioridad">
+                <option value="">Todas las prioridades</option>
+                <option value="URGENTE">Urgente</option>
+                <option value="ALTA">Alta</option>
+                <option value="MEDIA">Media</option>
+                <option value="BAJA">Baja</option>
+            </select>
+
+            <button id="btn-open-create-column" class="btn btn-outline" style="display: none;" onclick="openCreateColumnModal()" aria-label="Crear nueva columna en el tablero">
+                <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                <span>+ Columna</span>
+            </button>
+
+            <button id="btn-open-create-user" class="btn btn-outline" style="display: none;" onclick="openCreateUserModal()" aria-label="Registrar nuevo usuario en el sistema">
+                <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                <span>+ Usuario</span>
+            </button>
+
+            <button id="btn-open-create-task" class="btn btn-primary" aria-label="Crear nueva tarea">
+                <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>Nueva Tarea</span>
+            </button>
+        </div>
+    </div>

@@ -98,10 +98,15 @@ class BoardColumn
         $maxOrden = (int)($stmtMax->fetchColumn() ?: 0);
 
         $color = !empty($data['color_hex']) ? trim((string)$data['color_hex']) : '#2563eb';
-        $tipo = !empty($data['tipo_estado']) ? strtoupper(trim((string)$data['tipo_estado'])) : self::ESTADO_EN_PROCESO;
-        if (!in_array($tipo, [self::ESTADO_PENDIENTE, self::ESTADO_EN_PROCESO, self::ESTADO_BLOQUEADA, self::ESTADO_EN_REVISION, self::ESTADO_FINALIZADA], true)) {
-            $tipo = self::ESTADO_EN_PROCESO;
-        }
+        $rawTipo = !empty($data['tipo_estado']) ? strtoupper(trim((string)$data['tipo_estado'])) : self::ESTADO_EN_PROCESO;
+        $tipo = match ($rawTipo) {
+            'REVISION', 'REVISION_APROBACION', self::ESTADO_EN_REVISION => self::ESTADO_EN_REVISION,
+            'FINALIZADA', 'CUMPLIDA', self::ESTADO_FINALIZADA => self::ESTADO_FINALIZADA,
+            'EN_PROCESO', 'EN_CURSO', self::ESTADO_EN_PROCESO => self::ESTADO_EN_PROCESO,
+            'PENDIENTE', 'POR_HACER', self::ESTADO_PENDIENTE => self::ESTADO_PENDIENTE,
+            'BLOQUEADA', self::ESTADO_BLOQUEADA => self::ESTADO_BLOQUEADA,
+            default => self::ESTADO_EN_PROCESO
+        };
 
         $stmt = $db->prepare("
             INSERT INTO tableros_columnas (nombre, orden, tipo_estado, color_hex, activo)
@@ -129,7 +134,15 @@ class BoardColumn
 
         $nombre = isset($data['nombre']) ? trim((string)$data['nombre']) : $col['nombre'];
         $color = isset($data['color_hex']) ? trim((string)$data['color_hex']) : $col['color_hex'];
-        $tipo = isset($data['tipo_estado']) ? strtoupper(trim((string)$data['tipo_estado'])) : $col['tipo_estado'];
+        $rawTipo = isset($data['tipo_estado']) ? strtoupper(trim((string)$data['tipo_estado'])) : $col['tipo_estado'];
+        $tipo = match ($rawTipo) {
+            'REVISION', 'REVISION_APROBACION', self::ESTADO_EN_REVISION => self::ESTADO_EN_REVISION,
+            'FINALIZADA', 'CUMPLIDA', self::ESTADO_FINALIZADA => self::ESTADO_FINALIZADA,
+            'EN_PROCESO', 'EN_CURSO', self::ESTADO_EN_PROCESO => self::ESTADO_EN_PROCESO,
+            'PENDIENTE', 'POR_HACER', self::ESTADO_PENDIENTE => self::ESTADO_PENDIENTE,
+            'BLOQUEADA', self::ESTADO_BLOQUEADA => self::ESTADO_BLOQUEADA,
+            default => $col['tipo_estado']
+        };
         $orden = isset($data['orden']) ? (int)$data['orden'] : $col['orden'];
 
         $stmt = $db->prepare("

@@ -1,0 +1,402 @@
+/**
+ * MODALS & OVERLAYS — SISTEMA DE TAREAS (PLANEAMIENTO)
+ * Diálogos modales, detalle de tarea, checklist de subtareas, dependencias DAG y notificaciones toast
+ */
+
+/* Diálogo Modal Base */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast);
+}
+
+.modal-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-dialog {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
+  width: 100%;
+  max-width: 840px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.96);
+  transition: transform var(--transition-fast);
+}
+
+.modal-backdrop.active .modal-dialog {
+  transform: scale(1);
+}
+
+.modal-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background-color: var(--bg-surface);
+  z-index: 10;
+}
+
+.modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modal-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.btn-close:hover {
+  background-color: var(--bg-surface-hover);
+  color: var(--text-main);
+}
+
+.modal-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  background-color: var(--bg-surface-subtle);
+}
+
+/* Modal de Detalle de Tarea Ampliado y Optimizado (Visualización completa sin scroll) */
+.modal-dialog.modal-dialog-task-detail {
+  max-width: 1140px;
+  width: 95vw;
+  max-height: 94vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.modal-dialog-task-detail .modal-body {
+  padding: 1.15rem 1.4rem;
+  gap: 1rem;
+}
+
+.modal-dialog-task-detail .task-detail-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.modal-dialog-task-detail .section-box {
+  padding: 0.85rem 1rem;
+  margin-top: 0.85rem;
+}
+
+.modal-dialog-task-detail .section-box:first-child {
+  margin-top: 0;
+}
+
+.modal-dialog-task-detail .section-box-title {
+  margin-bottom: 0.55rem;
+  font-size: 0.85rem;
+}
+
+.modal-dialog-task-detail .subtasks-list {
+  max-height: 180px;
+  overflow-y: auto;
+  margin-bottom: 0.55rem;
+  padding-right: 0.25rem;
+  scrollbar-width: thin;
+}
+
+.modal-dialog-task-detail .subtask-item {
+  padding: 0.35rem 0.55rem;
+  font-size: 0.8rem;
+}
+
+.modal-dialog-task-detail .comments-list {
+  max-height: 220px;
+  overflow-y: auto;
+  margin-bottom: 0.65rem;
+  padding-right: 0.25rem;
+  scrollbar-width: thin;
+}
+
+.modal-dialog-task-detail .comment-card {
+  padding: 0.55rem 0.75rem;
+}
+
+.modal-dialog-task-detail #detail-predecessors-list,
+.modal-dialog-task-detail #detail-successors-list {
+  max-height: 130px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.modal-dialog-task-detail .dependency-item {
+  padding: 0.35rem 0.55rem;
+  font-size: 0.775rem;
+}
+
+@media (max-width: 900px) {
+  .modal-dialog.modal-dialog-task-detail {
+    max-width: 96vw;
+    max-height: 95vh;
+  }
+  .modal-dialog-task-detail .task-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Lista de Subtareas (Checklist MVP-05) */
+.subtasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.subtask-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.65rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 0.825rem;
+  transition: background-color var(--transition-fast);
+}
+
+.subtask-item.completed {
+  text-decoration: line-through;
+  color: var(--text-muted);
+  background-color: var(--bg-surface-subtle);
+}
+
+.subtask-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.subtask-add-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Comentarios y Evidencias (MVP-05) */
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.comment-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+  font-size: 0.75rem;
+}
+
+.comment-author {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.comment-time {
+  color: var(--text-muted);
+}
+
+.comment-body {
+  font-size: 0.825rem;
+  line-height: 1.4;
+  color: var(--text-main);
+}
+
+.comment-attachment {
+  margin-top: 0.5rem;
+  padding: 0.45rem 0.65rem;
+  background-color: var(--bg-surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+}
+
+.attachment-info {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--primary-500);
+  font-weight: 600;
+}
+
+/* Dependencias DAG (MVP-07) */
+.dependency-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--bg-surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  transition: all var(--transition-fast);
+}
+
+.dependency-item:hover {
+  background-color: var(--bg-surface-hover);
+  border-color: var(--border-strong);
+}
+
+.dependency-item.completed {
+  border-left: 3px solid #10b981;
+}
+
+.dependency-item.pending {
+  border-left: 3px solid #f59e0b;
+}
+
+.dependency-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.dependency-code {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary-600);
+}
+
+.dependency-title {
+  color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Selector de Color Estilo Trello para Columnas */
+.color-swatch-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+  outline: none;
+}
+
+.color-swatch-btn:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.color-swatch-btn.active {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px var(--primary-500);
+  transform: scale(1.12);
+}
+
+/* Toast Notificaciones */
+.toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.toast {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1.25rem;
+  box-shadow: var(--shadow-modal);
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: slideIn 250ms ease-out;
+}
+
+.toast-success {
+  border-left: 4px solid #059669;
+}
+
+.toast-error {
+  border-left: 4px solid #e11d48;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

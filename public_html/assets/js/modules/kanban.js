@@ -229,26 +229,32 @@ export function renderKanban() {
  * Crea el elemento visual interactivo de cada tarjeta de tarea.
  */
 export function createTaskCardElement(task) {
+    const isJefe = isCurrentUserJefe();
+    const isFinalizada = (task.columna_tipo_estado === 'FINALIZADA');
+    const isClosedForAssistant = (!isJefe && isFinalizada);
+
     const card = document.createElement('div');
-    card.className = 'task-card';
-    card.setAttribute('draggable', 'true');
+    card.className = `task-card ${isClosedForAssistant ? 'task-card-closed' : ''}`;
+    card.setAttribute('draggable', isClosedForAssistant ? 'false' : 'true');
     card.setAttribute('tabindex', '0');
     card.setAttribute('role', 'button');
-    card.setAttribute('aria-label', `Tarea ${task.codigo}: ${task.titulo}`);
+    card.setAttribute('aria-label', `Tarea ${task.codigo}: ${task.titulo} ${isClosedForAssistant ? '(Cerrada)' : ''}`);
 
-    // Eventos de arrastre nativo
-    card.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('text/plain', task.id);
-        e.dataTransfer.effectAllowed = 'move';
-        card.classList.add('dragging');
-        window._draggedTaskId = task.id;
-    });
+    // Eventos de arrastre nativo solo si no está cerrada para el usuario
+    if (!isClosedForAssistant) {
+        card.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', task.id);
+            e.dataTransfer.effectAllowed = 'move';
+            card.classList.add('dragging');
+            window._draggedTaskId = task.id;
+        });
 
-    card.addEventListener('dragend', () => {
-        card.classList.remove('dragging');
-        window._draggedTaskId = null;
-        document.querySelectorAll('.column-cards-container').forEach(c => c.classList.remove('drag-over'));
-    });
+        card.addEventListener('dragend', () => {
+            card.classList.remove('dragging');
+            window._draggedTaskId = null;
+            document.querySelectorAll('.column-cards-container').forEach(c => c.classList.remove('drag-over'));
+        });
+    }
 
     const isPersonal = task.tipo_tarea === 'PERSONAL';
     const tipoBadge = isPersonal
@@ -256,6 +262,9 @@ export function createTaskCardElement(task) {
         : `<span class="badge badge-tipo-area">ÁREA</span>`;
 
     const prioBadge = `<span class="badge badge-prioridad-${task.prioridad}">${task.prioridad}</span>`;
+    const closedBadge = isClosedForAssistant
+        ? `<span class="badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;" title="Tarea cerrada para asistentes. Solo interactúan Jefes.">🔒 CERRADA</span>`
+        : '';
 
     let subtasksHtml = '';
     const totalSub = parseInt(task.total_subtareas || 0, 10);
@@ -292,6 +301,7 @@ export function createTaskCardElement(task) {
             <div class="task-badges">
                 ${tipoBadge}
                 ${prioBadge}
+                ${closedBadge}
             </div>
         </div>
         <h4 class="task-title">${escapeHtml(task.titulo)}</h4>

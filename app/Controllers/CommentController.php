@@ -80,6 +80,11 @@ class CommentController
             return;
         }
 
+        if (!Task::canInteract($currentUser, $task)) {
+            Response::error("La tarea se encuentra finalizada y cerrada para modificaciones por parte de asistentes.", 403, 'ERR_TASK_CLOSED');
+            return;
+        }
+
         $body = $request['body'] ?? [];
         $comentario = trim((string)($body['comentario'] ?? ''));
 

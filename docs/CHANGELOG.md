@@ -1,6 +1,49 @@
 # Changelog
 Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
+## [V1.5.7 - Modularización Frontend, Separación de Responsabilidades y Aislamiento Estricto del Login] - 2026-10-14
+### Agregado
+- **Skill de Descomposición Modular (`modularizar-archivos-grandes`):**
+  - Creada en `.agents/skills/modularizar-archivos-grandes/SKILL.md` con pautas para descomponer monolitos extensos (>400 líneas HTML, >500 líneas CSS).
+- **Estructura Atómica de Partials HTML (`public_html/partials/`):**
+  - Descomposición de la plantilla principal en 9 módulos independientes: `head.html`, `header.html`, `workspace_bar.html`, `login.html`, `kanban.html`, `approvals.html`, `history.html`, `modals.html` y `footer.html`.
+  - Ensamblador nativo `public_html/index.php` con fallback automático en `server.php`.
+- **Estructura Modular de Hojas de Estilo por Dominio (`public_html/assets/css/`):**
+  - `variables.css`: Tokens de diseño y paletas temáticas.
+  - `base.css`: Reset, utilidades tipográficas, botones (.btn), inputs, badges y barras de progreso.
+  - `header.css`: Barra superior corporativa, perfil de usuario, campana de notificaciones y workspace bar.
+  - `login.css`: Vista de acceso 100% aislada, imagen lateral 3D TAL S.A. y accesos demo.
+  - `kanban.css`: Tablero kanban, columnas dinámicas, tarjetas de tarea y banner de vista personal.
+  - `views.css`: Aprobaciones técnicas, archivo histórico, balance de carga y auditoría.
+  - `modals.css`: Modales accesibles, detalle sin scroll, checklist, dependencias DAG y toasts.
+  - `footer.css`: Pie de página corporativo slim y pill de autodiagnóstico.
+
+### Modificado
+- **Aislamiento Total del Login y Corrección de Solapamiento:**
+  - Desacoplamiento definitivo de `login.css`.
+  - Eliminación de reglas `!important` en el display de `.login-view-container`.
+  - Garantía de mutua exclusividad: el login y el tablero Kanban nunca coexisten ni se solapan visualmente.
+- **Hoja Maestra `app.css`:**
+  - Reducida de un archivo monolítico de 2,857 líneas a un manifiesto maestro limpio con directivas `@import` por dominio.
+
+## [V1.5.4 - Rediseño de Login Réplica Referencia, Botón + Columna Superior y Lógica Operativa de Estados en Columnas] - 2026-10-14
+### Agregado
+- **Rediseño del Login según Imagen de Referencia:**
+  - Tarjeta flotante orgánica split con bordes redondeados (`border-radius: 36px`), adaptada al tema corporativo esmeralda de TAL S.A.
+  - *Panel Izquierdo:* Curva orgánica fluida verde esmeralda con detalle cóncavo blanco inferior, isotipo circular blanco con llama verde corporativa TAL, título "Welcome Back!", subtítulo y botón contorneado de píldora "SIGN IN". Pie institucional: "TAL S.A. | PLANEAMIENTO 2026".
+  - *Panel Derecho:* Título minúscula "welcome" en verde esmeralda, subtítulo "Login in to your account to continue", campos de texto alargados en forma de píldora menta pastel suave translúcido con placeholders punteados (`Email....................` y `Password....................`), enlace de recuperación, botón píldora verde esmeralda "LOG IN", y barra de chips de acceso rápido demostrativo para alternar entre usuarios (Marco Chumbes, Elena Vega, Roberto Sánchez).
+- **Botón de Creación Rápida de Columna (`+ Columna`):**
+  - Añadido `#btn-open-create-column` en la barra de controles superior (`#workspace-controls-bar`) para permitir a los roles de Jefatura crear columnas inmediatamente sin requerir scroll horizontal o vertical.
+
+### Modificado
+- **Lógica Operativa de Estados Asociados a Columnas:**
+  - `Pendiente / Por hacer` y `En Proceso / En curso`: Libres de lógica restrictiva operativa.
+  - `Revisión / Aprobación (`EN_REVISION`):* Al mover cualquier tarea a una columna de este tipo, se solicita revisión de forma atómica y la tarea ingresa automáticamente a la bandeja del **Módulo de Aprobaciones**.
+  - `Finalizada / Cumplida (`FINALIZADA`):* La tarea queda **cerrada para Asistentes**. Se bloquea su arrastre (`draggable="false"`, badge `🔒 CERRADA`), se deshabilita el selector de cambio de columna, se deshabilitan las subtareas del checklist, se oculta el formulario de nuevos comentarios/evidencias con aviso visual de tarea cerrada, y el backend deniega cualquier interacción con código 403. **Solo los roles de Jefatura pueden interactuar con tareas finalizadas**.
+- **Actualización del Módulo de Aprobaciones:**
+  - Consulta unificada en `Approval::listPendientesForUser` que detecta e incluye en la bandeja de Jefatura todas las tareas en columnas con `c.tipo_estado = 'EN_REVISION'` o con solicitudes activas `a.estado = 'PENDIENTE'`.
+  - Normalización en `BoardColumn.php` y `BoardController.php` para valores amigables de tipo de estado.
+
 ## [V1.5.3 - Retiro de Bitácora de Formulario, Modal Expandido sin Scroll y Permisos Estrictos por Rol] - 2026-10-14
 ### Eliminado
 - **Bitácora de Auditoría en Modal de Tarea (`#modal-task-detail`):**

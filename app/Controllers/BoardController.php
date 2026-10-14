@@ -167,10 +167,15 @@ class BoardController
             $colorHex = '#2563eb';
         }
 
-        $tipoEstado = strtoupper(trim((string)($body['tipo_estado'] ?? 'EN_PROCESO')));
-        if (!in_array($tipoEstado, [BoardColumn::ESTADO_PENDIENTE, BoardColumn::ESTADO_EN_PROCESO, BoardColumn::ESTADO_BLOQUEADA, BoardColumn::ESTADO_EN_REVISION, BoardColumn::ESTADO_FINALIZADA], true)) {
-            $tipoEstado = BoardColumn::ESTADO_EN_PROCESO;
-        }
+        $rawTipo = strtoupper(trim((string)($body['tipo_estado'] ?? 'EN_PROCESO')));
+        $tipoEstado = match ($rawTipo) {
+            'REVISION', 'REVISION_APROBACION', BoardColumn::ESTADO_EN_REVISION => BoardColumn::ESTADO_EN_REVISION,
+            'FINALIZADA', 'CUMPLIDA', BoardColumn::ESTADO_FINALIZADA => BoardColumn::ESTADO_FINALIZADA,
+            'EN_PROCESO', 'EN_CURSO', BoardColumn::ESTADO_EN_PROCESO => BoardColumn::ESTADO_EN_PROCESO,
+            'PENDIENTE', 'POR_HACER', BoardColumn::ESTADO_PENDIENTE => BoardColumn::ESTADO_PENDIENTE,
+            'BLOQUEADA', BoardColumn::ESTADO_BLOQUEADA => BoardColumn::ESTADO_BLOQUEADA,
+            default => BoardColumn::ESTADO_EN_PROCESO
+        };
 
         $nuevaColumna = BoardColumn::create([
             'nombre'      => $nombre,

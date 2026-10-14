@@ -79,6 +79,7 @@ window.selectColumnColor = selectColorHex;
 window.handleSaveColumn = handleSaveColumn;
 window.handleDeleteColumn = handleDeleteColumn;
 window.setScope = setScope;
+window.doLogout = doLogout;
 
 // -----------------------------------------------------------------------------
 // Ciclo de Vida y Event Listeners
@@ -133,6 +134,15 @@ export async function setScope(scope) {
             btnCreateTask.style.display = 'none';
         } else {
             btnCreateTask.style.display = 'inline-flex';
+        }
+    }
+
+    const btnCreateColumn = document.getElementById('btn-open-create-column');
+    if (btnCreateColumn) {
+        if (isCurrentUserJefe() && (scope === 'area' || scope === 'personal' || scope === 'team')) {
+            btnCreateColumn.style.display = 'inline-flex';
+        } else {
+            btnCreateColumn.style.display = 'none';
         }
     }
 

@@ -1,0 +1,63 @@
+        <!-- Vista de Historial de Tareas Archivadas -->
+        <div id="history-view" style="display: none;">
+            <div class="view-header-bar">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 0.65rem;">
+                        <h2 class="view-title">Historial de Tareas Archivadas</h2>
+                        <span id="history-total-count" class="badge badge-tipo-area">0 expedientes</span>
+                    </div>
+                    <p class="view-subtitle">
+                        Archivo histórico de tareas concluidas para consulta y auditoría interna. Acceso exclusivo de Jefatura.
+                    </p>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="loadHistoryTasks()">
+                    <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    <span>Actualizar Historial</span>
+                </button>
+            </div>
+
+            <!-- Barra de Filtros Internos del Historial -->
+            <div class="section-box" style="margin-bottom: 1.25rem; padding: 0.85rem 1rem;">
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+                    <div class="search-input-wrapper" style="flex: 1; min-width: 220px;">
+                        <svg class="search-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="history-search-input" class="search-input" placeholder="Buscar por código, título o responsable..." aria-label="Buscar en historial" oninput="filterHistoryTasks()">
+                    </div>
+
+                    <select id="history-priority-select" class="select-filter" aria-label="Filtrar por prioridad en historial" onchange="filterHistoryTasks()">
+                        <option value="">Todas las prioridades</option>
+                        <option value="URGENTE">Urgente</option>
+                        <option value="ALTA">Alta</option>
+                        <option value="MEDIA">Media</option>
+                        <option value="BAJA">Baja</option>
+                    </select>
+
+                    <select id="history-member-select" class="select-filter" aria-label="Filtrar por responsable en historial" onchange="filterHistoryTasks()">
+                        <option value="">Todos los miembros</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tabla de Expedientes Archivados -->
+            <div class="section-box" style="padding: 0; overflow: hidden;">
+                <div class="table-responsive">
+                    <table class="team-balance-table" style="margin: 0;">
+                        <thead>
+                            <tr>
+                                <th style="width: 110px;">Código</th>
+                                <th>Tarea / Descripción</th>
+                                <th>Responsable</th>
+                                <th style="width: 100px;">Prioridad</th>
+                                <th style="width: 90px;">Tipo</th>
+                                <th style="width: 150px;">Finalizada</th>
+                                <th style="width: 130px; text-align: right;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-tbody">
+                            <!-- Filas inyectadas dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
