@@ -911,4 +911,11 @@
 - **Pruebas:** matriz directa de permisos PASS en los cuatro estados; PHP lint PASS; `git diff --check` PASS.
 - **Limitación conocida:** las suites heredadas `tasks_test.php` y `kanban_test.php` conservan fallos previos no relacionados; `subtasks_comments_test.php` pasa 23/23.
 
+### 2026-10-14 — Diseño confirmado del módulo de Gestión de Usuarios
+- **Estado:** diseñado, pendiente de implementación.
+- **Objetivo:** reemplazar el alta aislada por un módulo de administración de cuentas separado de tareas y tableros.
+- **Decisiones:** jerarquía administrativa superior para Jefe de Área; permisos operativos de tareas equivalentes entre jefaturas; permisos por rol; auto-desactivación permitida; contraseña manual sin correo ni enlace.
+- **Documento:** `docs/USER_MANAGEMENT_MODULE.md`.
+- **Pendiente:** solicitar la fase de implementación `USERS-MGMT-01`.
+
 

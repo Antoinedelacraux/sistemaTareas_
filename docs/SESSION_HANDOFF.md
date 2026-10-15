@@ -49,4 +49,9 @@
 - Asistentes: fecha límite siempre inmutable.
 - Asistentes: `EN_REVISION` y `FINALIZADA` quedan en solo lectura mientras esperan respuesta o dictamen de Jefatura.
 
+## Diseño pendiente de implementación
+- Gestión de Usuarios fue diseñada en `docs/USER_MANAGEMENT_MODULE.md`.
+- El módulo será independiente de la consulta de responsables usada por tareas.
+- Decisiones confirmadas: Jefe de Área con jerarquía administrativa superior, permisos por rol, auto-desactivación permitida y contraseña asignada manualmente.
+
 

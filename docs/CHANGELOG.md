@@ -458,3 +458,8 @@ Anotar solo cambios reales, verificables, visibles o relevantes al repositorio; 
 - Asistentes editan únicamente tareas asignadas en `PENDIENTE` y `EN_PROCESO`.
 - La fecha límite queda inmutable para asistentes y solo Jefatura puede modificarla.
 - En `EN_REVISION` y `FINALIZADA`, asistentes quedan en modo consulta: sin edición, checklist, comentarios, evidencias ni movimiento.
+
+## [Sin versión - Diseño de Gestión de Usuarios] - 2026-10-14
+### Añadido
+- Diseño funcional y técnico del módulo dedicado de Gestión de Usuarios, pendiente de implementación.
+- Registro de jerarquía administrativa, permisos por rol, auto-desactivación y gestión manual de contraseñas.
