@@ -207,19 +207,19 @@ export function renderKanban() {
 export function createTaskCardElement(task) {
     const isJefe = isCurrentUserJefe();
     const isFinalizada = (task.columna_tipo_estado === 'FINALIZADA');
-    const isClosedForAssistant = isFinalizada;
+    const isReadOnlyForAssistant = !isJefe && !['PENDIENTE', 'EN_PROCESO'].includes(task.columna_tipo_estado);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const dueDate = task.fecha_limite ? new Date(`${task.fecha_limite}T00:00:00`) : null;
     const isOverdue = !!(dueDate && dueDate < today && !isFinalizada);
-    const canDrag = !isFinalizada || isJefe;
+    const canDrag = !isReadOnlyForAssistant;
 
     const card = document.createElement('div');
-    card.className = `task-card ${isClosedForAssistant ? 'task-card-closed' : ''} ${isOverdue ? 'task-card-overdue' : ''}`;
+    card.className = `task-card ${isReadOnlyForAssistant ? 'task-card-closed' : ''} ${isOverdue ? 'task-card-overdue' : ''}`;
     card.setAttribute('draggable', canDrag ? 'true' : 'false');
     card.setAttribute('tabindex', '0');
     card.setAttribute('role', 'button');
-    card.setAttribute('aria-label', `Tarea ${task.codigo}: ${task.titulo} ${isClosedForAssistant ? '(Cerrada)' : ''}`);
+    card.setAttribute('aria-label', `Tarea ${task.codigo}: ${task.titulo} ${isReadOnlyForAssistant ? '(Solo lectura)' : ''}`);
 
     // Eventos de arrastre nativo solo si no está cerrada para el usuario
     if (canDrag) {

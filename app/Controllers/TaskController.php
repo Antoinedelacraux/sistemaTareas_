@@ -193,6 +193,19 @@ class TaskController
 
         $body = $request['body'] ?? [];
 
+        if (!User::isJefe($currentUser) && array_key_exists('fecha_limite', $body)) {
+            $requestedDate = trim((string)($body['fecha_limite'] ?? ''));
+            $currentDate = trim((string)($task['fecha_limite'] ?? ''));
+            if ($requestedDate !== $currentDate) {
+                Response::error(
+                    'Los asistentes no pueden modificar la fecha límite de una tarea.',
+                    403,
+                    'ERR_FORBIDDEN_DUE_DATE_CHANGE'
+                );
+                return;
+            }
+        }
+
         // Validación de título si viene en payload
         if (isset($body['titulo'])) {
             $titulo = trim((string)$body['titulo']);
@@ -213,7 +226,7 @@ class TaskController
         }
 
         // REGLA CRÍTICA RN-03: Asistente no puede transferir/reasignar a otro usuario
-        $isJefe = (bool)($currentUser['es_jefe'] ?? false);
+        $isJefe = User::isJefe($currentUser);
         if (isset($body['responsable_id'])) {
             $nuevoRespId = (int)$body['responsable_id'];
             if (!$isJefe && $nuevoRespId !== (int)$task['responsable_id']) {

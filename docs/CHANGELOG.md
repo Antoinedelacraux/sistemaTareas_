@@ -452,3 +452,9 @@ Anotar solo cambios reales, verificables, visibles o relevantes al repositorio; 
 - Retirado el módulo duplicado "Tablero del Equipo" de la navegación y del estado de la SPA.
 - Eliminadas sus condiciones de carga, visibilidad por rol y parámetro `scope=team` del listado de usuarios.
 - Renombrada la tabla visual del historial para no conservar nomenclatura del módulo retirado.
+
+## [Sin versión - Restricción de edición para asistentes] - 2026-10-14
+### Modificado
+- Asistentes editan únicamente tareas asignadas en `PENDIENTE` y `EN_PROCESO`.
+- La fecha límite queda inmutable para asistentes y solo Jefatura puede modificarla.
+- En `EN_REVISION` y `FINALIZADA`, asistentes quedan en modo consulta: sin edición, checklist, comentarios, evidencias ni movimiento.

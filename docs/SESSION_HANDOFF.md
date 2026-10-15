@@ -44,4 +44,9 @@
 - Vista Área quedó como único tablero oficial para asistentes y jefaturas.
 - No existe una ruta backend diferenciada para ese módulo; se eliminó también el parámetro frontend `scope=team` que solo era usado para cargar usuarios.
 
+## Última regla de permisos implementada
+- Asistentes: edición, checklist, comentarios/evidencias y movimiento únicamente en `PENDIENTE` y `EN_PROCESO` sobre tareas asignadas.
+- Asistentes: fecha límite siempre inmutable.
+- Asistentes: `EN_REVISION` y `FINALIZADA` quedan en solo lectura mientras esperan respuesta o dictamen de Jefatura.
+
 

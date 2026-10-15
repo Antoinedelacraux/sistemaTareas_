@@ -903,4 +903,12 @@
 - **Documentación:** requisitos y contexto actualizados para reflejar Vista Área como único tablero oficial.
 - **Pendiente:** validación visual de la barra de navegación con ambos roles.
 
+### 2026-10-14 — Restricción de edición del asistente por estado
+- **Estado:** implementado
+- **Objetivo:** impedir edición y cambios operativos del asistente durante revisión o después del cierre.
+- **RF/RN:** RF-06, RF-07, RF-08, RF-09, RN-03, RN-10, RN-11.
+- **Cambios:** permisos backend por estado para edición, transición, checklist e interacción; fecha límite inmutable para asistentes; controles frontend en modo solo lectura para revisión/finalizada.
+- **Pruebas:** matriz directa de permisos PASS en los cuatro estados; PHP lint PASS; `git diff --check` PASS.
+- **Limitación conocida:** las suites heredadas `tasks_test.php` y `kanban_test.php` conservan fallos previos no relacionados; `subtasks_comments_test.php` pasa 23/23.
+
 

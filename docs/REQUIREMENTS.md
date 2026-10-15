@@ -37,3 +37,5 @@
 - RF-13 Cierre y archivo: al aprobarse una tarea o moverla a `FINALIZADA`, queda cerrada y visible en esa columna por 24 horas; Jefatura puede enviarla al historial de inmediato.
 - RN-08 En `FINALIZADA`, el asistente solo consulta; Jefatura puede editar, eliminar o reabrir exclusivamente hacia `EN_PROCESO`.
 - RN-09 Una tarjeta no finalizada con fecha límite anterior al día actual se marca como vencida. El historial informa si su cierre fue dentro del plazo.
+- RN-10 El asistente solo puede editar tareas asignadas en columnas `PENDIENTE` y `EN_PROCESO`; no puede modificar la fecha límite en ningún estado.
+- RN-11 En `EN_REVISION` y `FINALIZADA`, el asistente solo consulta la tarea y espera el dictamen o respuesta de Jefatura.

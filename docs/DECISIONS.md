@@ -58,3 +58,4 @@
 
 ## Decisión posterior
 - D-025 Ciclo de cierre y vencimientos: una tarea aprobada o ubicada en `FINALIZADA` se cierra y permanece 24 horas en el tablero antes de pasar al historial. Asistentes solo la visualizan; Jefatura puede editarla, eliminarla o reabrirla únicamente en `EN_PROCESO`, y puede archivarla inmediatamente. Las tarjetas vencidas se distinguen visualmente y el historial registra el cumplimiento del plazo.
+- D-026 Edición por estado para asistentes: el asistente puede editar únicamente tareas asignadas en `PENDIENTE` y `EN_PROCESO`, sin modificar nunca la fecha límite. En `EN_REVISION` y `FINALIZADA` la tarea queda en modo consulta hasta la respuesta de Jefatura.

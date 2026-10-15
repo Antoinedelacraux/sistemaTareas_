@@ -327,7 +327,9 @@ class Task
         $userId = (int)$currentUser['id'];
         $respId = (int)$task['responsable_id'];
         if ($isJefe) return $task['tipo_tarea'] === self::TIPO_AREA;
-        return $task['tipo_tarea'] === self::TIPO_AREA && $userId === $respId;
+        return $task['tipo_tarea'] === self::TIPO_AREA
+            && $userId === $respId
+            && in_array($task['columna_tipo_estado'] ?? '', [BoardColumn::ESTADO_PENDIENTE, BoardColumn::ESTADO_EN_PROCESO], true);
     }
 
     /**
@@ -350,10 +352,9 @@ class Task
         $userId = (int)$currentUser['id'];
         $respId = (int)$task['responsable_id'];
         if ($isJefe) return $task['tipo_tarea'] === self::TIPO_AREA;
-        if (($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
-            return false;
-        }
-        return $task['tipo_tarea'] === self::TIPO_AREA && $userId === $respId;
+        return $task['tipo_tarea'] === self::TIPO_AREA
+            && $userId === $respId
+            && in_array($task['columna_tipo_estado'] ?? '', [BoardColumn::ESTADO_PENDIENTE, BoardColumn::ESTADO_EN_PROCESO], true);
     }
 
     /**
@@ -369,11 +370,9 @@ class Task
         if ($isJefe) {
             return true;
         }
-        if (($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
-            return false;
-        }
-
-        return $task['tipo_tarea'] === self::TIPO_AREA && $userId === $respId;
+        return $task['tipo_tarea'] === self::TIPO_AREA
+            && $userId === $respId
+            && in_array($task['columna_tipo_estado'] ?? '', [BoardColumn::ESTADO_PENDIENTE, BoardColumn::ESTADO_EN_PROCESO], true);
     }
 
     /**
@@ -382,10 +381,12 @@ class Task
      */
     public static function canInteract(array $currentUser, array $task): bool
     {
-        if (($task['columna_tipo_estado'] ?? '') === BoardColumn::ESTADO_FINALIZADA) {
-            return false;
+        $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true) || User::isJefe($currentUser);
+        if ($isJefe) {
+            return ($task['columna_tipo_estado'] ?? '') !== BoardColumn::ESTADO_FINALIZADA;
         }
-        return true;
+
+        return in_array($task['columna_tipo_estado'] ?? '', [BoardColumn::ESTADO_PENDIENTE, BoardColumn::ESTADO_EN_PROCESO], true);
     }
 
     /**

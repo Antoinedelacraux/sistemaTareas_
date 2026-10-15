@@ -169,7 +169,7 @@ export async function loadTaskDetail(taskId) {
         const user = STATE.currentUser;
         const isJefe = isCurrentUserJefe();
         const isFinalizada = (task.columna_tipo_estado === 'FINALIZADA');
-        const isClosedForAssistant = isFinalizada && !isJefe;
+        const isReadOnlyForAssistant = !isJefe && !['PENDIENTE', 'EN_PROCESO'].includes(task.columna_tipo_estado);
 
         const colSelect = document.getElementById('detail-column-select');
         const selectableColumns = isFinalizada && isJefe
@@ -180,10 +180,10 @@ export async function loadTaskDetail(taskId) {
                 ${escapeHtml(c.nombre)}
             </option>
         `).join('');
-        colSelect.disabled = isClosedForAssistant;
+        colSelect.disabled = isReadOnlyForAssistant;
 
         const subtasks = subJson.success ? (subJson.data?.subtareas || (Array.isArray(subJson.data) ? subJson.data : [])) : [];
-        renderSubtasksList(subtasks, isClosedForAssistant);
+        renderSubtasksList(subtasks, isReadOnlyForAssistant);
 
         const comments = comJson.success ? (comJson.data?.comentarios || (Array.isArray(comJson.data) ? comJson.data : [])) : [];
         renderCommentsList(comments);
@@ -191,18 +191,18 @@ export async function loadTaskDetail(taskId) {
         // Control de formulario de comentarios y checklist para tareas finalizadas de asistentes
         const addSubtaskForm = document.getElementById('add-subtask-form');
         if (addSubtaskForm) {
-            addSubtaskForm.style.display = isClosedForAssistant ? 'none' : 'flex';
+            addSubtaskForm.style.display = isReadOnlyForAssistant ? 'none' : 'flex';
         }
 
         const addCommentForm = document.getElementById('add-comment-form');
-        if (isClosedForAssistant) {
+        if (isReadOnlyForAssistant) {
             if (addCommentForm) addCommentForm.style.display = 'none';
         } else {
             if (addCommentForm) addCommentForm.style.display = 'block';
         }
 
         const isOwner = user && parseInt(task.responsable_id, 10) === parseInt(user.id, 10);
-        const canModify = !isClosedForAssistant && (isJefe || isOwner);
+        const canModify = isJefe || (!isReadOnlyForAssistant && isOwner);
 
         const btnEdit = document.getElementById('btn-edit-task');
         const btnDelete = document.getElementById('btn-delete-task');
@@ -738,7 +738,8 @@ export function toggleTaskEditMode(isEditing) {
         const user = STATE.currentUser;
         const isJefe = isCurrentUserJefe();
         const isOwner = user && parseInt(task.responsable_id, 10) === parseInt(user.id, 10);
-        if (!isJefe && !isOwner) {
+        const canAssistantEdit = task && ['PENDIENTE', 'EN_PROCESO'].includes(task.columna_tipo_estado);
+        if (!isJefe && (!isOwner || !canAssistantEdit)) {
             showToast('No tienes autorización para editar esta tarea', 'warning');
             return;
         }
@@ -747,6 +748,10 @@ export function toggleTaskEditMode(isEditing) {
         document.getElementById('edit-task-desc-input').value = task.descripcion || '';
         document.getElementById('edit-task-priority-select').value = task.prioridad || 'MEDIA';
         document.getElementById('edit-task-due-date-input').value = task.fecha_limite || '';
+        document.getElementById('edit-task-due-date-input').disabled = !isJefe;
+        document.getElementById('edit-task-due-date-input').title = isJefe
+            ? ''
+            : 'La fecha límite solo puede ser modificada por Jefatura';
 
         const assigneeSelect = document.getElementById('edit-task-assignee-select');
         assigneeSelect.innerHTML = '';
@@ -781,7 +786,7 @@ export function toggleTaskEditMode(isEditing) {
             const user = STATE.currentUser;
             const isJefe = isCurrentUserJefe();
             const isOwner = task && user && parseInt(task.responsable_id, 10) === parseInt(user.id, 10);
-            const canModify = isJefe || isOwner;
+            const canModify = isJefe || (isOwner && task && ['PENDIENTE', 'EN_PROCESO'].includes(task.columna_tipo_estado));
             editBtn.style.display = canModify ? 'inline-flex' : 'none';
         }
     }
@@ -798,7 +803,8 @@ export async function handleSaveTaskEdit(e) {
     const user = STATE.currentUser;
     const isJefe = isCurrentUserJefe();
     const isOwner = user && parseInt(task.responsable_id, 10) === parseInt(user.id, 10);
-    if (!isJefe && !isOwner) {
+    const canAssistantEdit = task && ['PENDIENTE', 'EN_PROCESO'].includes(task.columna_tipo_estado);
+    if (!isJefe && (!isOwner || !canAssistantEdit)) {
         showToast('No tienes autorización para editar esta tarea', 'warning');
         return;
     }
@@ -807,7 +813,9 @@ export async function handleSaveTaskEdit(e) {
     const title = document.getElementById('edit-task-title-input').value.trim();
     const desc = document.getElementById('edit-task-desc-input').value.trim();
     const priority = document.getElementById('edit-task-priority-select').value;
-    const dueDate = document.getElementById('edit-task-due-date-input').value || null;
+    const dueDate = isJefe
+        ? (document.getElementById('edit-task-due-date-input').value || null)
+        : (task.fecha_limite || null);
     const assigneeId = parseInt(document.getElementById('edit-task-assignee-select').value, 10);
 
     if (!title) {
