@@ -1,13 +1,5 @@
 # Traspaso entre sesiones (leer primero)
 
-## Actualización 2026-10-15 — REALTIME-01 completado
-- Se implementó sincronización operativa compatible con DonWeb Ferozo mediante eventos persistentes y espera larga autenticada de máximo 20 s; no depende de Redis, WebSocket ni procesos residentes.
-- El backend distribuye metadatos únicamente a destinatarios explícitos: responsable, creador, revisor y jefaturas activas para tareas; las columnas llegan a usuarios activos y la gestión de cuentas solo a Jefatura. El cliente vuelve a leer el recurso autorizado, por lo que el evento no contiene títulos, comentarios ni adjuntos.
-- Cambios cubiertos: tareas, checklist, comentarios/evidencias, solicitudes y dictámenes, dependencias y desbloqueos, columnas y cuentas administrativas.
-- Archivos clave: `app/Models/RealtimeEvent.php`, `app/Controllers/RealtimeSyncController.php`, `public_html/assets/js/modules/realtime.js`, `database/migrations/2026-10-15_realtime_sync.sql`, `docs/REALTIME_SYNC.md`.
-- QA: sincronización 10/10 PASS; notificaciones 38/38 PASS; usuarios 15/15 PASS; lint PHP completo PASS; endpoints sin sesión 401; raíz y asset JS 200; `git diff --check` PASS. La suite integral mantiene fallos heredados de tareas, Kanban, ciclos de dependencias y Dashboard retirado, sin fallos nuevos atribuibles a REALTIME-01.
-- Despliegue pendiente: en Ferozo, respaldar BD, importar `schema.sql` para instalación nueva o `database/migrations/2026-10-15_realtime_sync.sql` para una existente, configurar `REALTIME_LONG_POLL_SECONDS=20`, y verificar `max_execution_time >= 25` antes de abrir dos sesiones de validación manual.
-
 ## Actualización 2026-10-15 — UI-05 implementado
 - El patrón del modo oscuro ahora replica la estructura del modo claro: puntos y diagonales a 24px, con mayor contraste índigo sobre el fondo oscuro.
 - La hora de registro de la tarea ya no aparece en tarjetas Kanban, aprobaciones ni historial. Solo se muestra al abrir el detalle, en `Registrada`.

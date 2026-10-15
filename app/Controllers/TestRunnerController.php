@@ -12,7 +12,6 @@ use App\Models\Subtask;
 use App\Models\Comment;
 use App\Models\Approval;
 use App\Models\TaskDependency;
-use App\Models\RealtimeEvent;
 use PDO;
 
 /**
@@ -30,12 +29,11 @@ class TestRunnerController
         // 1. Verificación de Base de Datos
         $results[] = $this->runTest("1. Conexión de Base de Datos y Tablas", function () {
             $db = Database::getConnection();
-            RealtimeEvent::ensureStorage();
-            $tables = ['usuarios', 'sesiones', 'tableros_columnas', 'tareas', 'subtareas', 'tarea_comentarios', 'tarea_aprobaciones', 'tarea_dependencias', 'notificaciones', 'auditoria_eventos', 'sincronizacion_eventos', 'sincronizacion_evento_destinatarios'];
+            $tables = ['usuarios', 'sesiones', 'tableros_columnas', 'tareas', 'subtareas', 'tarea_comentarios', 'tarea_aprobaciones', 'tarea_dependencias', 'notificaciones', 'auditoria_eventos'];
             foreach ($tables as $t) {
                 $count = (int)$db->query("SELECT COUNT(*) FROM {$t}")->fetchColumn();
             }
-            return "Base de datos activa con las 12 tablas operativas, incluida la sincronización en vivo.";
+            return "Base de datos activa con las 10 tablas verificadas y operativas.";
         });
 
         // 2. Roles y Usuarios

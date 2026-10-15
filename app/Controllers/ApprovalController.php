@@ -6,7 +6,6 @@ namespace App\Controllers;
 
 use App\Core\Response;
 use App\Models\Approval;
-use App\Models\RealtimeEvent;
 use App\Models\Task;
 use App\Models\User;
 use InvalidArgumentException;
@@ -55,8 +54,6 @@ class ApprovalController
 
         try {
             $aprobacion = Approval::solicitar($tareaId, (int)$user['id'], $comentario, $revisorId);
-            $updatedTask = Task::findById($tareaId) ?: $tarea;
-            RealtimeEvent::publishTask('APPROVAL_REQUESTED', $updatedTask, $user, $tarea);
             Response::json($aprobacion, 200);
         } catch (RuntimeException $e) {
             Response::error($e->getMessage(), $e->getCode() ?: 400, 'ERR_APPROVAL_FAILED');
@@ -123,8 +120,6 @@ class ApprovalController
 
         try {
             $resultado = Approval::resolver($tareaId, (int)$user['id'], $accion, $observaciones);
-            $updatedTask = Task::findById($tareaId) ?: $tarea;
-            RealtimeEvent::publishTask($accion === Approval::ACCION_APROBAR ? 'APPROVAL_APPROVED' : 'APPROVAL_RETURNED', $updatedTask, $user, $tarea);
             Response::json($resultado, 200);
         } catch (InvalidArgumentException $e) {
             Response::error($e->getMessage(), 422, 'ERR_VALIDATION_FAILED');

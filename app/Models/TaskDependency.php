@@ -137,11 +137,6 @@ class TaskDependency
                 ]);
                 $autoBloqueada = true;
 
-                $updatedTask = Task::findById($tareaId);
-                if ($updatedTask) {
-                    RealtimeEvent::publishTask('TASK_BLOCKED_BY_DEPENDENCY', $updatedTask, $currentUser, $tarea);
-                }
-
                 Audit::log(
                     (int)$currentUser['id'],
                     'TAREA',
@@ -531,11 +526,6 @@ class TaskDependency
 
                     $desbloqueadas[] = $succId;
 
-                    $updatedSuccessor = Task::findById($succId);
-                    if ($updatedSuccessor) {
-                        RealtimeEvent::publishTask('TASK_UNBLOCKED', $updatedSuccessor, $currentUser, $succTask);
-                    }
-
                     // Notificación automática al responsable de la tarea desbloqueada (MVP-08 / RF-17 / RN-15)
                     try {
                         if (class_exists(\App\Services\AutomationEngine::class)) {
@@ -611,11 +601,6 @@ class TaskDependency
                 );
 
                 $rebloqueadas[] = $succId;
-
-                $updatedSuccessor = Task::findById($succId);
-                if ($updatedSuccessor) {
-                    RealtimeEvent::publishTask('TASK_BLOCKED_BY_REOPEN', $updatedSuccessor, $currentUser, $succTask);
-                }
             }
         }
 

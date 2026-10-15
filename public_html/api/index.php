@@ -121,17 +121,12 @@ $router->delete('/api/tareas/{id}/dependencias/{pred_id}', [DependencyController
 // Rutas de Notificaciones y Automatizaciones (MVP-08)
 // -----------------------------------------------------------------------------
 use App\Controllers\NotificationController;
-use App\Controllers\RealtimeSyncController;
 
 $router->get('/api/notificaciones', [NotificationController::class, 'index'], [AuthMiddleware::class]);
 $router->get('/api/notificaciones/resumen', [NotificationController::class, 'unreadCount'], [AuthMiddleware::class]);
 $router->patch('/api/notificaciones/{id}/leer', [NotificationController::class, 'markAsRead'], [AuthMiddleware::class]);
 $router->post('/api/notificaciones/{id}/leer', [NotificationController::class, 'markAsRead'], [AuthMiddleware::class]);
 $router->post('/api/notificaciones/marcar-todas-leidas', [NotificationController::class, 'markAllAsRead'], [AuthMiddleware::class]);
-
-// Sincronización operativa en tiempo real (espera larga compatible con Ferozo)
-$router->get('/api/sincronizacion/cursor', [RealtimeSyncController::class, 'cursor'], [AuthMiddleware::class]);
-$router->get('/api/sincronizacion/eventos', [RealtimeSyncController::class, 'events'], [AuthMiddleware::class]);
 
 // -----------------------------------------------------------------------------
 // Rutas de Historial y Auditoría (Historial archivado > 24h)
@@ -202,10 +197,6 @@ $router->get('/api', function () {
                 'resumen'        => 'GET /api/notificaciones/resumen',
                 'marcar_leida'   => 'PATCH /api/notificaciones/{id}/leer',
                 'marcar_todas'   => 'POST /api/notificaciones/marcar-todas-leidas'
-            ],
-            'sincronizacion' => [
-                'cursor'  => 'GET /api/sincronizacion/cursor',
-                'eventos' => 'GET /api/sincronizacion/eventos?after={cursor}&wait=20'
             ],
             'auditoria' => [
                 'historial_tarea'=> 'GET /api/tareas/{id}/historial',

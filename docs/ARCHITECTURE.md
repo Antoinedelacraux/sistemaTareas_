@@ -15,10 +15,10 @@ Monolito modular estructurado por capas y dominios, con API REST desacoplada, SP
 - **Estructura en Servidor Ferozo:**
   - `public_html/`: Punto de entrada público (`index.php`, `index.html`, `partials/`, assets frontend y `api/index.php` para enrutamiento de la API vía `.htaccess`).
   - `app/`: Modelos, controladores, servicios y lógica de negocio protegida.
-- **Notificaciones y sincronización:** notificaciones internas dentro de la aplicación y un módulo de sincronización en tiempo real compatible con Ferozo. Los cambios se escriben como eventos persistentes con destinatarios explícitos y las SPA autenticadas consultan `GET /api/sincronizacion/eventos` mediante espera larga de hasta 20 segundos. No se requieren Redis, WebSocket ni demonios; un VPS puede añadir un adaptador WebSocket futuro sobre el mismo contrato.
+- **Notificaciones:** Notificaciones internas dentro de la aplicación; soporte para correo SMTP autenticado opcional posterior.
 
 ## Módulos lógicos
-`identidad`, `autorizacion`, `usuarios`, `tableros`, `tareas`, `dependencias`, `aprobaciones`, `notificaciones`, `sincronizacion`, `auditoria`, `reportes`.
+`identidad`, `autorizacion`, `usuarios`, `tableros`, `tareas`, `dependencias`, `aprobaciones`, `notificaciones`, `auditoria`, `reportes`.
 
 ## Gestión administrativa de usuarios
 - El directorio `/api/usuarios` está limitado a responsables de tareas, consulta acotada y validación de asignaciones.

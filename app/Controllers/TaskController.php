@@ -7,7 +7,6 @@ namespace App\Controllers;
 use App\Core\Response;
 use App\Models\Task;
 use App\Models\User;
-use App\Models\RealtimeEvent;
 
 /**
  * Controlador de Gestión de Tareas (Fase 1: MVP-03).
@@ -155,7 +154,6 @@ class TaskController
         }
 
         $task = Task::create($body, $currentUser);
-        RealtimeEvent::publishTask('TASK_CREATED', $task, $currentUser);
 
         Response::json([
             'tarea'   => $task,
@@ -250,12 +248,6 @@ class TaskController
         }
 
         $updated = Task::update($id, $body, $currentUser);
-        RealtimeEvent::publishTask(
-            isset($body['responsable_id']) && (int)$body['responsable_id'] !== (int)$task['responsable_id'] ? 'TASK_ASSIGNED' : 'TASK_UPDATED',
-            $updated,
-            $currentUser,
-            $task
-        );
 
         Response::json([
             'tarea'   => $updated,
@@ -293,7 +285,6 @@ class TaskController
         }
 
         Task::delete($id, $currentUser);
-        RealtimeEvent::publishTask('TASK_DELETED', $task, $currentUser);
 
         Response::json([
             'mensaje' => 'Tarea eliminada exitosamente.'
@@ -318,13 +309,11 @@ class TaskController
             return;
         }
 
-        $before = Task::findById($id);
         $result = Task::finalizeImmediately($id, $currentUser);
         if (!$result['success']) {
             Response::error($result['message'], $result['status'], $result['code']);
             return;
         }
-        RealtimeEvent::publishTask('TASK_ARCHIVED', $result['tarea'], $currentUser, $before ?: []);
 
         Response::json([
             'tarea' => $result['tarea'],

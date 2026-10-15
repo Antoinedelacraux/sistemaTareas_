@@ -14,7 +14,6 @@
 - RF-11 Dashboard operativo con métricas de tareas completadas, en progreso, tasa de cumplimiento y balance general.
 - RF-12 Compatibilidad nativa con PHP 8.2+ y MySQL/MariaDB para despliegue directo en DonWeb Ferozo / VPS.
 - RF-14 Módulo exclusivo de Jefatura para crear, editar, activar, desactivar cuentas y asignar permisos por rol, separado del directorio usado para tareas.
-- RF-19 Sincronización operativa en tiempo real: los cambios compartidos de tareas, asignaciones, estados, aprobaciones, checklist, comentarios, evidencias, dependencias, columnas y cuentas se reflejan en las sesiones autorizadas sin recargar la página.
 
 ## Reglas de negocio prácticas
 - RN-01 La experiencia de usuario debe ser ágil y libre de fricción: mover una tarjeta a cualquier columna debe reflejarse inmediatamente.
@@ -42,4 +41,3 @@
 - RN-10 El asistente solo puede editar tareas asignadas en columnas `PENDIENTE` y `EN_PROCESO`; no puede modificar la fecha límite en ningún estado.
 - RN-11 En `EN_REVISION` y `FINALIZADA`, el asistente solo consulta la tarea y espera el dictamen o respuesta de Jefatura.
 - RN-12 Jefe de Área y Jefe de Personal administran cuentas con los mismos permisos; solo el Jefe de Personal no puede desactivar una cuenta con rol `JEFE_PLANEAMIENTO`.
-- RN-16 Los eventos de sincronización no contienen contenido sensible y solo se entregan a destinatarios explícitamente autorizados; una reconexión debe recuperar los cambios posteriores al último evento recibido.

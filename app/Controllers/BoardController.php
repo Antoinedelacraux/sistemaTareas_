@@ -6,7 +6,6 @@ namespace App\Controllers;
 
 use App\Core\Response;
 use App\Models\BoardColumn;
-use App\Models\RealtimeEvent;
 use App\Models\Task;
 
 /**
@@ -123,7 +122,6 @@ class BoardController
             return;
         }
 
-        $before = Task::findById($id);
         $resultado = Task::transition($id, $nuevaColumnaId, $body, $currentUser);
 
         if (!$resultado['success']) {
@@ -134,7 +132,6 @@ class BoardController
             );
             return;
         }
-        RealtimeEvent::publishTask('TASK_STATUS_CHANGED', $resultado['tarea'], $currentUser, $before ?: []);
 
         Response::json([
             'tarea'   => $resultado['tarea'],
@@ -189,7 +186,6 @@ class BoardController
             'ambito'      => BoardColumn::AMBITO_AREA,
             'usuario_id'  => null
         ]);
-        RealtimeEvent::publishSystem('BOARD_COLUMN_CREATED', 'COLUMNA', (int)$nuevaColumna['id'], $currentUser);
 
         Response::json([
             'columna' => $nuevaColumna,
@@ -227,7 +223,6 @@ class BoardController
             Response::error("Columna no encontrada.", 404, 'ERR_COLUMN_NOT_FOUND');
             return;
         }
-        RealtimeEvent::publishSystem('BOARD_COLUMN_UPDATED', 'COLUMNA', $id, $currentUser);
 
         Response::json([
             'columna' => $actualizada,
@@ -260,7 +255,6 @@ class BoardController
 
         try {
             BoardColumn::delete($id);
-            RealtimeEvent::publishSystem('BOARD_COLUMN_DELETED', 'COLUMNA', $id, $currentUser);
             Response::json([
                 'mensaje' => "Columna eliminada exitosamente."
             ]);

@@ -244,26 +244,6 @@ class Database
             );
 
             CREATE INDEX IF NOT EXISTS idx_notif_usuario_leida ON notificaciones(usuario_id, leida);
-
-            CREATE TABLE IF NOT EXISTS sincronizacion_eventos (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                tipo TEXT NOT NULL,
-                entidad_tipo TEXT NOT NULL,
-                entidad_id INTEGER NOT NULL,
-                tarea_id INTEGER,
-                actor_id INTEGER,
-                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-            );
-
-            CREATE TABLE IF NOT EXISTS sincronizacion_evento_destinatarios (
-                evento_id INTEGER NOT NULL,
-                usuario_id INTEGER NOT NULL,
-                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (evento_id, usuario_id)
-            );
-
-            CREATE INDEX IF NOT EXISTS idx_sync_eventos_tarea ON sincronizacion_eventos(tarea_id);
-            CREATE INDEX IF NOT EXISTS idx_sync_destinatario_cursor ON sincronizacion_evento_destinatarios(usuario_id, evento_id);
         ");
 
         // Semilla de columnas si no existen

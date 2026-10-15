@@ -1,15 +1,5 @@
 # Registro de avances
 
-### 2026-10-15 — REALTIME-01: sincronización operativa en vivo compatible con Ferozo
-- **Estado:** completado; pendiente únicamente de prueba visual manual con dos sesiones reales antes del despliegue.
-- **Alcance:** RF-19, RN-16, RF-12, D-028.
-- **Backend:** registros de eventos/destinatarios, cursor y espera larga autenticada; publicación tras tareas, asignaciones, estados, aprobaciones, checklist, comentarios, adjuntos, dependencias, columnas y cuentas. Los eventos llevan solo metadatos y destinatarios explícitos.
-- **Cliente:** una espera larga de máximo 20 s, reconexión progresiva, actualización selectiva y estado `Actualización en vivo` en cabecera.
-- **Despliegue:** esquema y migración para Ferozo (`database/migrations/2026-10-15_realtime_sync.sql`); guía ajustada a las variables reales y al límite PHP.
-- **Pruebas:** sincronización 10/10 PASS; notificaciones 38/38 PASS; usuarios 15/15 PASS; lint PHP completo (37 archivos) PASS; endpoints sin sesión 401; raíz y módulo `realtime.js` HTTP 200; `git diff --check` PASS.
-- **Limitaciones:** Node.js no está disponible para analizar JavaScript. La batería integral queda 7/12 por cinco suites con fallos heredados: T21 de tareas, cuatro expectativas de Kanban, tres ciclos de dependencias y dos suites que llaman al Dashboard retirado; la suite nueva pasa.
-- **Siguiente paso:** en Ferozo, respaldar la BD, importar esquema o migración, confirmar `max_execution_time >= 25` y validar con dos sesiones autorizadas.
-
 ### 2026-10-15 — UI-05: patrón oscuro visible y hora solo en detalle
 - **Estado:** implementado, pendiente de validación visual manual.
 - **Alcance:** RN-07; refinamiento visual de UI-04.

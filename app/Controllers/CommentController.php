@@ -8,7 +8,6 @@ use App\Core\Response;
 use App\Core\UploadHandler;
 use App\Models\Comment;
 use App\Models\Task;
-use App\Models\RealtimeEvent;
 
 /**
  * Controlador de Comentarios, Evidencias y Archivos Adjuntos (RF-10, RN-02).
@@ -116,7 +115,6 @@ class CommentController
             $esEvidencia,
             $archivoData
         );
-        RealtimeEvent::publishTask($archivoData !== null ? 'TASK_FILE_ATTACHED' : 'TASK_COMMENT_CREATED', $task, $currentUser);
 
         Response::json([
             'comentario' => $nuevo,
