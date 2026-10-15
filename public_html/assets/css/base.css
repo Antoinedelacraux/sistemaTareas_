@@ -18,7 +18,7 @@ html[data-theme="dark"] {
 }
 
 body {
-  font-family: 'Inter', var(--font-family);
+  font-family: var(--font-family);
   background-color: var(--bg-primary);
   background-image: var(--bg-pattern);
   background-size: var(--bg-pattern-size);

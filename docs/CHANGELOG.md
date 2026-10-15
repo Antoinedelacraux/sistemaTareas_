@@ -1,5 +1,13 @@
 # Changelog
 
+## [Sin version - Optimizacion inicial Lighthouse] - 2026-10-15
+### Modificado
+- Se eliminaron las fuentes externas y la cascada CSS de importaciones del primer render.
+- El login utiliza la imagen JPEG optimizada de 785 KB, con dimensiones y prioridad de carga declaradas.
+- La carga inicial del tablero ejecuta en paralelo las consultas independientes de usuarios, columnas, tareas y aprobaciones.
+- Se anadieron compresion y politicas de cache para recursos estaticos en Apache y desarrollo local.
+- El tablero reserva espacio inicial para reducir desplazamientos de layout durante el montaje.
+
 ## [Sin versión - Patrón oscuro y hora limitada al detalle] - 2026-10-15
 ### Modificado
 - El patrón del modo oscuro ahora es visible con la misma composición de puntos y diagonales que el modo claro.

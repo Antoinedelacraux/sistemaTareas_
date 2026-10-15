@@ -96,9 +96,14 @@ document.addEventListener('DOMContentLoaded', () => {
  * Carga concurrente optimizada de datos iniciales.
  */
 async function loadInitialData() {
-    await Promise.all([fetchUsers(), fetchColumns()]);
-    await fetchTasks();
-    await fetchPendingApprovalsCount();
+    // Estas consultas son independientes; ejecutarlas juntas reduce el tiempo
+    // hasta el primer tablero completo, especialmente en hosting compartido.
+    await Promise.all([
+        fetchUsers(),
+        fetchColumns(),
+        fetchTasks(),
+        fetchPendingApprovalsCount()
+    ]);
 }
 
 /**

@@ -1,5 +1,14 @@
 # Traspaso entre sesiones (leer primero)
 
+## Actualizacion 2026-10-15 - PERF-01 implementado
+- Se retiro la dependencia de Google Fonts del primer render; el frontend usa la pila tipografica nativa ya definida en tokens.
+- Las ocho hojas CSS vigentes se cargan directamente y en paralelo desde `partials/head.html`; `app.css` ya no encadena importaciones.
+- El hero del login ahora usa `login_hero.jpg` de 785 KB en lugar del WebP de 3.1 MB, con `width`, `height`, `fetchpriority` y `decoding` declarados.
+- La carga inicial de usuarios, columnas, tareas y conteo de aprobaciones se ejecuta en paralelo. El tablero reserva altura minima para reducir CLS durante el montaje.
+- Apache y el servidor local entregan compresion/cache para recursos estaticos. Se versionaron hojas CSS y el modulo principal con `v=1.5.8`.
+- QA: PHP lint PASS; notificaciones 38/38; usuarios 15/15; HTTP 200; `git diff --check` PASS. No se pudo ejecutar Lighthouse porque no hay Chrome/Node/Lighthouse instalado.
+- Pendiente: repetir medicion Lighthouse real y verificar que el proveedor Ferozo conserve `mod_deflate`, `mod_expires` y `Cache-Control`.
+
 ## Actualización 2026-10-15 — UI-05 implementado
 - El patrón del modo oscuro ahora replica la estructura del modo claro: puntos y diagonales a 24px, con mayor contraste índigo sobre el fondo oscuro.
 - La hora de registro de la tarea ya no aparece en tarjetas Kanban, aprobaciones ni historial. Solo se muestra al abrir el detalle, en `Registrada`.

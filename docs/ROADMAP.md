@@ -34,6 +34,7 @@
 - [x] VPS-PREP-01 Empaquetado, checklist y migración lista para DonWeb Ferozo / VPS. [COMPLETADO]
 
 ## Fase 2 (Planificada - Posterior a VPS)
+- [x] PERF-01 Optimizacion inicial Lighthouse: recursos estaticos, LCP, CLS y carga inicial concurrente. [COMPLETADO; pendiente medicion con navegador real]
 Plantillas reutilizables, tareas recurrentes, tiempos de trabajo, calendario laboral.
 
 ## Módulo planificado — Gestión de Usuarios

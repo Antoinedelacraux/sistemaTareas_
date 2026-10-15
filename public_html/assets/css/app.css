@@ -13,11 +13,5 @@
  * - footer.css    : Pie de página slim corporativo, estado operativo y acceso al autodiagnóstico
  */
 
-@import './variables.css';
-@import './base.css';
-@import './header.css';
-@import './login.css';
-@import './kanban.css';
-@import './views.css';
-@import './modals.css';
-@import './footer.css';
+/* Los mÃ³dulos se cargan directamente desde partials/head.html para
+   permitir descargas paralelas y evitar importaciones encadenadas. */

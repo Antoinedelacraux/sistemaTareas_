@@ -39,6 +39,9 @@ if ($uri !== '/' && file_exists($requestedFile) && !is_dir($requestedFile)) {
         'ttf'   => 'font/ttf'
     ];
     header('Content-Type: ' . ($mimes[$ext] ?? 'application/octet-stream'));
+    if (str_starts_with($uri, '/assets/')) {
+        header('Cache-Control: public, max-age=31536000, immutable');
+    }
     readfile($requestedFile);
     return;
 }

@@ -1,5 +1,13 @@
 # Registro de avances
 
+### 2026-10-15 - PERF-01: optimizacion inicial de Lighthouse
+- **Estado:** implementado; pendiente de repetir Lighthouse en navegador real.
+- **Alcance:** RF-05, RF-07, RN-01 y RN-07.
+- **Cambios:** se eliminaron fuentes externas del primer render, se reemplazo la cascada CSS por hojas cargadas en paralelo, se redujo la imagen del login de 3.1 MB a 785 KB, se declararon sus dimensiones y prioridad de carga, se anadieron compresion/cache de estaticos para Apache y se paralelizo la carga inicial de usuarios, columnas, tareas y aprobaciones.
+- **Objetivo Lighthouse:** atacar LCP de 3.2 s y CLS de 0.323 del reporte recibido sin cambiar reglas funcionales.
+- **Pruebas:** PHP lint en PHP modificado: PASS; notificaciones 38/38 PASS; usuarios 15/15 PASS; HTTP local de raiz y assets 200; cache `max-age=31536000`; `git diff --check` PASS. Lighthouse/Chrome: no disponible en este entorno.
+- **Siguiente paso:** repetir Lighthouse con cache limpia en escritorio y movil, autenticado y sin autenticar, y comparar LCP/CLS.
+
 ### 2026-10-15 — UI-05: patrón oscuro visible y hora solo en detalle
 - **Estado:** implementado, pendiente de validación visual manual.
 - **Alcance:** RN-07; refinamiento visual de UI-04.
