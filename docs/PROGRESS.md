@@ -1,5 +1,13 @@
 # Registro de avances
 
+### 2026-10-15 — UI-03: retiro del zoom visual interno
+- **Estado:** implementado, pendiente de validación visual manual.
+- **Alcance:** RF-07, RF-10, RN-07; ajuste solicitado sobre UI-01/UI-02.
+- **Cambio:** se eliminó por completo la escala CSS interna equivalente al 80%; `.app-scale-shell` vuelve a trabajar a dimensiones normales (`100%`/`100vh`). El backdrop de los modales usa directamente todo el viewport con `inset: 0`, sin compensaciones de `125vw`, `125vh` ni `zoom`.
+- **Conservado:** la corrección del toast que evitaba `undefined`, el ensamblado que mantiene los modales fuera del shell y las mejoras de contraste del modo oscuro.
+- **Pruebas:** lint PHP, pruebas de notificaciones y usuarios, respuesta HTTP local y `git diff --check` ejecutados tras el cambio.
+- **Siguiente paso:** validar visualmente con el navegador en 100% y recarga forzada.
+
 ### 2026-10-15 — UI-02: toast de creación, escala aislada y overlay de tareas
 - **Estado:** implementado, pendiente de validación visual manual.
 - **Alcance:** RF-04, RF-07, RF-10, RN-07; corrección de regresión introducida por la escala visual UI-01.

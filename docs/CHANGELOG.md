@@ -1,5 +1,11 @@
 # Changelog
 
+## [Sin versión - Retiro del zoom visual interno] - 2026-10-15
+### Modificado
+- Se eliminó la escala CSS interna equivalente al 80%; la interfaz vuelve a sus dimensiones normales.
+- El sombreado de modales usa el viewport completo sin compensaciones de escala.
+- Se conserva la corrección del toast de creación y el contraste revisado del modo oscuro.
+
 ## [Sin versión - Corrección de creación y overlays con escala 80%] - 2026-10-15
 ### Corregido
 - El toast de creación ya no muestra `undefined`: utiliza el código devuelto en `data.tarea.codigo` y cuenta con un mensaje de respaldo.

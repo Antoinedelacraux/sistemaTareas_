@@ -1,5 +1,12 @@
 # Traspaso entre sesiones (leer primero)
 
+## Actualización 2026-10-15 — UI-03 implementado
+- Se retiró por completo el zoom visual interno equivalente al 80%; `.app-scale-shell` conserva únicamente el layout normal de la aplicación.
+- El backdrop de los modales volvió a cubrir el viewport con `inset: 0`, sin `zoom: 0.8` ni dimensiones compensadas. Se conserva el ensamblado que deja los modales como hijos directos de `body`.
+- Se mantienen la corrección del toast de creación y las mejoras de contraste del modo oscuro.
+- Validación técnica ejecutada: lint PHP completo, notificaciones 38/38, usuarios 15/15, HTTP local 200, estructura HTML presente, toast corregido y ninguna regla activa de zoom.
+- Siguiente paso: recargar con `Ctrl + F5` y comprobar tablero, Usuarios, aprobaciones, modal de tarea y ambos temas con el navegador al 100%.
+
 ## Actualización 2026-10-15 — UI-02 implementado
 - Corregido el toast de creación: el backend responde la tarea en `data.tarea`, por lo que el frontend ya no intenta leer `data.codigo`. Si el API no entrega código, muestra `¡Tarea creada exitosamente!` sin interpolar `undefined`.
 - La escala 80% dejó de aplicarse al `body`. `#app-scale-shell` contiene header, barra, vistas y footer; los modales quedan como hijos directos del `body` para que `position: fixed` se mida contra el viewport completo.
