@@ -48,7 +48,7 @@ export async function loadHistoryTasks() {
             if (container) {
                 container.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 2rem; color: #ef4444;">
+                        <td colspan="7" style="text-align: center; padding: 2rem; color: var(--status-danger-text);">
                             ${escapeHtml(json.error?.message || 'No se pudo cargar el historial.')}
                         </td>
                     </tr>
@@ -144,13 +144,13 @@ export function renderHistoryTable(tasks) {
                 <td>${tipoBadge}</td>
                 <td>
                     ${t.cumplida_en_plazo === true
-                        ? '<span class="badge" style="background: #dcfce7; color: #166534;">En plazo</span>'
+                        ? '<span class="badge badge-status-success">En plazo</span>'
                         : t.cumplida_en_plazo === false
-                            ? '<span class="badge" style="background: #fee2e2; color: #b91c1c;">Fuera de plazo</span>'
+                            ? '<span class="badge badge-status-danger">Fuera de plazo</span>'
                             : '<span style="font-size: 0.75rem; color: var(--text-muted);">Sin fecha límite</span>'}
                 </td>
                 <td>
-                    <div style="font-size: 0.8rem; font-weight: 600; color: #059669;">
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--status-success-text);">
                         ${formatDate(t.fecha_finalizada)}
                     </div>
                     <div style="font-size: 0.7rem; color: var(--text-muted);">

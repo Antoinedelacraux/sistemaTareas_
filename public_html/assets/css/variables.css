@@ -15,8 +15,25 @@
   --border-strong: #cbd5e1;
   --text-main: #0f172a;
   --text-muted: #64748b;
-  --text-subtle: #94a3b8;
+  --text-subtle: #64748b;
   --text-inverse: #ffffff;
+  --primary-400: #818cf8;
+  --primary-text: #3730a3;
+  --primary-text-hover: #312e81;
+
+  /* Estados usados como texto o fondo, con contraste AA */
+  --status-success-text: #047857;
+  --status-success-solid: #047857;
+  --status-success-bg: #ecfdf5;
+  --status-success-border: #a7f3d0;
+  --status-warning-text: #b45309;
+  --status-warning-bg: #fffbeb;
+  --status-warning-border: #fcd34d;
+  --status-danger-text: #b91c1c;
+  --status-danger-solid: #b91c1c;
+  --status-danger-bg: #fff1f2;
+  --status-danger-border: #fecdd3;
+  --status-info-text: #1d4ed8;
 
   /* Color de Marca y Acciones Primarias */
   --primary-500: #4f46e5;       /* Índigo */
@@ -75,7 +92,23 @@
   --border-strong: #374151;
   --text-main: #f9fafb;
   --text-muted: #9ca3af;
-  --text-subtle: #6b7280;
+  --text-subtle: #94a3b8;
+  --primary-400: #a5b4fc;
+  --primary-text: #a5b4fc;
+  --primary-text-hover: #c7d2fe;
+
+  --status-success-text: #6ee7b7;
+  --status-success-solid: #047857;
+  --status-success-bg: #064e3b;
+  --status-success-border: #10b981;
+  --status-warning-text: #fcd34d;
+  --status-warning-bg: #451a03;
+  --status-warning-border: #f59e0b;
+  --status-danger-text: #fda4af;
+  --status-danger-solid: #b91c1c;
+  --status-danger-bg: #4c0519;
+  --status-danger-border: #fb7185;
+  --status-info-text: #93c5fd;
   --primary-subtle: #1e1b4b;
 
   --status-pending-bg: #1e293b;

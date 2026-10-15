@@ -60,7 +60,7 @@
   padding: 0.15rem 0.55rem;
   border-radius: 9999px;
   background-color: rgba(99, 102, 241, 0.12);
-  color: var(--primary-600);
+  color: var(--primary-text);
   border: 1px solid rgba(99, 102, 241, 0.25);
   text-decoration: none;
   transition: all var(--transition-fast);

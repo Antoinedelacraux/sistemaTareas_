@@ -273,7 +273,7 @@ export function renderSubtasksList(subtasks, isClosed = false) {
                 <span>${escapeHtml(sub.titulo)}</span>
             </div>
             ${!isClosed ? `
-            <button class="btn-close" style="font-size: 1rem; color: #ef4444;" aria-label="Eliminar subtarea" onclick="deleteSubtask(${sub.id})" title="Eliminar subtarea">&times;</button>
+            <button class="btn-close" style="font-size: 1rem; color: var(--status-danger-text);" aria-label="Eliminar subtarea" onclick="deleteSubtask(${sub.id})" title="Eliminar subtarea">&times;</button>
             ` : ''}
         `;
         list.appendChild(item);
@@ -529,7 +529,7 @@ export function renderDependenciesSection(task, depData) {
                             ${isFinalizada ? 'FINALIZADA' : 'PENDIENTE'}
                         </span>
                         ${isJefe ? `
-                        <button class="btn-close" style="font-size: 0.9rem; color: #ef4444;" aria-label="Desvincular dependencia" onclick="removeDependency(${task.id}, ${p.id})" title="Desvincular dependencia">&times;</button>
+                        <button class="btn-close" style="font-size: 0.9rem; color: var(--status-danger-text);" aria-label="Desvincular dependencia" onclick="removeDependency(${task.id}, ${p.id})" title="Desvincular dependencia">&times;</button>
                         ` : ''}
                     </div>
                 `;
@@ -682,7 +682,7 @@ export function renderAuditTimeline(events) {
         const actionBadges = {
             'CREAR': '<span class="badge badge-tipo-area" style="font-size: 0.7rem;">CREACIÓN</span>',
             'TRANSICIONAR': '<span class="badge badge-prioridad-BAJA" style="font-size: 0.7rem;">TRANSICIÓN</span>',
-            'APROBAR': '<span class="badge" style="background-color: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; font-size: 0.7rem;">APROBADO</span>',
+            'APROBAR': '<span class="badge badge-status-success" style="font-size: 0.7rem;">APROBADO</span>',
             'DEVOLVER': '<span class="badge badge-prioridad-URGENTE" style="font-size: 0.7rem;">DEVUELTO</span>',
             'SOLICITAR_APROBACION': '<span class="badge badge-prioridad-MEDIA" style="font-size: 0.7rem;">REVISIÓN</span>',
             'REASIGNAR': '<span class="badge badge-prioridad-ALTA" style="font-size: 0.7rem;">REASIGNACIÓN</span>',

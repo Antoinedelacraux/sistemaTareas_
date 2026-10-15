@@ -1,5 +1,12 @@
 # Traspaso entre sesiones (leer primero)
 
+## Actualización 2026-10-15 — UI-01 implementado
+- La página aplica una escala visual predeterminada equivalente al 80% mediante `body { zoom: 0.8; }` dentro de `@supports`; esto replica la composición preferida del tablero sin usar transformaciones que desplacen o desincronicen los elementos interactivos.
+- Se auditó el modo oscuro y se corrigieron contrastes en botones de éxito/peligro, enlaces primarios, textos secundarios, placeholders, alertas de devolución, badges dinámicos, historial, notificaciones, tarjetas vencidas y foco visible. Los tokens semánticos separan color de texto, fondo, borde y fondo sólido de botón.
+- Verificación: `/` y `assets/css/app.css` responden HTTP 200; `php tests/notifications_automation_test.php` 38/38 PASS; `php tests/user_management_test.php` 15/15 PASS; lint PHP completo PASS; `git diff --check` PASS.
+- La batería integral sigue reportando fallos heredados no causados por este avance: permisos esperados antiguos en `tasks_test.php`/`kanban_test.php`, ciclos en `dependencies_test.php` y llamadas a `DashboardService::getMetrics()` retirado en dashboard/QA.
+- Pendiente: recarga visual manual con `Ctrl + F5` a 100% de zoom del navegador; validar tablero, Usuarios, modal, notificaciones y tema oscuro. No usar 80% del navegador durante esta comprobación para evitar doble escala.
+
 ## Actualización 2026-10-15 — MVP-08-NOTIF-01 completado
 - El enrutamiento de notificaciones fue verificado y ajustado por rol. `APROBACION_SOLICITADA` llega a todas las cuentas activas de `JEFE_PLANEAMIENTO` y `JEFE_PERSONAL`; no llega a Asistentes.
 - El motor filtra cuentas inactivas y roles obsoletos antes de persistir cualquier aviso. `Approval::solicitar` rechaza un Asistente como revisor.

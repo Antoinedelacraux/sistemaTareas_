@@ -1,5 +1,14 @@
 # Registro de avances
 
+### 2026-10-15 — UI-01: escala visual predeterminada y contraste del modo oscuro
+- **Estado:** implementado, pendiente de validación visual final en navegador.
+- **Alcance:** RF-07, RN-07 y consistencia transversal de la interfaz.
+- **Decisión aplicada:** la página usa una escala visual CSS de `0.8`, equivalente al zoom preferido del usuario, sin modificar el zoom real del navegador. Se eligió `zoom` en el `body` porque conserva el flujo, el comportamiento responsive y la interacción de modales mejor que un `transform: scale()` global.
+- **Contraste:** se añadieron tokens para texto primario/secundario, estados informativos, éxito, advertencia y peligro; se corrigieron botones, badges, alertas de devolución, estados del historial, iconos de notificación, tarjetas vencidas, controles de columnas y estados de foco. El texto secundario oscuro dejó de usar `#6b7280`, que no alcanzaba AA en fondos oscuros.
+- **Pruebas:** `php tests/notifications_automation_test.php`: 38/38 PASS; `php tests/user_management_test.php`: 15/15 PASS; lint PHP completo: PASS; `git diff --check`: PASS; entrega local `/` y `assets/css/app.css`: HTTP 200. La batería integral conserva fallos heredados no relacionados con CSS/UI (`tasks_test.php`, `kanban_test.php`, `dependencies_test.php` y llamadas a `DashboardService::getMetrics()` retirado).
+- **Archivos principales:** `public_html/assets/css/variables.css`, `base.css`, `header.css`, `kanban.css`, `views.css`, `modals.css`, `footer.css`, `login.css`, `public_html/assets/js/modules/approvals.js`, `history.js`, `task-modal.js`, `notifications.js`, `ui.js`.
+- **Limitación:** si el usuario fija además el zoom del navegador manualmente en 80%, ambas escalas se acumularán; el ajuste implementado es el predeterminado visual de la página y no puede cambiar la preferencia del navegador.
+
 ### 2026-10-15 — MVP-08-NOTIF-01: verificación y precisión de destinatarios por rol
 - **Estado:** completado.
 - **Alcance:** RF-17, RN-15, D-020; seguridad de autorización de notificaciones.

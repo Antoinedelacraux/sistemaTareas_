@@ -143,7 +143,7 @@
   position: absolute;
   top: -4px;
   right: -4px;
-  background-color: #ef4444;
+  background-color: var(--status-danger-solid);
   color: #ffffff;
   font-size: 0.68rem;
   font-weight: 700;
@@ -196,14 +196,14 @@
   border: none;
   padding: 0;
   font-size: 0.75rem;
-  color: var(--primary-600);
+  color: var(--primary-text);
   cursor: pointer;
   text-decoration: underline;
   font-weight: 500;
 }
 
 .notif-mark-all-btn:hover {
-  color: var(--primary-700);
+  color: var(--primary-text-hover);
 }
 
 .notif-items-list {
@@ -239,6 +239,22 @@
   line-height: 1;
   flex-shrink: 0;
   margin-top: 2px;
+}
+
+.notification-icon-success {
+  color: var(--status-success-text);
+}
+
+.notification-icon-warning {
+  color: var(--status-warning-text);
+}
+
+.notification-icon-info {
+  color: var(--status-info-text);
+}
+
+.notification-icon-danger {
+  color: var(--status-danger-text);
 }
 
 .notif-item-content {
@@ -318,7 +334,7 @@
 
 .tab-btn.active {
   background-color: var(--bg-surface);
-  color: var(--primary-500);
+  color: var(--primary-text);
   box-shadow: var(--shadow-sm);
 }
 

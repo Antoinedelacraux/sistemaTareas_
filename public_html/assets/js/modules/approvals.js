@@ -55,12 +55,12 @@ export function renderApprovalBox(task, approvals) {
     // Regla RN-12: Si fue devuelta previamente, visibilizar observaciones de forma prominente
     if (ultimaDevuelta && task.estado !== 'FINALIZADA') {
         html += `
-            <div style="background-color: #fee2e2; border: 1px solid #f87171; border-radius: var(--radius-sm); padding: 0.6rem 0.75rem; margin-bottom: 0.75rem;">
-                <div style="font-size: 0.75rem; font-weight: 700; color: #b91c1c; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.35rem;">
+            <div class="approval-returned-notice" style="border-radius: var(--radius-sm); padding: 0.6rem 0.75rem; margin-bottom: 0.75rem;">
+                <div class="approval-returned-title" style="font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.35rem;">
                     <svg class="icon-svg icon-svg-sm" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                     <span>Observaciones de Devolución (${formatDate(ultimaDevuelta.resolved_at)}):</span>
                 </div>
-                <div style="font-size: 0.8rem; color: #7f1d1d; white-space: pre-wrap;">${escapeHtml(ultimaDevuelta.observaciones)}</div>
+                <div class="approval-returned-body" style="font-size: 0.8rem; white-space: pre-wrap;">${escapeHtml(ultimaDevuelta.observaciones)}</div>
             </div>
         `;
     }
@@ -96,7 +96,7 @@ export function renderApprovalBox(task, approvals) {
     } else if (task.estado === 'FINALIZADA') {
         box.className = 'approval-detail-box approved';
         html += `
-            <p style="font-size: 0.8rem; color: #065f46; margin: 0; display: flex; align-items: center; gap: 0.35rem;">
+            <p class="approval-approved-message" style="font-size: 0.8rem; margin: 0; display: flex; align-items: center; gap: 0.35rem;">
                 <svg class="icon-svg icon-svg-sm" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                 <span>Tarea validada y aprobada formalmente. Ciclo completado satisfactoriamente.</span>
             </p>

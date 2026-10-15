@@ -281,7 +281,7 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  color: var(--primary-500);
+  color: var(--primary-text);
   font-weight: 600;
 }
 
@@ -304,11 +304,11 @@
 }
 
 .dependency-item.completed {
-  border-left: 3px solid #10b981;
+  border-left: 3px solid var(--status-success-border);
 }
 
 .dependency-item.pending {
-  border-left: 3px solid #f59e0b;
+  border-left: 3px solid var(--status-warning-border);
 }
 
 .dependency-info {
@@ -325,7 +325,7 @@
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--primary-600);
+  color: var(--primary-text);
 }
 
 .dependency-title {
@@ -383,11 +383,11 @@
 }
 
 .toast-success {
-  border-left: 4px solid #059669;
+  border-left: 4px solid var(--status-success-border);
 }
 
 .toast-error {
-  border-left: 4px solid #e11d48;
+  border-left: 4px solid var(--status-danger-border);
 }
 
 @keyframes slideIn {

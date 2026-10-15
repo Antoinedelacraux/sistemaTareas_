@@ -102,15 +102,29 @@
 }
 
 .approval-detail-box.pending {
-  border-left: 4px solid #f59e0b;
+  border-left: 4px solid var(--status-warning-border);
 }
 
 .approval-detail-box.approved {
-  border-left: 4px solid #10b981;
+  border-left: 4px solid var(--status-success-border);
 }
 
 .approval-detail-box.returned {
-  border-left: 4px solid #ef4444;
+  border-left: 4px solid var(--status-danger-border);
+}
+
+.approval-returned-notice {
+  background-color: var(--status-danger-bg);
+  border: 1px solid var(--status-danger-border);
+}
+
+.approval-returned-title,
+.approval-returned-body {
+  color: var(--status-danger-text);
+}
+
+.approval-approved-message {
+  color: var(--status-success-text);
 }
 
 /* Historial de Tareas y Tablas */
@@ -207,21 +221,21 @@
   border-left: 4px solid var(--status-done);
 }
 .kpi-card.kpi-success .kpi-value {
-  color: var(--status-done);
+  color: var(--status-success-text);
 }
 
 .kpi-card.kpi-warning {
   border-left: 4px solid var(--status-review);
 }
 .kpi-card.kpi-warning .kpi-value {
-  color: #d97706;
+  color: var(--status-warning-text);
 }
 
 .kpi-card.kpi-danger {
   border-left: 4px solid var(--status-blocked);
 }
 .kpi-card.kpi-danger .kpi-value {
-  color: #dc2626;
+  color: var(--status-danger-text);
 }
 
 /* Barras de Distribución */

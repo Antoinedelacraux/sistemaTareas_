@@ -1,5 +1,12 @@
 # Changelog
 
+## [Sin versión - Escala visual y contraste del tema oscuro] - 2026-10-15
+### Modificado
+- La interfaz aplica una escala visual predeterminada equivalente al 80% del navegador mediante `zoom`, manteniendo el flujo responsive y la interacción de los modales.
+- Se reforzaron los tokens de color para modo oscuro y se corrigieron textos secundarios, enlaces, botones semánticos, placeholders, foco visible, badges y estados dinámicos generados por JavaScript.
+- Las alertas de devolución, estados del historial, iconos de notificación y tarjetas vencidas ahora cambian correctamente entre temas sin conservar fondos claros ilegibles en oscuro.
+- Se separaron los colores claros de texto de los colores sólidos usados en botones, evitando texto blanco con contraste insuficiente sobre verdes claros.
+
 ## [Sin versión - Enrutamiento preciso de notificaciones] - 2026-10-15
 ### Modificado
 - Las solicitudes de aprobación se notifican a todas las cuentas activas con rol `JEFE_PLANEAMIENTO` o `JEFE_PERSONAL`, porque ambas Jefaturas tienen autorización para resolverlas.

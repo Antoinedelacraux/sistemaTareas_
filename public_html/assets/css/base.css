@@ -9,6 +9,14 @@
   padding: 0;
 }
 
+html {
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
 body {
   font-family: 'Inter', var(--font-family);
   background-color: var(--bg-primary);
@@ -21,6 +29,13 @@ body {
   display: flex;
   flex-direction: column;
   transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* Escala visual predeterminada equivalente al zoom de navegador preferido (80%). */
+@supports (zoom: 0.8) {
+  body {
+    zoom: 0.8;
+  }
 }
 
 /* Iconos SVG Vectoriales */
@@ -113,7 +128,7 @@ body {
 }
 
 .btn-danger {
-  background-color: #e11d48;
+  background-color: var(--status-danger-solid);
   color: #ffffff;
 }
 
@@ -122,12 +137,12 @@ body {
 }
 
 .btn-success {
-  background-color: #059669;
+  background-color: var(--status-success-solid);
   color: #ffffff;
 }
 
 .btn-success:hover {
-  background-color: #047857;
+  background-color: #065f46;
 }
 
 /* Badges Base */
@@ -207,6 +222,19 @@ body {
   border-color: #991b1b;
 }
 
+/* Estados reutilizables para contenido generado dinámicamente. */
+.badge-status-success {
+  background-color: var(--status-success-bg);
+  color: var(--status-success-text);
+  border: 1px solid var(--status-success-border);
+}
+
+.badge-status-danger {
+  background-color: var(--status-danger-bg);
+  color: var(--status-danger-text);
+  border: 1px solid var(--status-danger-border);
+}
+
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.8; }
@@ -243,9 +271,19 @@ body {
   transition: border-color var(--transition-fast);
 }
 
+::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
 .form-input:focus, .form-textarea:focus, .form-select:focus {
   border-color: var(--primary-500);
   box-shadow: 0 0 0 2px var(--primary-subtle);
+}
+
+:where(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid var(--primary-400);
+  outline-offset: 2px;
 }
 
 .form-help {
