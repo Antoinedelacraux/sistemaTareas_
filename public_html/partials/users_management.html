@@ -1,0 +1,43 @@
+<!-- Gestión de Usuarios: exclusiva de Jefatura -->
+<div id="users-management-view" style="display: none;">
+    <div class="view-header-bar">
+        <div>
+            <h2 class="view-title">Gestión de Usuarios</h2>
+            <p class="view-subtitle">Administra cuentas, roles y estado de acceso sin afectar la operación del tablero.</p>
+        </div>
+        <button id="btn-create-managed-user" class="btn btn-primary" type="button">
+            <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="11" cy="7" r="4"></circle><path d="M19 8v6"></path><path d="M22 11h-6"></path></svg>
+            <span>Nueva cuenta</span>
+        </button>
+    </div>
+
+    <div class="section-box" style="margin-bottom: 1.25rem; padding: 1rem;">
+        <div class="users-management-filters">
+            <div class="search-input-wrapper">
+                <svg class="search-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="search" id="users-management-search" class="search-input" placeholder="Buscar por nombre, correo o código" aria-label="Buscar usuarios">
+            </div>
+            <select id="users-management-role" class="select-filter" aria-label="Filtrar por rol">
+                <option value="">Todos los roles</option>
+                <option value="ASISTENTE">Asistente</option>
+                <option value="JEFE_PERSONAL">Jefe de Personal</option>
+                <option value="JEFE_PLANEAMIENTO">Jefe de Área</option>
+            </select>
+            <select id="users-management-status" class="select-filter" aria-label="Filtrar por estado">
+                <option value="">Solo activos</option>
+                <option value="1">Activos</option>
+                <option value="0">Inactivos</option>
+                <option value="todos">Todos los estados</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="section-box" style="padding: 0; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="history-table users-management-table">
+                <thead><tr><th>Código</th><th>Usuario</th><th>Rol</th><th>Estado</th><th>Creado</th><th style="text-align: right;">Acciones</th></tr></thead>
+                <tbody id="users-management-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>

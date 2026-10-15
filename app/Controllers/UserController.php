@@ -57,6 +57,12 @@ class UserController
             return;
         }
 
+        $user = User::findById($targetId);
+        if ($user === null && User::isJefe($currentUser)) {
+            Response::error("Usuario no encontrado.", 404, 'ERR_USER_NOT_FOUND');
+            return;
+        }
+
         // Validación de permisos por alcance (Anti-IDOR)
         if (!User::canViewUser($currentUser, $targetId)) {
             Response::error(
@@ -64,12 +70,6 @@ class UserController
                 403,
                 'ERR_FORBIDDEN_USER_ACCESS'
             );
-            return;
-        }
-
-        $user = User::findById($targetId);
-        if ($user === null) {
-            Response::error("Usuario no encontrado.", 404, 'ERR_USER_NOT_FOUND');
             return;
         }
 
@@ -113,67 +113,4 @@ class UserController
         ]);
     }
 
-    /**
-     * Registra un nuevo usuario en el sistema.
-     * Restringido a Jefaturas (RF-02, RN-04).
-     * POST /api/usuarios
-     */
-    public function create(array $request): void
-    {
-        $currentUser = $request['user'] ?? null;
-        if (!$currentUser) {
-            Response::error("Autenticación requerida.", 401, 'ERR_UNAUTHORIZED');
-            return;
-        }
-
-        if (!User::isJefe($currentUser)) {
-            Response::error("Solo el personal de Jefatura está autorizado para registrar nuevos usuarios.", 403, 'ERR_FORBIDDEN_ACTION');
-            return;
-        }
-
-        $body = $request['body'] ?? [];
-        $nombre = trim((string)($body['nombre'] ?? ''));
-        $email = strtolower(trim((string)($body['email'] ?? '')));
-        $rol = strtoupper(trim((string)($body['rol'] ?? 'ASISTENTE')));
-        $cargo = trim((string)($body['cargo'] ?? 'Asistente Operativo'));
-        $password = (string)($body['password'] ?? 'Planeamiento2026!');
-
-        if ($nombre === '' || mb_strlen($nombre) > 100) {
-            Response::error("El nombre completo es obligatorio y debe tener como máximo 100 caracteres.", 422, 'ERR_VALIDATION_FAILED');
-            return;
-        }
-
-        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            Response::error("El correo institucional proporcionado no es válido.", 422, 'ERR_VALIDATION_FAILED');
-            return;
-        }
-
-        if (User::findByEmail($email) !== null) {
-            Response::error("Ya existe un usuario registrado con el correo '{$email}'.", 409, 'ERR_DUPLICATE_EMAIL');
-            return;
-        }
-
-        if (!in_array($rol, [User::ROL_ASISTENTE, User::ROL_JEFE_PLANEAMIENTO, User::ROL_JEFE_PERSONAL], true)) {
-            Response::error("El rol especificado no es válido.", 422, 'ERR_VALIDATION_FAILED');
-            return;
-        }
-
-        if (strlen($password) < 6) {
-            Response::error("La contraseña inicial debe tener al menos 6 caracteres.", 422, 'ERR_VALIDATION_FAILED');
-            return;
-        }
-
-        $nuevoUsuario = User::create([
-            'nombre'   => $nombre,
-            'email'    => $email,
-            'rol'      => $rol,
-            'cargo'    => $cargo,
-            'password' => $password
-        ]);
-
-        Response::json([
-            'usuario' => $nuevoUsuario,
-            'mensaje' => "Usuario '{$nuevoUsuario['nombre']}' registrado exitosamente."
-        ], 201);
-    }
 }

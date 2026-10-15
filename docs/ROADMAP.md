@@ -37,7 +37,7 @@
 Plantillas reutilizables, tareas recurrentes, tiempos de trabajo, calendario laboral.
 
 ## Módulo planificado — Gestión de Usuarios
-- [ ] USERS-MGMT-01 Implementar módulo exclusivo de Jefatura para listar, crear, editar, activar/desactivar cuentas y administrar roles. Diseño aprobado en `docs/USER_MANAGEMENT_MODULE.md`. [PENDIENTE]
+- [x] USERS-MGMT-01 Implementar módulo exclusivo de Jefatura para listar, crear, editar, activar/desactivar cuentas y administrar roles. Incluye la restricción puntual: Jefe de Personal no puede desactivar cuentas con rol Jefe de Área. [COMPLETADO]
 
 ## Fase 3
 Indicadores avanzados, exportaciones Excel, reglas avanzadas de automatización.

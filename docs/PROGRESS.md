@@ -1,5 +1,15 @@
 # Registro de avances
 
+### 2026-10-14 — USERS-MGMT-01: módulo aislado de gestión de usuarios
+- **Estado:** completado.
+- **Alcance:** RF-02, RF-14, RN-12, D-027.
+- **Cambios:** se sustituyó el botón aislado de usuarios por una pestaña exclusiva de Jefatura, con listado filtrable, alta, edición, asignación de rol, activación/desactivación y cambio manual de contraseña. La administración usa exclusivamente `/api/gestion-usuarios/*`; `/api/usuarios` queda limitado al directorio de responsables y validación de asignaciones de tareas.
+- **Autorización:** ambos roles de Jefatura pueden administrar cuentas. El backend bloquea con `403 ERR_HIERARCHY_PROTECTED` solo el intento de un Jefe de Personal de desactivar una cuenta con rol Jefe de Área. La interfaz anticipa el bloqueo sin sustituir la validación servidor.
+- **Seguridad:** no se devuelve ni audita contraseñas; se usa hash BCrypt. Desactivar una cuenta, cambiar su contraseña o cambiar su rol invalida todas sus sesiones activas.
+- **Pruebas:** `php -l` en backend y prueba nueva: PASS; `php tests/user_management_test.php`: 15/15 PASS; `php tests/users_test.php`: 23/23 PASS; `git diff --check`: PASS. La suite integral conserva fallos heredados ajenos en tareas, Kanban, dependencias y pruebas que invocan un Dashboard ya retirado.
+- **Archivos principales:** `app/Controllers/UserManagementController.php`, `app/Models/User.php`, `app/Models/Session.php`, `public_html/partials/users_management.html`, `public_html/assets/js/modules/users-management.js`, `tests/user_management_test.php`; arquitectura actualizada en `docs/ARCHITECTURE.md`.
+- **Limitación:** la validación visual final en navegador sigue pendiente; no se modificó la copia histórica `public_html/index.html`, pues Apache sirve `index.php` y sus partials vigentes.
+
 ### 2026-10-14 — CICLO-01: cierre, archivo y vencimientos
 - **Estado:** completado.
 - **Alcance:** RF-05, RF-07, RF-13; RN-04, RN-05, RN-08 y RN-09.

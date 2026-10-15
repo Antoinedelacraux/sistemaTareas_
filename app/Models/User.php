@@ -60,6 +60,11 @@ class User
         return in_array($user['rol'] ?? '', [self::ROL_JEFE_PERSONAL, self::ROL_JEFE_PLANEAMIENTO], true);
     }
 
+    public static function validRoles(): array
+    {
+        return [self::ROL_ASISTENTE, self::ROL_JEFE_PERSONAL, self::ROL_JEFE_PLANEAMIENTO];
+    }
+
     /**
      * Verifica la contraseña usando password_verify de PHP.
      */
@@ -98,7 +103,9 @@ class User
         $params = [];
 
         // Filtro por estado activo (por defecto solo usuarios activos)
-        if (isset($filters['activo'])) {
+        if (!empty($filters['incluir_inactivos'])) {
+            // El módulo administrativo solicitó expresamente ambos estados.
+        } elseif (isset($filters['activo'])) {
             $sql .= " AND activo = :activo";
             $params[':activo'] = (int)$filters['activo'];
         } else {
@@ -253,5 +260,49 @@ class User
         $id = (int)$db->lastInsertId();
         $user = self::findById($id);
         return self::formatPublic($user);
+    }
+
+    /** Actualiza datos no sensibles de una cuenta desde el módulo administrativo. */
+    public static function updateManagement(int $id, array $data): ?array
+    {
+        $current = self::findById($id);
+        if ($current === null) return null;
+
+        $db = Database::getConnection();
+        $stmt = $db->prepare(
+            'UPDATE usuarios
+             SET nombre = :nombre, email = :email, rol = :rol, cargo = :cargo, updated_at = :updated_at
+             WHERE id = :id'
+        );
+        $stmt->execute([
+            ':id' => $id,
+            ':nombre' => trim((string)$data['nombre']),
+            ':email' => strtolower(trim((string)$data['email'])),
+            ':rol' => strtoupper(trim((string)$data['rol'])),
+            ':cargo' => trim((string)$data['cargo']),
+            ':updated_at' => gmdate('Y-m-d H:i:s')
+        ]);
+
+        return self::findById($id);
+    }
+
+    public static function setActive(int $id, bool $active): ?array
+    {
+        if (self::findById($id) === null) return null;
+        $db = Database::getConnection();
+        $stmt = $db->prepare('UPDATE usuarios SET activo = :activo, updated_at = :updated_at WHERE id = :id');
+        $stmt->execute([':id' => $id, ':activo' => $active ? 1 : 0, ':updated_at' => gmdate('Y-m-d H:i:s')]);
+        return self::findById($id);
+    }
+
+    public static function changePassword(int $id, string $password): bool
+    {
+        $db = Database::getConnection();
+        $stmt = $db->prepare('UPDATE usuarios SET password_hash = :password_hash, updated_at = :updated_at WHERE id = :id');
+        return $stmt->execute([
+            ':id' => $id,
+            ':password_hash' => password_hash($password, PASSWORD_BCRYPT),
+            ':updated_at' => gmdate('Y-m-d H:i:s')
+        ]);
     }
 }

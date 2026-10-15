@@ -33,6 +33,7 @@ $router->get('/api/test-runner', [\App\Controllers\TestRunnerController::class, 
 use App\Controllers\AuthController;
 use App\Controllers\TaskController;
 use App\Controllers\UserController;
+use App\Controllers\UserManagementController;
 use App\Core\Middleware\AuthMiddleware;
 
 $router->post('/api/auth/login', [AuthController::class, 'login']);
@@ -44,8 +45,16 @@ $router->get('/api/auth/me', [AuthController::class, 'me'], [AuthMiddleware::cla
 // -----------------------------------------------------------------------------
 $router->get('/api/usuarios', [UserController::class, 'index'], [AuthMiddleware::class]);
 $router->get('/api/usuarios/{id}', [UserController::class, 'show'], [AuthMiddleware::class]);
-$router->post('/api/usuarios', [UserController::class, 'create'], [AuthMiddleware::class]);
 $router->post('/api/usuarios/validar-asignacion', [UserController::class, 'validateAssignment'], [AuthMiddleware::class]);
+
+// Gestión administrativa aislada de cuentas y roles (solo Jefatura)
+$router->get('/api/gestion-usuarios', [UserManagementController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/api/gestion-usuarios/roles', [UserManagementController::class, 'roles'], [AuthMiddleware::class]);
+$router->get('/api/gestion-usuarios/{id}', [UserManagementController::class, 'show'], [AuthMiddleware::class]);
+$router->post('/api/gestion-usuarios', [UserManagementController::class, 'create'], [AuthMiddleware::class]);
+$router->put('/api/gestion-usuarios/{id}', [UserManagementController::class, 'update'], [AuthMiddleware::class]);
+$router->patch('/api/gestion-usuarios/{id}/estado', [UserManagementController::class, 'changeStatus'], [AuthMiddleware::class]);
+$router->post('/api/gestion-usuarios/{id}/cambiar-password', [UserManagementController::class, 'changePassword'], [AuthMiddleware::class]);
 
 // -----------------------------------------------------------------------------
 // Rutas de Tareas CRUD y Ámbito por Servidor (MVP-03)
@@ -144,6 +153,14 @@ $router->get('/api', function () {
                 'list'    => 'GET /api/usuarios',
                 'detail'  => 'GET /api/usuarios/{id}',
                 'validar' => 'POST /api/usuarios/validar-asignacion'
+            ],
+            'gestion_usuarios' => [
+                'list'     => 'GET /api/gestion-usuarios',
+                'create'   => 'POST /api/gestion-usuarios',
+                'detail'   => 'GET /api/gestion-usuarios/{id}',
+                'update'   => 'PUT /api/gestion-usuarios/{id}',
+                'status'   => 'PATCH /api/gestion-usuarios/{id}/estado',
+                'password' => 'POST /api/gestion-usuarios/{id}/cambiar-password'
             ],
             'tareas' => [
                 'list'       => 'GET /api/tareas',

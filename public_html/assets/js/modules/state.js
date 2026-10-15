@@ -8,7 +8,7 @@ export const STATE = {
     users: [],
     columns: [],
     tasks: [],
-    currentScope: 'area', // 'area' (único tablero oficial) | 'approvals' | 'history'
+    currentScope: 'area', // 'area' (único tablero oficial) | 'approvals' | 'history' | 'users'
     searchQuery: '',
     priorityFilter: '',
     memberFilter: '',

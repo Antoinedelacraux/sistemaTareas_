@@ -315,3 +315,19 @@
   padding: 0.5rem 0.65rem;
   margin-top: 0.25rem;
 }
+
+.users-management-filters,
+.users-management-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.users-management-filters .search-input-wrapper {
+  flex: 1 1 280px;
+}
+
+.users-management-actions {
+  justify-content: flex-end;
+}

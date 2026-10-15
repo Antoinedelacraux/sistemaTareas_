@@ -80,4 +80,14 @@ class Session
         $stmt = $db->prepare("DELETE FROM sesiones WHERE token_hash = :token_hash");
         return $stmt->execute([':token_hash' => $tokenHash]);
     }
+
+    /**
+     * Invalida todas las sesiones de una cuenta al desactivarla o cambiar su contraseña.
+     */
+    public static function invalidateForUser(int $userId): bool
+    {
+        $db = Database::getConnection();
+        $stmt = $db->prepare('DELETE FROM sesiones WHERE usuario_id = :usuario_id');
+        return $stmt->execute([':usuario_id' => $userId]);
+    }
 }

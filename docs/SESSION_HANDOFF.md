@@ -1,5 +1,11 @@
 # Traspaso entre sesiones (leer primero)
 
+## Actualización 2026-10-14 — USERS-MGMT-01 completado
+- Jefatura dispone de la pestaña **Gestión de Usuarios** para listar, filtrar, crear, editar, asignar rol, cambiar contraseña y activar/desactivar cuentas. La API administrativa está aislada en `/api/gestion-usuarios/*`; el directorio `/api/usuarios` permanece para tareas.
+- Regla jerárquica confirmada y aplicada en servidor: ambos jefes administran cuentas, pero `JEFE_PERSONAL` no puede desactivar una cuenta con rol `JEFE_PLANEAMIENTO`. El intento devuelve `403 ERR_HIERARCHY_PROTECTED`; el Jefe de Área sí puede desactivar cualquier cuenta, incluida la propia.
+- Seguridad del módulo: no hay contraseñas en respuestas ni auditoría; cambio de contraseña, rol o desactivación invalidan sesiones de la cuenta afectada. Pruebas: `php tests/user_management_test.php` (15/15 PASS) y `php tests/users_test.php` (23/23 PASS).
+- Pendiente recomendado: validar visualmente el módulo con ambas cuentas de Jefatura en `http://127.0.0.1:8000`.
+
 ## Estado actual verificable
 - CICLO-01 completado: el cierre en `FINALIZADA` conserva la tarea 24 horas en Kanban; Jefatura puede forzar el archivo inmediato. Las tareas vencidas muestran una franja roja e icono, y el historial indica si terminaron en plazo. La reapertura de un cierre queda limitada en backend a Jefatura y a una columna `EN_PROCESO`.
 - Corrección de carga Kanban: `public_html/.htaccess` establece `DirectoryIndex index.php`; la raíz del sitio utiliza los partials actuales y no la copia histórica `index.html`.

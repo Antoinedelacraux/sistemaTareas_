@@ -1,6 +1,6 @@
 # Diseño funcional — Módulo de Gestión de Usuarios
 
-**Estado:** diseñado y pendiente de implementación.
+**Estado:** implementado.
 **Alcance:** administración exclusiva de cuentas, roles y acceso; no modifica la lógica de tareas, tablero, aprobaciones ni historial.
 
 ## Objetivo
@@ -14,10 +14,7 @@ Sustituir el botón aislado de alta de usuarios por un módulo dedicado, disponi
 - Los permisos se asignan por rol; no habrá permisos individuales en esta versión.
 - Un usuario puede desactivar su propia cuenta. La sesión deberá finalizar inmediatamente.
 - Las contraseñas se cambian manualmente por una jefatura; no se envían enlaces ni correos de restablecimiento.
-
-## Propuesta pendiente de validación
-
-- El Jefe de Personal administra cuentas de asistentes, pero no puede modificar, desactivar ni cambiar el rol del Jefe de Área. El Jefe de Área puede administrar cualquier cuenta. Esta propuesta aplica la jerarquía confirmada sin alterar los permisos operativos de tareas.
+- Ambos roles de Jefatura pueden crear, editar, cambiar rol, restablecer contraseña, activar y desactivar cuentas. La única excepción es que el Jefe de Personal no puede desactivar una cuenta cuyo rol sea Jefe de Área.
 
 ## Experiencia de usuario
 
@@ -42,8 +39,9 @@ Los asistentes no verán la pestaña ni podrán acceder a sus rutas administrati
 | Crear cuentas de asistentes | No | Sí | Sí |
 | Editar o desactivar asistentes | No | Sí | Sí |
 | Cambiar contraseña de asistentes | No | Sí | Sí |
-| Crear o modificar cuentas de jefatura | No | Pendiente de validación | Sí |
-| Cambiar roles de jefatura | No | Pendiente de validación | Sí |
+| Crear o modificar cuentas de jefatura | No | Sí | Sí |
+| Cambiar roles de jefatura | No | Sí | Sí |
+| Desactivar una cuenta con rol Jefe de Área | No | No | Sí |
 | Gestionar su propia cuenta | Consulta | Consulta y auto-desactivación | Consulta y auto-desactivación |
 
 ## Reglas de negocio propuestas
@@ -51,7 +49,8 @@ Los asistentes no verán la pestaña ni podrán acceder a sus rutas administrati
 - Una cuenta inactiva no puede iniciar sesión ni recibir asignaciones nuevas.
 - La desactivación no elimina datos: tareas, comentarios, evidencias y auditoría se conservan.
 - La auto-desactivación cierra la sesión de inmediato y requiere confirmación explícita.
-- Al cambiar una contraseña, se almacena únicamente su hash. La nueva contraseña se muestra o comunica solo en el momento de asignarla.
+- Al cambiar una contraseña, se almacena únicamente su hash. La nueva contraseña se muestra o comunica solo en el momento de asignarla, y se invalidan las sesiones de la cuenta afectada.
+- Al cambiar el rol de una cuenta se invalidan sus sesiones para que el nuevo permiso se aplique al volver a iniciar sesión.
 - El formulario no permite asignar un rol o permiso inexistente.
 - Las modificaciones de cuenta registran auditoría: ejecutor, cuenta afectada, acción, fecha y valores relevantes sin exponer contraseñas.
 
@@ -82,8 +81,9 @@ La autorización se concentrará en una política propia de gestión de usuarios
 
 1. Un asistente no visualiza ni accede por URL o API al módulo.
 2. Jefatura puede listar, crear, editar, activar, desactivar y cambiar contraseña de cuentas autorizadas.
-3. Los cambios de rol se aplican al iniciar la próxima sesión del usuario afectado.
+3. Los cambios de rol invalidan la sesión afectada y se aplican al volver a iniciar sesión.
 4. Una cuenta desactivada no puede iniciar sesión ni recibir tareas.
 5. La auto-desactivación cierra la sesión y conserva todos los registros históricos.
 6. Ninguna contraseña aparece en listados, auditoría, respuestas API ni registros.
 7. Las consultas para asignar responsables continúan funcionando sin depender de la pantalla administrativa.
+8. El Jefe de Personal recibe un 403 al intentar desactivar una cuenta con rol Jefe de Área; el Jefe de Área sí puede hacerlo.

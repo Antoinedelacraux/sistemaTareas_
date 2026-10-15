@@ -8,7 +8,7 @@ Monolito modular estructurado por capas y dominios, con API REST desacoplada, SP
 - **Backend:** PHP 8.2+ (orientado a objetos, tipado estricto, PSR-4, API REST modular con enrutamiento limpio, transacciones PDO contra MySQL).
 - **Base de Datos:** MySQL 8 / MariaDB (motor InnoDB, transacciones ACID, integridad referencial con claves foráneas, administrable en phpMyAdmin de Ferozo).
 - **Frontend:** SPA moderna de alta fidelidad estética estructurada bajo separación estricta de responsabilidades:
-  - **Partials HTML (`public_html/partials/`):** Descomposición atómica de vistas (`head.html`, `header.html`, `workspace_bar.html`, `login.html`, `kanban.html`, `approvals.html`, `history.html`, `modals.html`, `footer.html`). Ensamblado limpio mediante `public_html/index.php` con compatibilidad estática en `index.html`.
+  - **Partials HTML (`public_html/partials/`):** Descomposición atómica de vistas (`head.html`, `header.html`, `workspace_bar.html`, `login.html`, `kanban.html`, `approvals.html`, `history.html`, `users_management.html`, `modals.html`, `footer.html`). Ensamblado limpio mediante `public_html/index.php`; `index.html` es una copia histórica redirigida por Apache.
   - **CSS Modular por Dominios (`public_html/assets/css/`):** Estilos desacoplados (`variables.css`, `base.css`, `header.css`, `login.css`, `kanban.css`, `views.css`, `modals.css`, `footer.css`) orquestados por `app.css` vía `@import`.
   - **Aislamiento de Login:** Regla de exclusividad mutua: la pantalla de Login y el espacio privado nunca coexisten visualmente; `login.css` desacoplado y sin directivas `!important` que impidan la manipulación dinámica del DOM desde `auth.js`.
 - **Seguridad de Sesiones:** Autenticación con credenciales protegidas con `password_hash()` (Argon2id/Bcrypt), cookies de sesión o tokens con atributos `HttpOnly; SameSite=Strict; Secure`.
@@ -19,6 +19,12 @@ Monolito modular estructurado por capas y dominios, con API REST desacoplada, SP
 
 ## Módulos lógicos
 `identidad`, `autorizacion`, `usuarios`, `tableros`, `tareas`, `dependencias`, `aprobaciones`, `notificaciones`, `auditoria`, `reportes`.
+
+## Gestión administrativa de usuarios
+- El directorio `/api/usuarios` está limitado a responsables de tareas, consulta acotada y validación de asignaciones.
+- La administración de cuentas se aísla en `/api/gestion-usuarios/*` y su controlador dedicado. Solo los roles de Jefatura acceden a esas rutas.
+- La política jerárquica se aplica en el backend: ambos jefes gestionan cuentas por rol, excepto que `JEFE_PERSONAL` no puede desactivar una cuenta `JEFE_PLANEAMIENTO`.
+- Las contraseñas se procesan mediante hash y nunca se devuelven ni registran en auditoría. El cambio de rol, contraseña o desactivación revoca todas las sesiones de la cuenta afectada.
 
 ## Invariantes técnicos a diseñar
 1. Toda consulta de tarea verifica visibilidad. Prohibir referencias directas que permitan ver tareas de otros usuarios.

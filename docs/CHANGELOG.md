@@ -1,5 +1,14 @@
 # Changelog
 
+## [Sin versión - Gestión de Usuarios] - 2026-10-14
+### Agregado
+- Módulo exclusivo de Jefatura para listar, filtrar, crear, editar, cambiar contraseñas, asignar roles y activar/desactivar cuentas.
+- API administrativa separada bajo `/api/gestion-usuarios/*`, auditoría de acciones y revocación de sesiones tras desactivación, cambio de contraseña o cambio de rol.
+
+### Modificado
+- La creación de cuentas deja de existir en `/api/usuarios`; ese recurso queda reservado a responsables de tareas y validación de asignaciones.
+- Ambos roles de Jefatura administran cuentas; solo se bloquea que el Jefe de Personal desactive una cuenta con rol Jefe de Área.
+
 ## [Sin versión - Ciclo de cierre y vencimientos] - 2026-10-14
 ### Agregado
 - Archivo automático al historial tras 24 horas en `FINALIZADA` y acción exclusiva de Jefatura para archivar de inmediato.

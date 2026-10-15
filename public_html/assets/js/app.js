@@ -12,7 +12,7 @@ import { openCreateTaskModal, handleCreateTask, openTaskDetailModal, loadTaskDet
 import { fetchPendingApprovals, fetchPendingApprovalsCount, approveTask, openReturnModal, handleReturnTaskSubmit, requestApproval, registerApprovalCallbacks } from './modules/approvals.js';
 import { loadHistoryTasks, filterHistoryTasks } from './modules/history.js?v=1.6.0';
 import { fetchNotificationsSummary, loadNotifications, markAllNotificationsRead, startNotificationPolling, stopNotificationPolling, registerNotificationCallbacks } from './modules/notifications.js';
-import { openCreateUserModal, handleCreateUser } from './modules/users.js';
+import { initUserManagementEvents, loadManagedUsers, openManagedUserEditor, saveManagedUser, changeManagedUserStatus } from './modules/users-management.js';
 import { openCreateColumnModal, openEditColumnModal, selectColorHex, handleSaveColumn, handleDeleteColumn } from './modules/columns.js';
 
 // -----------------------------------------------------------------------------
@@ -72,8 +72,9 @@ window.removeDependency = removeDependency;
 // Nuevas funcionalidades: Edición de tareas, Usuarios y Columnas estilo Trello
 window.toggleTaskEditMode = toggleTaskEditMode;
 window.handleSaveTaskEdit = handleSaveTaskEdit;
-window.openCreateUserModal = openCreateUserModal;
-window.handleCreateUser = handleCreateUser;
+window.openManagedUserEditor = openManagedUserEditor;
+window.saveManagedUser = saveManagedUser;
+window.changeManagedUserStatus = changeManagedUserStatus;
 window.openCreateColumnModal = openCreateColumnModal;
 window.openEditColumnModal = openEditColumnModal;
 window.selectColumnColor = selectColorHex;
@@ -101,9 +102,13 @@ async function loadInitialData() {
 }
 
 /**
- * Cambio de ámbito y pestañas (Vista Área / Aprobaciones / Historial).
+ * Cambio de ámbito y pestañas (Vista Área / Aprobaciones / Historial / Gestión de Usuarios).
  */
 export async function setScope(scope) {
+    if (scope === 'users' && !isCurrentUserJefe()) {
+        showToast('La gestión de usuarios es exclusiva de Jefatura.', 'error');
+        return;
+    }
     STATE.currentScope = scope;
     document.querySelectorAll('.tab-btn').forEach(btn => {
         if (btn.getAttribute('data-scope') === scope) {
@@ -118,19 +123,25 @@ export async function setScope(scope) {
     const kanbanView = document.getElementById('kanban-view');
     const historyView = document.getElementById('history-view');
     const approvalsView = document.getElementById('approvals-view');
+    const usersManagementView = document.getElementById('users-management-view');
     const memberFilter = document.getElementById('member-filter-select');
+    const workspaceActions = document.querySelector('.workspace-actions');
+
+    if (workspaceActions) workspaceActions.style.display = scope === 'users' ? 'none' : 'flex';
 
     if (memberFilter) {
         if (!isCurrentUserJefe()) {
             memberFilter.style.display = 'none';
         } else if (scope === 'area') {
             memberFilter.style.display = 'inline-block';
+        } else {
+            memberFilter.style.display = 'none';
         }
     }
 
     const btnCreateTask = document.getElementById('btn-open-create-task');
     if (btnCreateTask) {
-        btnCreateTask.style.display = 'inline-flex';
+        btnCreateTask.style.display = scope === 'users' ? 'none' : 'inline-flex';
     }
 
     const btnCreateColumn = document.getElementById('btn-open-create-column');
@@ -149,16 +160,25 @@ export async function setScope(scope) {
     if (scope === 'history') {
         if (kanbanView) kanbanView.style.display = 'none';
         if (approvalsView) approvalsView.style.display = 'none';
+        if (usersManagementView) usersManagementView.style.display = 'none';
         if (historyView) historyView.style.display = 'block';
         await loadHistoryTasks();
     } else if (scope === 'approvals') {
         if (kanbanView) kanbanView.style.display = 'none';
         if (historyView) historyView.style.display = 'none';
+        if (usersManagementView) usersManagementView.style.display = 'none';
         if (approvalsView) approvalsView.style.display = 'block';
         await fetchPendingApprovals();
+    } else if (scope === 'users') {
+        if (kanbanView) kanbanView.style.display = 'none';
+        if (historyView) historyView.style.display = 'none';
+        if (approvalsView) approvalsView.style.display = 'none';
+        if (usersManagementView) usersManagementView.style.display = 'block';
+        await loadManagedUsers();
     } else {
         if (historyView) historyView.style.display = 'none';
         if (approvalsView) approvalsView.style.display = 'none';
+        if (usersManagementView) usersManagementView.style.display = 'none';
         if (kanbanView) kanbanView.style.display = 'block';
         await fetchTasks();
     }
@@ -273,11 +293,7 @@ function initEventListeners() {
         editTaskForm.addEventListener('submit', handleSaveTaskEdit);
     }
 
-    // Formulario de Creación de Usuario
-    const createUserForm = document.getElementById('create-user-form');
-    if (createUserForm) {
-        createUserForm.addEventListener('submit', handleCreateUser);
-    }
+    initUserManagementEvents();
 
     // Formulario de Creación/Edición de Columnas (Trello)
     const columnEditorForm = document.getElementById('column-editor-form');

@@ -293,49 +293,49 @@
         </div>
     </div>
 
-    <!-- Modal para Crear Nuevo Usuario (Jefatura/Admin) -->
-    <div id="modal-create-user" class="modal-backdrop">
+    <!-- Editor administrativo de usuario (Jefatura) -->
+    <div id="modal-user-editor" class="modal-backdrop">
         <div class="modal-dialog" style="max-width: 520px;">
             <div class="modal-header">
                 <div class="modal-title-group">
                     <span class="badge badge-prioridad-ALTA">ADMINISTRACIÓN</span>
-                    <h3 class="modal-title">Registrar Nuevo Usuario</h3>
+                    <h3 id="user-editor-title" class="modal-title">Nueva cuenta</h3>
                 </div>
-                <button class="btn-close" aria-label="Cerrar modal de creación de usuario" onclick="closeModal('modal-create-user')">&times;</button>
+                <button class="btn-close" aria-label="Cerrar editor de usuario" onclick="closeModal('modal-user-editor')">&times;</button>
             </div>
-            <form id="create-user-form">
+            <form id="user-editor-form">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="form-label" for="new-user-name">Nombre Completo *</label>
-                        <input type="text" id="new-user-name" class="form-input" required placeholder="Ej. Carlos Mendoza">
+                        <label class="form-label" for="managed-user-name">Nombre Completo *</label>
+                        <input type="text" id="managed-user-name" class="form-input" required placeholder="Ej. Carlos Mendoza">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="new-user-email">Correo Electrónico Institucional *</label>
-                        <input type="email" id="new-user-email" class="form-input" required placeholder="cmendoza@planeamiento.tal">
+                        <label class="form-label" for="managed-user-email">Correo Electrónico Institucional *</label>
+                        <input type="email" id="managed-user-email" class="form-input" required placeholder="cmendoza@planeamiento.tal">
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label" for="new-user-role">Rol en el Sistema *</label>
-                            <select id="new-user-role" class="form-select" required>
+                            <label class="form-label" for="managed-user-role">Rol en el Sistema *</label>
+                            <select id="managed-user-role" class="form-select" required>
                                 <option value="ASISTENTE">Asistente Operativo</option>
                                 <option value="JEFE_PLANEAMIENTO">Jefe de Planeamiento</option>
                                 <option value="JEFE_PERSONAL">Jefe de Personal</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label" for="new-user-position">Cargo / Puesto</label>
-                            <input type="text" id="new-user-position" class="form-input" placeholder="Ej. Analista de Procesos">
+                            <label class="form-label" for="managed-user-position">Cargo / Puesto *</label>
+                            <input type="text" id="managed-user-position" class="form-input" required placeholder="Ej. Analista de Procesos">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="new-user-password">Contraseña Inicial *</label>
-                        <input type="password" id="new-user-password" class="form-input" required placeholder="••••••••" minlength="6" value="Planeamiento2026!">
-                        <span class="form-help">Contraseña inicial sugerida para acceso del colaborador.</span>
+                        <label class="form-label" for="managed-user-password">Contraseña <span id="managed-user-password-optional">inicial *</span></label>
+                        <input type="password" id="managed-user-password" class="form-input" required placeholder="Mínimo 8 caracteres" minlength="8">
+                        <span class="form-help" id="managed-user-password-help">Asigna una contraseña y comunícala directamente al usuario.</span>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="closeModal('modal-create-user')">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Crear Usuario</button>
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modal-user-editor')">Cancelar</button>
+                    <button id="user-editor-submit" type="submit" class="btn btn-primary">Crear cuenta</button>
                 </div>
             </form>
         </div>

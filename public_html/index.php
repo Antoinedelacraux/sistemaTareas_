@@ -16,5 +16,6 @@ require $partialsDir . '/login.html';
 require $partialsDir . '/kanban.html';
 require $partialsDir . '/approvals.html';
 require $partialsDir . '/history.html';
+require $partialsDir . '/users_management.html';
 require $partialsDir . '/modals.html';
 require $partialsDir . '/footer.html';

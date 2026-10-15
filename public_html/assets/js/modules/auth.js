@@ -145,6 +145,9 @@ export function showLoginView() {
     const appView = document.getElementById('approvals-view');
     if (appView) appView.style.display = 'none';
 
+    const usersManagementView = document.getElementById('users-management-view');
+    if (usersManagementView) usersManagementView.style.display = 'none';
+
     const controlsBar = document.getElementById('workspace-controls-bar');
     if (controlsBar) controlsBar.style.display = 'none';
 
@@ -205,24 +208,24 @@ export function renderUserBar() {
     // Control de visibilidad según roles (RN-01, RN-03, RN-05)
     const tabApprovals = document.getElementById('tab-approvals-view');
     const tabHistory = document.getElementById('tab-history-view');
+    const tabUsersManagement = document.getElementById('tab-users-management');
     const memberFilter = document.getElementById('member-filter-select');
-    const btnCreateUser = document.getElementById('btn-open-create-user');
     const btnCreateColumn = document.getElementById('btn-open-create-column');
 
     if (isJefe) {
         if (tabApprovals) tabApprovals.style.display = 'inline-flex';
         if (tabHistory) tabHistory.style.display = 'inline-flex';
+        if (tabUsersManagement) tabUsersManagement.style.display = 'inline-flex';
         if (memberFilter) memberFilter.style.display = 'inline-block';
-        if (btnCreateUser) btnCreateUser.style.display = 'inline-flex';
         if (btnCreateColumn) btnCreateColumn.style.display = STATE.currentScope === 'area' ? 'inline-flex' : 'none';
     } else {
         if (tabApprovals) tabApprovals.style.display = 'none';
         if (tabHistory) tabHistory.style.display = 'none';
+        if (tabUsersManagement) tabUsersManagement.style.display = 'none';
         if (memberFilter) memberFilter.style.display = 'none';
-        if (btnCreateUser) btnCreateUser.style.display = 'none';
         if (btnCreateColumn) btnCreateColumn.style.display = 'none';
 
-        if (STATE.currentScope === 'approvals' || STATE.currentScope === 'history' || STATE.currentScope === 'personal') {
+        if (STATE.currentScope === 'approvals' || STATE.currentScope === 'history' || STATE.currentScope === 'users' || STATE.currentScope === 'personal') {
             STATE.currentScope = 'area';
         }
     }

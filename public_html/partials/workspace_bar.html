@@ -29,6 +29,17 @@
             </svg>
             <span>Historial</span>
         </button>
+        <button id="tab-users-management" class="tab-btn" data-scope="users" style="display: none;" role="tab"
+            aria-selected="false" title="Gestión de Usuarios">
+            <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                <circle cx="11" cy="7" r="4"></circle>
+                <path d="M19 8v6"></path>
+                <path d="M22 11h-6"></path>
+            </svg>
+            <span>Usuarios</span>
+        </button>
     </div>
 
     <div class="workspace-actions">
@@ -64,18 +75,6 @@
                 <line x1="8" y1="12" x2="16" y2="12"></line>
             </svg>
             <span>Columna</span>
-        </button>
-
-        <button id="btn-open-create-user" class="btn btn-outline" style="display: none;" onclick="openCreateUserModal()"
-            aria-label="Registrar nuevo usuario en el sistema">
-            <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <line x1="20" y1="8" x2="20" y2="14"></line>
-                <line x1="23" y1="11" x2="17" y2="11"></line>
-            </svg>
-            <span>Usuario</span>
         </button>
 
         <button id="btn-open-create-task" class="btn btn-primary" aria-label="Crear nueva tarea">

@@ -5,6 +5,7 @@ declare(strict_types=1);
 $suites = [
     'auth_test.php',
     'users_test.php',
+    'user_management_test.php',
     'tasks_test.php',
     'kanban_test.php',
     'subtasks_comments_test.php',
@@ -19,7 +20,7 @@ $passedCount = 0;
 $failedCount = 0;
 
 echo "=================================================================\n";
-echo "EJECUCIÓN INTEGRAL DE LAS 10 SUITES DE PRUEBAS DEL SISTEMA\n";
+echo "EJECUCIÓN INTEGRAL DE LAS " . count($suites) . " SUITES DE PRUEBAS DEL SISTEMA\n";
 echo "=================================================================\n\n";
 
 foreach ($suites as $suite) {
