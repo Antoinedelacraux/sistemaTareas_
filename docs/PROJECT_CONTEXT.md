@@ -24,7 +24,7 @@ Aplicación web interna para el área de Planeamiento que centraliza la distribu
 
 ## Alcance Prioritario del Sistema
 - Autenticación rápida y manejo de sesiones.
-- Tablero Kanban interactivo con cambio de vista ("Mis Tareas", "Tablero del Equipo", "Dashboard").
+- Tablero Kanban interactivo de "Vista Área", con filtros por responsable y prioridad.
 - CRUD ágil de tareas (creación, edición rápida, cambio de estado directo, eliminación/archivo).
 - Checklist de subtareas con progreso en tiempo real.
 - Notas, comentarios y adjuntos.

@@ -101,7 +101,7 @@ async function loadInitialData() {
 }
 
 /**
- * Cambio de ámbito y pestañas (Mis Tareas / Tablero del Equipo / Aprobaciones / Historial).
+ * Cambio de ámbito y pestañas (Vista Área / Aprobaciones / Historial).
  */
 export async function setScope(scope) {
     STATE.currentScope = scope;
@@ -123,7 +123,7 @@ export async function setScope(scope) {
     if (memberFilter) {
         if (!isCurrentUserJefe()) {
             memberFilter.style.display = 'none';
-        } else if (scope === 'area' || scope === 'team') {
+        } else if (scope === 'area') {
             memberFilter.style.display = 'inline-block';
         }
     }
@@ -135,14 +135,14 @@ export async function setScope(scope) {
 
     const btnCreateColumn = document.getElementById('btn-open-create-column');
     if (btnCreateColumn) {
-        if (isCurrentUserJefe() && (scope === 'area' || scope === 'team')) {
+        if (isCurrentUserJefe() && scope === 'area') {
             btnCreateColumn.style.display = 'inline-flex';
         } else {
             btnCreateColumn.style.display = 'none';
         }
     }
 
-    if (scope === 'area' || scope === 'team') {
+    if (scope === 'area') {
         await fetchColumns();
     }
 

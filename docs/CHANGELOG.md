@@ -440,3 +440,15 @@ Convención sugerida: Keep a Changelog, sin versiones ficticias.
 
 ## Regla
 Anotar solo cambios reales, verificables, visibles o relevantes al repositorio; enlazar RF y commit cuando exista.
+
+## [Sin versión - Primera observación visual del login] - 2026-10-14
+### Modificado
+- Corregido el ancho de los campos de correo y contraseña para ocupar la columna disponible sin recortes.
+- Añadido un fondo sólido con patrón de puntos sutil, adaptado a los temas claro y oscuro.
+- RF-01 / RN-01: login más legible y usable en escritorio y responsive.
+
+## [Sin versión - Consolidación de Vista Área] - 2026-10-14
+### Eliminado
+- Retirado el módulo duplicado "Tablero del Equipo" de la navegación y del estado de la SPA.
+- Eliminadas sus condiciones de carga, visibilidad por rol y parámetro `scope=team` del listado de usuarios.
+- Renombrada la tabla visual del historial para no conservar nomenclatura del módulo retirado.

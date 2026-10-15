@@ -20,7 +20,7 @@ export function registerKanbanCallbacks({ onTaskClick, onTransition }) {
  */
 export async function fetchUsers() {
     try {
-        const res = await apiFetch('/api/usuarios?scope=team');
+        const res = await apiFetch('/api/usuarios');
         const json = await res.json();
         if (json.success) {
             STATE.users = json.data?.usuarios || (Array.isArray(json.data) ? json.data : []);

@@ -34,4 +34,14 @@
 - Diagnóstico autónomo web: `http://127.0.0.1:8000/api/test-runner` o `http://127.0.0.1:8000/api/test-runner?format=json`.
 - Plataforma web: `http://127.0.0.1:8000` (Clave de acceso común: `Planeamiento2026!`).
 
+## Última observación visual atendida
+- Los campos de correo y contraseña del login ahora ocupan todo el ancho disponible y no se recortan.
+- El fondo global usa un color sólido con patrón de puntos sutil en modo claro y oscuro.
+- Cambios pendientes de confirmación visual por el usuario en ambos temas y móvil.
+
+## Último cambio funcional
+- "Tablero del Equipo" fue retirado completamente de la navegación y lógica frontend.
+- Vista Área quedó como único tablero oficial para asistentes y jefaturas.
+- No existe una ruta backend diferenciada para ese módulo; se eliminó también el parámetro frontend `scope=team` que solo era usado para cargar usuarios.
+
 

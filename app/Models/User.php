@@ -139,7 +139,7 @@ class User
             return self::listAll($filters);
         }
 
-        // Si es asistente y no solicita scope=team, su alcance de asignación es estrictamente a sí mismo
+        // Los asistentes solo pueden consultar su propio usuario para asignaciones.
         $me = self::findById((int)$currentUser['id']);
         if ($me === null || (int)$me['activo'] !== 1) {
             return [];

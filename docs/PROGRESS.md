@@ -886,4 +886,21 @@
 - **Git:** Listo para commit local.
 - **Siguiente paso:** Comunicar la solución final al usuario para que recargue y pruebe el login.
 
+### 2026-10-14 — Primera observación visual: campos del login y fondo tematizado
+- **Estado:** completado
+- **Objetivo:** corregir campos de correo/contraseña recortados y mejorar el fondo del modo claro/oscuro.
+- **RF/RN:** RF-01, RN-01, RN-07.
+- **Cambios:** `form-input` con ancho completo y `min-width: 0`; columna de formulario protegida contra desbordamiento; fondo con color base y patrón configurable por tema.
+- **Archivos:** `public_html/assets/css/login.css`, `public_html/assets/css/base.css`, `public_html/assets/css/variables.css`.
+- **Pruebas:** `git diff --check` PASS; entrega HTTP de `http://127.0.0.1:8000/` PASS (200).
+- **Pendiente:** validación visual del usuario en claro, oscuro y viewport móvil.
+
+### 2026-10-14 — Consolidación de Vista Área
+- **Estado:** implementado
+- **Objetivo:** retirar "Tablero del Equipo", que duplicaba la Vista Área para jefaturas.
+- **RF/RN:** RF-10, RN-01, RN-07.
+- **Cambios:** eliminación de la pestaña en ambas entradas HTML, retiro del estado `team` y sus ramas de `app.js`/`auth.js`, consulta de usuarios sin `scope=team`, y limpieza de nomenclatura visual asociada.
+- **Documentación:** requisitos y contexto actualizados para reflejar Vista Área como único tablero oficial.
+- **Pendiente:** validación visual de la barra de navegación con ambos roles.
+
 

@@ -119,14 +119,14 @@
   overflow-x: auto;
 }
 
-.team-balance-table {
+.history-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.825rem;
   text-align: left;
 }
 
-.team-balance-table th {
+.history-table th {
   background-color: var(--bg-surface-subtle);
   color: var(--text-muted);
   font-weight: 700;
@@ -137,14 +137,14 @@
   letter-spacing: 0.04em;
 }
 
-.team-balance-table td {
+.history-table td {
   padding: 0.85rem 1rem;
   border-bottom: 1px solid var(--border-subtle);
   color: var(--text-main);
   vertical-align: middle;
 }
 
-.team-balance-table tr:hover td {
+.history-table tr:hover td {
   background-color: var(--bg-surface-hover);
 }
 

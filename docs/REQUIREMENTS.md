@@ -10,7 +10,7 @@
 - RF-07 Ficha de tarea enriquecida (estilo Trello/Notion): edición de campos, estado, prioridad y fechas.
 - RF-08 Checklist interactivo de subtareas con barra de progreso porcentual visible en tarjeta y detalle.
 - RF-09 Muro de comentarios y notas de avance con soporte de archivos adjuntos/evidencias.
-- RF-10 Filtros rápidos en un solo clic: "Mis Tareas", "Tablero del Equipo", filtro por responsable y por prioridad.
+- RF-10 Filtros rápidos en un solo clic dentro de "Vista Área": filtro por responsable y por prioridad.
 - RF-11 Dashboard operativo con métricas de tareas completadas, en progreso, tasa de cumplimiento y balance general.
 - RF-12 Compatibilidad nativa con PHP 8.2+ y MySQL/MariaDB para despliegue directo en DonWeb Ferozo / VPS.
 
@@ -29,7 +29,7 @@
 3. Arrastre de tarjeta directo entre columnas en Kanban con actualización en base de datos.
 4. Agregar, marcar y desmarcar subtareas con cálculo inmediato de % de progreso.
 5. Dejar comentarios y adjuntar archivos con descarga funcional.
-6. Filtro ágil entre "Mis Tareas" y "Tablero del Equipo".
+6. Filtro ágil por responsable y prioridad dentro de "Vista Área".
 7. Visualización del Dashboard con métricas reales.
 8. Verificación 100% funcional local sin errores de consola ni de PHP.
 

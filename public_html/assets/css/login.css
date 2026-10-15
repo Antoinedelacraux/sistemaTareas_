@@ -95,6 +95,7 @@
 /* Columna Derecha: Formulario de Acceso */
 .login-form-column {
   flex: 1;
+  min-width: 0;
   padding: 3.5rem 3.5rem;
   display: flex;
   flex-direction: column;
@@ -153,6 +154,8 @@
 }
 
 .input-with-icon .form-input {
+  width: 100%;
+  min-width: 0;
   padding-left: 2.5rem;
   height: 50px;
   border-radius: 12px;

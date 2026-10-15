@@ -203,7 +203,6 @@ export function renderUserBar() {
     if (roleEl) roleEl.textContent = roleText;
 
     // Control de visibilidad según roles (RN-01, RN-03, RN-05)
-    const tabTeam = document.getElementById('tab-team-board');
     const tabApprovals = document.getElementById('tab-approvals-view');
     const tabHistory = document.getElementById('tab-history-view');
     const memberFilter = document.getElementById('member-filter-select');
@@ -211,21 +210,19 @@ export function renderUserBar() {
     const btnCreateColumn = document.getElementById('btn-open-create-column');
 
     if (isJefe) {
-        if (tabTeam) tabTeam.style.display = 'inline-flex';
         if (tabApprovals) tabApprovals.style.display = 'inline-flex';
         if (tabHistory) tabHistory.style.display = 'inline-flex';
         if (memberFilter) memberFilter.style.display = 'inline-block';
         if (btnCreateUser) btnCreateUser.style.display = 'inline-flex';
-        if (btnCreateColumn) btnCreateColumn.style.display = (STATE.currentScope === 'area' || STATE.currentScope === 'team') ? 'inline-flex' : 'none';
+        if (btnCreateColumn) btnCreateColumn.style.display = STATE.currentScope === 'area' ? 'inline-flex' : 'none';
     } else {
-        if (tabTeam) tabTeam.style.display = 'none';
         if (tabApprovals) tabApprovals.style.display = 'none';
         if (tabHistory) tabHistory.style.display = 'none';
         if (memberFilter) memberFilter.style.display = 'none';
         if (btnCreateUser) btnCreateUser.style.display = 'none';
         if (btnCreateColumn) btnCreateColumn.style.display = 'none';
 
-        if (STATE.currentScope === 'team' || STATE.currentScope === 'approvals' || STATE.currentScope === 'history' || STATE.currentScope === 'personal') {
+        if (STATE.currentScope === 'approvals' || STATE.currentScope === 'history' || STATE.currentScope === 'personal') {
             STATE.currentScope = 'area';
         }
     }

@@ -6,6 +6,8 @@
 :root {
   /* Paleta de Superficie y Fondo (Modo Claro) */
   --bg-primary: #f8fafc;
+  --bg-pattern: radial-gradient(circle at 2px 2px, rgba(67, 56, 202, 0.28) 1.7px, transparent 1.9px), linear-gradient(135deg, rgba(79, 70, 229, 0.045) 25%, transparent 25%, transparent 75%, rgba(79, 70, 229, 0.045) 75%);
+  --bg-pattern-size: 24px 24px;
   --bg-surface: #ffffff;
   --bg-surface-hover: #f1f5f9;
   --bg-surface-subtle: #f8fafc;
@@ -64,6 +66,8 @@
 
 [data-theme="dark"] {
   --bg-primary: #0b0f19;
+  --bg-pattern: radial-gradient(circle at 1px 1px, rgba(129, 140, 248, 0.13) 1px, transparent 1.2px);
+  --bg-pattern-size: 28px 28px;
   --bg-surface: #111827;
   --bg-surface-hover: #1f2937;
   --bg-surface-subtle: #161f30;
