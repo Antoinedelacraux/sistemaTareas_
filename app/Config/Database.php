@@ -254,47 +254,10 @@ class Database
                 (1, 'Pendiente', 1, 'PENDIENTE', '#64748b', 'AREA', 1),
                 (2, 'En proceso', 2, 'EN_PROCESO', '#2563eb', 'AREA', 1),
                 (3, 'Bloqueada', 3, 'BLOQUEADA', '#e11d48', 'AREA', 1),
-                (4, 'En revisión', 4, 'EN_REVISION', '#d97706', 1),
-                (5, 'Finalizada', 5, 'FINALIZADA', '#059669', 1);
+                (4, 'En revisión', 4, 'EN_REVISION', '#d97706', 'AREA', 1),
+                (5, 'Finalizada', 5, 'FINALIZADA', '#059669', 'AREA', 1);
             ");
         }
 
-        // Semilla de usuarios si no existen
-        $userCount = (int)$pdo->query("SELECT COUNT(*) FROM usuarios")->fetchColumn();
-        if ($userCount === 0) {
-            $hash = password_hash('Planeamiento2026!', PASSWORD_BCRYPT, ['cost' => 12]);
-            $now = gmdate('Y-m-d H:i:s');
-            $stmt = $pdo->prepare("
-                INSERT INTO usuarios (id, codigo, nombre, email, password_hash, rol, cargo, activo, created_at, updated_at) VALUES
-                (1, 'ASIST-01', 'Marco Chumbes', 'mchumbes@planeamiento.tal', :hash, 'ASISTENTE', 'Asistente de Información 1', 1, :now, :now),
-                (2, 'ASIST-02', 'Asistente Dos', 'asistente2@planeamiento.tal', :hash, 'ASISTENTE', 'Asistente de Información 2', 1, :now, :now),
-                (3, 'ASIST-03', 'Asistente Tres', 'asistente3@planeamiento.tal', :hash, 'ASISTENTE', 'Asistente de Información 3', 1, :now, :now),
-                (4, 'JEFE-PER', 'Jefe de Personal', 'jefe.personal@planeamiento.tal', :hash, 'JEFE_PERSONAL', 'Jefe de Personal', 1, :now, :now),
-                (5, 'JEFE-PLA', 'Jefe de Planeamiento', 'jefe.planeamiento@planeamiento.tal', :hash, 'JEFE_PLANEAMIENTO', 'Jefe del Área de Planeamiento', 1, :now, :now);
-            ");
-            $stmt->execute([':hash' => $hash, ':now' => $now]);
-
-            // Tareas demostrativas iniciales
-            $pdo->exec("
-                INSERT INTO tareas (id, codigo, titulo, descripcion, tipo_tarea, columna_id, prioridad, creador_id, responsable_id, requiere_aprobacion, fecha_limite, created_at, updated_at) VALUES
-                (1, 'TAR-2026-0001', 'Consolidado Semanal de Producción Agrícola', 'Verificar rindes semanales y consolidar información de los fundos norte y sur para la gerencia.', 'AREA', 2, 'ALTA', 5, 1, 0, '2026-10-20', '$now', '$now'),
-                (2, 'TAR-2026-0002', 'Inventario y Proyección de Fertilizantes Q4', 'Cotejo físico versus Kardex digital de insumos en almacén central.', 'AREA', 1, 'MEDIA', 5, 2, 0, '2026-10-25', '$now', '$now'),
-                (3, 'TAR-2026-0003', 'Cierre Mensual de Costos y Maquinaria', 'Generar reporte de horas máquina y desviaciones presupuestarias del mes anterior.', 'AREA', 4, 'URGENTE', 5, 1, 1, '2026-10-18', '$now', '$now'),
-                (4, 'TAR-2026-0004', 'Plan de Capacitación Personal en Nuevas Fórmulas', 'Revisar cronograma de inducciones de personal técnico para la campaña.', 'AREA', 1, 'MEDIA', 4, 3, 0, '2026-10-28', '$now', '$now'),
-                (5, 'TAR-2026-0005', 'Notas y Recordatorios Personales de Gestión', 'Revisar pendientes de correo y coordinar reunión de seguimiento quincenal.', 'PERSONAL', 2, 'BAJA', 1, 1, 0, '2026-10-22', '$now', '$now'),
-                (6, 'TAR-2026-0006', 'Auditoría de Certificación GlobalGAP', 'Inspección de registros de campo y cumplimiento fitosanitario.', 'AREA', 5, 'ALTA', 5, 1, 0, '2026-10-10', '$now', '$now');
-
-                INSERT INTO subtareas (id, tarea_id, titulo, completada, orden, created_at, updated_at) VALUES
-                (1, 1, 'Recopilar planillas de fundo norte', 1, 1, '$now', '$now'),
-                (2, 1, 'Validar horas de cosecha en sistema ERP', 1, 2, '$now', '$now'),
-                (3, 1, 'Generar gráficos comparativos semanales', 0, 3, '$now', '$now'),
-                (4, 3, 'Conciliar horas horómetro con combustible', 1, 1, '$now', '$now'),
-                (5, 3, 'Elaborar informe de desvíos para jefatura', 0, 2, '$now', '$now');
-
-                INSERT INTO tarea_comentarios (id, tarea_id, usuario_id, comentario, es_evidencia, created_at) VALUES
-                (1, 1, 5, 'Marco, por favor asegurar que se incluyan las mermas de empaque del lote B.', 0, '$now'),
-                (2, 1, 1, 'Entendido, ya coordiné con el supervisor de packing y tengo los números actualizados.', 0, '$now');
-            ");
-        }
     }
 }

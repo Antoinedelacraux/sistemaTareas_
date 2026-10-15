@@ -1,5 +1,15 @@
 # Changelog
 
+## [Sin version - Instalacion limpia para produccion] - 2026-10-15
+### Seguridad
+- Se retiraron del repositorio operativo las cuentas, contrasenas, tareas y comentarios de demostracion.
+- Se elimino la interfaz historica `public_html/index.html` que contenia datos de prueba.
+- Se incorporo `/instalar.php`, disponible solo con habilitacion explicita, token secreto y una base de datos sin usuarios; crea una unica cuenta inicial de Jefe de Area.
+
+### Modificado
+- Las instalaciones nuevas crean solamente las cinco columnas operativas iniciales.
+- Se documento el procedimiento de despliegue seguro en Ferozo y la desactivacion obligatoria del instalador despues de crear al primer administrador.
+
 ## [Sin version - Punto de entrada unico] - 2026-10-15
 ### Modificado
 - `index.php` queda como entrada vigente tanto en Apache/Ferozo como en desarrollo local.

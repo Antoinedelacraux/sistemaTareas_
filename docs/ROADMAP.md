@@ -33,6 +33,8 @@
 - [x] VERIF-01 Validación 100% funcional local de punta a punta (creación, arrastre, checklist, adjuntos y filtros por rol). [COMPLETADO]
 - [x] VPS-PREP-01 Empaquetado, checklist y migración lista para DonWeb Ferozo / VPS. [COMPLETADO]
 
+- [x] PROD-READY-01 Instalacion limpia para produccion: sin datos demo, aprovisionamiento inicial de Jefatura protegido y guia de despliegue. [COMPLETADO]
+
 ## Fase 2 (Planificada - Posterior a VPS)
 - [x] PERF-01 Optimizacion inicial Lighthouse: recursos estaticos, LCP, CLS y carga inicial concurrente. [COMPLETADO; pendiente medicion con navegador real]
 Plantillas reutilizables, tareas recurrentes, tiempos de trabajo, calendario laboral.

@@ -6,7 +6,7 @@
  * - variables.css : Tokens de diseño, paleta de colores, tipografía, radios y variables light/dark
  * - base.css      : Reset, utilidades tipográficas, botones (.btn), inputs, badges y barras de progreso
  * - header.css    : Barra superior corporativa, perfil de usuario, campana de notificaciones y workspace bar
- * - login.css     : Vista de acceso 100% aislada, imagen lateral 3D, bienvenida y cuentas demo
+ * - login.css     : Vista de acceso 100% aislada, imagen lateral y formulario de autenticación
  * - kanban.css    : Tablero kanban, columnas dinámicas, tarjetas de tarea, estados y banner personal
  * - views.css     : Vistas de aprobaciones técnicas, repositorio de historial, KPIs y auditoría
  * - modals.css    : Modales accesibles, detalle de tarea, checklist de subtareas, grafo DAG y toasts

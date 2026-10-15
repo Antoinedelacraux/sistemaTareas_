@@ -14,6 +14,7 @@
 - RF-11 Dashboard operativo con métricas de tareas completadas, en progreso, tasa de cumplimiento y balance general.
 - RF-12 Compatibilidad nativa con PHP 8.2+ y MySQL/MariaDB para despliegue directo en DonWeb Ferozo / VPS.
 - RF-14 Módulo exclusivo de Jefatura para crear, editar, activar, desactivar cuentas y asignar permisos por rol, separado del directorio usado para tareas.
+- RF-20 Instalación inicial de producción sin datos demostrativos, con creación única y segura del primer Jefe de Área.
 
 ## Reglas de negocio prácticas
 - RN-01 La experiencia de usuario debe ser ágil y libre de fricción: mover una tarjeta a cualquier columna debe reflejarse inmediatamente.
@@ -23,6 +24,7 @@
 - RN-05 Al reabrir una tarea hacia otra columna, la fecha de finalización se limpia automáticamente.
 - RN-06 Subida de archivos segura: extensiones controladas (PDF, imágenes, hojas de cálculo, documentos), nombres hasheados para evitar colisiones y límite de 10 MB.
 - RN-07 El código debe ser limpio, modular y fácilmente modificable para permitir futuros cambios sin romper el sistema.
+- RN-17 El instalador inicial está desactivado por defecto, exige token secreto, solo funciona sobre una base sin usuarios y queda bloqueado tras crear la primera cuenta.
 
 ## Aceptación mínima para subida a VPS
 1. Login y cambio de usuario funcional entre Asistente y Jefa.

@@ -1,8 +1,16 @@
 # Registro de avances
 
+### 2026-10-15 - PROD-READY-01: instalacion limpia para produccion
+- **Estado:** implementado y validado tecnicamente.
+- **Alcance:** RF-20 y RN-17; prepara una instancia nueva para su primer uso operativo.
+- **Cambios:** se eliminaron usuarios, tareas, comentarios y contrasenas de demostracion de los datos de arranque y del login. El primer usuario se crea exclusivamente con `/instalar.php`, protegido por `INSTALLER_ENABLED`, `INSTALL_TOKEN` de al menos 32 caracteres y la condicion de que la base este vacia. Ese usuario queda como **Jefe de Area** y puede administrar las cuentas reales del equipo. El instalador se bloquea al completar la creacion.
+- **Despliegue:** `docs/DEPLOYMENT_AND_PILOT_GUIDE.md` indica el orden exacto: esquema, columnas base, `.env`, instalador, primer usuario y desactivacion. No se elimina ni se modifica la base SQLite local existente.
+- **Pruebas:** lint de PHP modificado PASS; `php tests/initial_setup_test.php` 7/7 PASS; `php tests/user_management_test.php` 15/15 PASS; `php tests/notifications_automation_test.php` 38/38 PASS; HTTP local: raiz 200, instalador desactivado 404 y ruta legada `/index.html` 302 a `/`; `git diff --check` PASS.
+- **Siguiente paso:** subir el paquete a Ferozo, importar `database/schema.sql` y `database/seeds.sql`, configurar `.env`, ejecutar una sola vez el instalador y deshabilitarlo.
+
 ### 2026-10-15 - ENTRYPOINT-01: unificacion del punto de entrada
 - **Estado:** implementado.
-- **Decision:** se conserva `public_html/index.html` como copia historica recuperable, pero no se sirve como interfaz. Apache ya lo redirigia a `/`; `server.php` local ahora aplica la misma redireccion.
+- **Decision historica:** inicialmente se conservaba `public_html/index.html` como copia no navegable. PROD-READY-01 la elimina del paquete operativo por contener datos de demostracion; las rutas legadas se mantienen redirigidas a `/`.
 - **Verificacion:** `/` entrega el ensamblador vigente; `/index.html` devuelve redireccion `302` hacia `/` en local.
 
 ### 2026-10-15 - PERF-01: optimizacion inicial de Lighthouse

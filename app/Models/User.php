@@ -261,7 +261,11 @@ class User
         $maxId = (int)($stmtMax->fetchColumn() ?: 0);
         $codigo = sprintf("USR-%04d", $maxId + 1);
 
-        $passwordHash = password_hash($data['password'] ?? 'Planeamiento2026!', PASSWORD_BCRYPT);
+        $password = (string) ($data['password'] ?? '');
+        if ($password === '') {
+            throw new \InvalidArgumentException('La contraseña es obligatoria para crear una cuenta.', 422);
+        }
+        $passwordHash = password_hash($password, PASSWORD_BCRYPT);
         $now = gmdate('Y-m-d H:i:s');
 
         $stmt = $db->prepare("

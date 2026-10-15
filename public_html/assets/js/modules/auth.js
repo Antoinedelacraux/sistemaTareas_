@@ -90,17 +90,6 @@ export async function doLogin(email, password) {
 }
 
 /**
- * Acceso instantáneo con un solo clic para perfiles de prueba.
- */
-export async function quickLogin(email) {
-    const emailInput = document.getElementById('login-email');
-    const passInput = document.getElementById('login-password');
-    if (emailInput) emailInput.value = email;
-    if (passInput) passInput.value = 'Planeamiento2026!';
-    await doLogin(email, 'Planeamiento2026!');
-}
-
-/**
  * Cierre de sesión seguro con limpieza de almacenamiento y estado.
  */
 export async function doLogout() {

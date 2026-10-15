@@ -1,8 +1,16 @@
 # Traspaso entre sesiones (leer primero)
 
+## Actualizacion 2026-10-15 - PROD-READY-01 implementado
+- La entrega para Ferozo inicia sin cuentas, tareas, comentarios ni contrasenas de demostracion. `database/seeds.sql` solamente crea las cinco columnas operativas base.
+- `public_html/index.html` fue eliminado para que no persista una interfaz antigua con credenciales demostrativas. `/index.html` e `/index.php` redirigen a `/` en el servidor local; Apache usa `index.php`.
+- El primer usuario real se crea una sola vez en `/instalar.php`: activar temporalmente `INSTALLER_ENABLED=true`, definir un `INSTALL_TOKEN` de 32 o mas caracteres e ingresar el mismo token en el formulario. El servicio exige base vacia, contrasena de 12 o mas caracteres y crea el rol `JEFE_PLANEAMIENTO`.
+- Al terminar, cambiar `INSTALLER_ENABLED=false`. El candado persistente y la existencia del primer usuario impiden una segunda ejecucion.
+- Guia vigente: `docs/DEPLOYMENT_AND_PILOT_GUIDE.md`. No eliminar `storage/database.sqlite` local como parte de este despliegue.
+- QA ejecutado: lint PHP PASS; instalacion inicial 7/7; gestion de usuarios 15/15; notificaciones 38/38; raiz local 200, instalador deshabilitado 404 y `/index.html` 302 a `/`.
+
 ## Actualizacion 2026-10-15 - ENTRYPOINT-01 implementado
 - `public_html/index.php` es el unico punto de entrada navegable.
-- `public_html/index.html` se conserva como copia historica en Git, pero Apache y el servidor local redirigen `/index.html` a `/` para evitar cargar la interfaz antigua.
+- La referencia historica a `public_html/index.html` queda superada: el archivo fue eliminado del paquete operativo en PROD-READY-01 y las rutas legadas redirigen a `/`.
 
 ## Actualizacion 2026-10-15 - PERF-01 implementado
 - Se retiro la dependencia de Google Fonts del primer render; el frontend usa la pila tipografica nativa ya definida en tokens.

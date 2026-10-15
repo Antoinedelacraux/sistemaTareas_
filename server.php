@@ -14,12 +14,14 @@ if ($uri === '/index.html') {
     return;
 }
 
-// Sincronizar imagen de portada del login hero si existe en artefactos
-$heroArtifact = 'C:/Users/MARCO CHUMBES/.gemini/antigravity-ide/brain/17c3d1fd-275f-48ed-9aa5-c0416269292a/login_hero_banner_1791984696300.jpg';
-$heroTarget = $publicDir . '/assets/img/login_hero.jpg';
-if (!file_exists($heroTarget) && file_exists($heroArtifact)) {
-    @mkdir(dirname($heroTarget), 0755, true);
-    @copy($heroArtifact, $heroTarget);
+if ($uri === '/index.php') {
+    header('Location: /', true, 302);
+    return;
+}
+
+if ($uri === '/instalar.php') {
+    require $publicDir . '/instalar.php';
+    return;
 }
 
 // 1. Delegar a la API REST si la ruta inicia con /api
@@ -31,6 +33,10 @@ if (str_starts_with($uri, '/api')) {
 // 2. Servir archivos estáticos reales desde public_html
 if ($uri !== '/' && file_exists($requestedFile) && !is_dir($requestedFile)) {
     $ext = strtolower(pathinfo($requestedFile, PATHINFO_EXTENSION));
+    if ($ext === 'php') {
+        http_response_code(404);
+        return;
+    }
     $mimes = [
         'css'   => 'text/css; charset=utf-8',
         'js'    => 'application/javascript; charset=utf-8',
@@ -57,5 +63,6 @@ if ($uri !== '/' && file_exists($requestedFile) && !is_dir($requestedFile)) {
 if (file_exists($publicDir . '/index.php')) {
     require $publicDir . '/index.php';
 } else {
-    require $publicDir . '/index.html';
+    http_response_code(500);
+    exit('No se encontrÃ³ el punto de entrada de la aplicaciÃ³n.');
 }

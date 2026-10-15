@@ -1,181 +1,74 @@
-# Guía de Despliegue en DonWeb Ferozo y Manual del Piloto (5 Usuarios)
-**TAL S.A. — Área de Planeamiento**  
-**Sistema Web de Gestión y Seguimiento de Tareas (Versión V1.2.0 — MVP)**
+# Despliegue inicial en DonWeb Ferozo
 
----
+Esta guía instala el sistema desde cero: no incorpora usuarios, tareas, comentarios, adjuntos ni credenciales de demostración.
 
-## 1. Resumen Ejecutivo y Alcance del Piloto
+## 1. Requisitos
 
-El presente documento establece el procedimiento técnico y operativo para la puesta en producción y ejecución del piloto del **Sistema de Gestión y Seguimiento de Tareas** en la infraestructura de Web Hosting DonWeb con panel Ferozo.
+- PHP 8.2+ con `pdo_mysql`, `json`, `mbstring`, `fileinfo` y `openssl`.
+- MySQL 8 o MariaDB con InnoDB y `utf8mb4`.
+- HTTPS activo, `mod_rewrite`, `mod_deflate` y `mod_expires` cuando estén disponibles.
+- El directorio público del dominio debe apuntar exclusivamente a `public_html/`.
 
-El sistema ha superado satisfactoriamente las 10 etapas de desarrollo de la **Fase 1 (MVP)**, totalizando **250+ pruebas automatizadas** que cubren autenticación RBAC, tablero Kanban, asignación controlada, dependencias DAG acíclicas, circuito formal de aprobaciones con confirmación de cierre, motor de notificaciones e historial inmutable con dashboard de métricas operativas.
+## 2. Subir archivos
 
----
+Sube `app/`, `database/`, `storage/` y `public_html/` a la raíz privada de la cuenta. Expón solamente `public_html/` al dominio. No subas `.env`, bases SQLite, respaldos, `tests/`, `.tmp-cloudflare/` ni datos de desarrollo.
 
-## 2. Equipo del Piloto (5 Usuarios de TAL S.A.)
+Asigna permisos de escritura al proceso PHP sobre `storage/`, `storage/uploads/` y `storage/logs/`; el archivo `.env` debe quedar fuera de `public_html/` y con permisos restrictivos.
 
-El piloto involucra a 5 integrantes clave del Área de Planeamiento, configurados en `database/seeds.sql`:
+## 3. Crear base de datos vacía
 
-| ID | Código | Nombre y Apellidos | Correo Corporativo | Rol en Plataforma | Cargo Operativo | Alcance y Permisos |
-|---|---|---|---|---|---|---|
-| **1** | `ASIST-01` | Marco Chumbes | `mchumbes@planeamiento.tal` | `ASISTENTE` | Asistente de Información 1 | Autoasignación forzosa, tareas del área asignadas, tareas personales privadas, checklist y carga de evidencias. |
-| **2** | `ASIST-02` | Asistente Dos | `asistente2@planeamiento.tal` | `ASISTENTE` | Asistente de Información 2 | Autoasignación forzosa, tareas del área asignadas, tareas personales privadas. |
-| **3** | `ASIST-03` | Asistente Tres | `asistente3@planeamiento.tal` | `ASISTENTE` | Asistente de Información 3 | Autoasignación forzosa, tareas del área asignadas, tareas personales privadas. |
-| **4** | `JEFE-PER` | Roberto (Jefe Personal) | `jefe.personal@planeamiento.tal` | `JEFE_PERSONAL` | Jefe de Personal | Creación y asignación de tareas oficiales, dictamen de aprobaciones, balance de equipo y métricas globales. |
-| **5** | `JEFE-PLA` | Elena Vega | `jefe.planeamiento@planeamiento.tal` | `JEFE_PLANEAMIENTO` | Jefe del Área de Planeamiento | Supervisión integral del área, asignación/reasignación de tareas oficiales, resolución de circuito de aprobación, dashboard operativo y balance general. |
+En phpMyAdmin crea una base y un usuario MySQL exclusivos. Importa, en este orden:
 
-> [!NOTE]
-> **Contraseña inicial para el piloto:** `Planeamiento2026!` (hash Bcrypt `$2y$12$uEG1MZnqkcoThSpgvrgduuqHdhIaVKPlwGHRsPA6prWncrmVvQeJK`). Se recomienda solicitar cambio de contraseña tras el primer acceso.
+1. `database/schema.sql`
+2. `database/seeds.sql`
 
----
+El segundo archivo solo crea las cinco columnas del tablero: Pendiente, En proceso, Bloqueada, En revisión y Finalizada. No crea cuentas ni tareas.
 
-## 3. Checklist Pre-Despliegue en DonWeb Ferozo
+## 4. Crear `.env` de producción
 
-### A. Requisitos del Servidor
-- [x] **Versión de PHP:** PHP 8.2 o superior activado en el panel Ferozo (`Configuración de PHP` -> Versión 8.2+).
-- [x] **Extensiones PHP obligatorias:** `pdo_mysql`, `json`, `mbstring`, `fileinfo`, `openssl`.
-- [x] **Módulo Apache:** `mod_rewrite` activo para soportar URLs amigables (`.htaccess`).
-- [x] **Base de Datos:** MySQL 8.0 o MariaDB 10.5+ con soporte transaccional InnoDB y collation `utf8mb4_unicode_ci`.
-
-### B. Distribución Física de Archivos en Ferozo
-En el explorador de archivos o vía FTP seguro (SFTP/FTPS) de DonWeb Ferozo, la estructura debe montarse de la siguiente manera:
-
-```text
-/home/usuario_ferozo/
-├── app/                        <- Fuera de la raíz web pública (Aislado con app/.htaccess)
-│   ├── Config/
-│   ├── Controllers/
-│   ├── Core/
-│   ├── Middleware/
-│   ├── Models/
-│   ├── Services/
-│   └── bootstrap.php
-├── database/                   <- Scripts SQL (schema.sql, seeds.sql)
-├── storage/                    <- Almacenamiento seguro
-│   ├── logs/                   <- Bitácoras del sistema (permisos 0750)
-│   └── uploads/                <- Evidencias adjuntas (Aislado con storage/uploads/.htaccess)
-├── .env                        <- Variables de entorno de producción (NUNCA versionar en Git)
-└── public_html/                <- ÚNICA CARPETA EXPUESTA PÚBLICAMENTE AL SERVIDOR WEB
-    ├── .htaccess               <- Enrutamiento hacia api/index.php y seguridad HTTP
-    ├── index.html              <- Interfaz de Usuario SPA
-    ├── assets/
-    │   ├── css/                <- Estilos (variables.css, app.css)
-    │   └── js/                 <- Lógica interactiva (app.js)
-    └── api/
-        └── index.php           <- Front Controller REST API
-```
-
----
-
-## 4. Procedimiento de Instalación Paso a Paso
-
-### Paso 1: Creación de la Base de Datos
-1. Iniciar sesión en el panel Ferozo de DonWeb.
-2. Ir a **Bases de Datos MySQL** -> **Crear Base de Datos**.
-3. Registrar:
-   - Nombre de BD: ej. `tal_planeamiento_db`
-   - Usuario de BD: ej. `tal_planeamiento_usr`
-   - Contraseña segura: Generar una clave robusta alfanumérica con símbolos.
-
-### Paso 2: Importación de Estructura y Semillas
-1. Abrir **phpMyAdmin** desde Ferozo.
-2. Seleccionar la base de datos creada.
-3. En la pestaña **Importar**:
-   - Seleccionar y ejecutar el archivo `database/schema.sql` (Crea las 10 tablas relacionales optimizadas con índices y llaves foráneas).
-   - Seleccionar y ejecutar el archivo `database/seeds.sql` (Inserta las 5 columnas funcionales Kanban y los 5 usuarios del equipo piloto).
-
-### Paso 3: Configuración del Archivo `.env` en Producción
-Crear el archivo `.env` en la raíz privada `/home/usuario_ferozo/.env` (tomando como base `.env.example`):
+Parte de `.env.example` y usa nombres reales de las variables:
 
 ```ini
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://planeamiento.tal.com.pe
-APP_KEY=generar_clave_hexadecimal_aleatoria_de_64_caracteres_minimo
+APP_URL=https://tu-dominio.example
+APP_SECRET=clave_aleatoria_de_64_caracteres_o_mas
 
-DB_CONNECTION=mysql
+DB_DRIVER=mysql
 DB_HOST=localhost
 DB_PORT=3306
-DB_DATABASE=tal_planeamiento_db
-DB_USERNAME=tal_planeamiento_usr
-DB_PASSWORD="TU_PASSWORD_SEGURO_DE_FEROZO"
+DB_NAME=nombre_real_de_base
+DB_USER=usuario_real_de_base
+DB_PASS="clave_real_de_base"
 
-SESSION_LIFETIME_HOURS=24
-UPLOAD_MAX_FILE_SIZE_MB=10
+SESSION_LIFETIME_HOURS=12
+UPLOAD_DIR=../storage/uploads
+MAX_UPLOAD_SIZE_MB=10
+
+INSTALLER_ENABLED=true
+INSTALL_TOKEN=token_aleatorio_de_32_caracteres_o_mas
 ```
 
-### Paso 4: Ajuste de Permisos de Archivos (CHMOD)
-Desde el Administrador de Archivos de Ferozo o terminal SSH:
-```bash
-chmod 755 public_html
-chmod -R 750 app
-chmod -R 770 storage/logs
-chmod -R 770 storage/uploads
-chmod 600 .env
-```
+No reutilices contraseñas conocidas ni guardes este archivo en Git. Genera `APP_SECRET` e `INSTALL_TOKEN` con un gestor de contraseñas.
 
-### Paso 5: Certificado SSL y Cabeceras HTTPS
-1. En el panel Ferozo, activar **Certificado SSL Let's Encrypt** (gratuito) para el dominio o subdominio asignado.
-2. Verificar que `public_html/.htaccess` aplique las cabeceras de seguridad activas:
-   - `X-Content-Type-Options: nosniff`
-   - `X-Frame-Options: SAMEORIGIN`
-   - `X-XSS-Protection: 1; mode=block`
-   - `Referrer-Policy: strict-origin-when-cross-origin`
+## 5. Crear la primera cuenta administradora
 
----
+1. Abre `https://tu-dominio.example/instalar.php` mediante HTTPS.
+2. Ingresa el `INSTALL_TOKEN`, el nombre, correo institucional y una contraseña de al menos 12 caracteres.
+3. El instalador crea un único usuario con rol **Jefe de Área**, registra el bloqueo de instalación y no puede crear una segunda cuenta.
+4. Cambia inmediatamente `INSTALLER_ENABLED=false` en `.env`.
+5. Inicia sesión con esa cuenta y crea los demás miembros desde **Usuarios**.
 
-## 5. Guía Rápida para los Usuarios del Piloto
+Si el instalador muestra 404, revisa que `INSTALLER_ENABLED=true`, que el token tenga 32+ caracteres, que no exista `storage/installation.lock` y que la tabla `usuarios` esté vacía. No borres el lock ni vacíes usuarios en una instalación real para reabrir el instalador.
 
-### A. Para Asistentes (Marco Chumbes, Asistente 2, Asistente 3)
-1. **Acceso:** Ingresar a la URL del sistema e iniciar sesión con correo corporativo y clave asignada.
-2. **Navegación:**
-   - **📋 Mis Tareas del Área:** Muestra las tareas oficiales asignadas a tu persona.
-   - **🔒 Mis Tareas Personales:** Espacio privado para organizar tus apuntes o subtareas individuales.
-   - **📊 Dashboard & Métricas:** Indicadores personales de cumplimiento y tareas activas.
-3. **Creación de Tareas:**
-   - Al crear una tarea, la asignación es automáticamente a ti mismo (Regla **RN-03**).
-4. **Ejecución y Checklist:**
-   - Abre la tarjeta para desglosar tu trabajo en subtareas interactivas, adjuntar evidencias (PDF, Excel, imágenes) y escribir notas.
-5. **Cierre o Revisión:**
-   - Si la tarea NO requiere aprobación: Al mover a Finalizada, marca el checkbox de confirmación consciente (**RN-11**).
-   - Si la tarea REQUIERE aprobación: Pulsa el botón "Solicitar Aprobación a Jefatura" (**RN-10**). La tarea se enviará a revisión y Jefatura dictaminará el cierre.
+## 6. Verificación antes de abrir el sistema
 
-### B. Para Jefatura (Elena Vega y Roberto)
-1. **👥 Tablero General del Equipo:** Permite supervisar todas las tareas del área, filtradas por estado o prioridad.
-2. **Asignación y Reasignación:** Los jefes pueden asignar y reasignar responsables entre los miembros del equipo.
-3. **⚖️ Bandeja de Aprobaciones:**
-   - Notificaciones y badge numérico de tareas enviadas a revisión formal.
-   - Opciones de dictamen:
-     - **Aprobar:** Cierra formalmente la tarea con timestamp y libera dependencias sucesoras.
-     - **Devolver:** Exige observaciones detalladas obligatorias (**RN-12**) y retorna la tarea a *En Proceso*.
-4. **📊 Dashboard Operativo & Balance de Equipo:**
-   - Supervisión en tiempo real de la tasa de cumplimiento del área.
-   - Alertas tempranas de tareas vencidas o próximas a vencer (≤ 7 días).
-   - Tabla de **Balance de Carga de Trabajo** por cada integrante del equipo.
+- `/` muestra el login sin valores precargados ni cuentas demo.
+- `/instalar.php` queda inaccesible tras la primera cuenta o al desactivar el instalador.
+- El primer Jefe de Área puede crear las cuentas del equipo desde Usuarios.
+- Prueba crear una tarea, asignarla, comentar y adjuntar un archivo de prueba.
+- Confirma el candado HTTPS, las cabeceras de seguridad y que los adjuntos no sean ejecutables.
 
----
+## 7. Backups y rollback
 
-## 6. Plan de Contingencia, Backup y Rollback
-
-### A. Estrategia de Backups Diarios
-1. **Base de Datos MySQL:** Configurar en Ferozo backup automático diario de la base de datos o ejecutar vía Cron Job:
-   ```bash
-   mysqldump -u tal_planeamiento_usr -p'PASSWORD' tal_planeamiento_db | gzip > /home/usuario_ferozo/backups/db_$(date +\%Y\%m\%d).sql.gz
-   ```
-2. **Archivos de Evidencias (`storage/uploads/`):** Respaldo comprimido semanal.
-
-### B. Procedimiento de Rollback
-1. Si se detecta un incidente crítico tras una actualización:
-   - Restaurar el último dump SQL consistente:
-     ```bash
-     gunzip < /home/usuario_ferozo/backups/db_PREVIO.sql.gz | mysql -u tal_planeamiento_usr -p'PASSWORD' tal_planeamiento_db
-     ```
-   - Revertir los archivos del directorio `app/` y `public_html/` a la versión estable previa.
-
----
-
-## 7. Cierre de Fase y Próximos Pasos
-
-Con la culminación de **MVP-10**:
-- La **Fase 1 (MVP)** queda formalmente **CONCLUIDA AL 100%**.
-- Se recomienda un periodo de marcha blanca de 2 semanas con el equipo de 5 usuarios para recopilar retroalimentación antes de iniciar las funcionalidades de **Fase 2** (Plantillas de procesos, tareas recurrentes, registro de tiempos y calendario laboral).
+Configura respaldo diario de MySQL y copia semanal de `storage/uploads/`. Antes de cada actualización, exporta la base y guarda una copia de `app/`, `public_html/` y `storage/`. Para rollback, restaura el último respaldo consistente y la versión anterior de archivos.

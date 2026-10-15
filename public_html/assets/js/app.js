@@ -6,7 +6,7 @@
 import { STATE, isCurrentUserJefe } from './modules/state.js';
 import { apiFetch } from './modules/api.js';
 import { initTheme, openModal, closeModal, showToast } from './modules/ui.js';
-import { checkSession, doLogin, quickLogin, doLogout, registerLoginCallback } from './modules/auth.js';
+import { checkSession, doLogin, doLogout, registerLoginCallback } from './modules/auth.js';
 import { fetchUsers, fetchColumns, fetchTasks, renderKanban, executeTaskTransition, registerKanbanCallbacks } from './modules/kanban.js?v=1.6.1';
 import { openCreateTaskModal, handleCreateTask, openTaskDetailModal, loadTaskDetail, handleAddSubtask, toggleSubtask, deleteSubtask, handleAddComment, handleDeleteActiveTask, handleFinalizeImmediately, handleAddDependency, removeDependency, toggleTaskEditMode, handleSaveTaskEdit, registerTaskModalCallbacks } from './modules/task-modal.js?v=1.6.1';
 import { fetchPendingApprovals, fetchPendingApprovalsCount, approveTask, openReturnModal, handleReturnTaskSubmit, requestApproval, registerApprovalCallbacks } from './modules/approvals.js';
@@ -53,7 +53,6 @@ registerNotificationCallbacks({
 // -----------------------------------------------------------------------------
 // Exposición Global en Window para Compatibilidad con Atributos HTML
 // -----------------------------------------------------------------------------
-window.quickLogin = quickLogin;
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.openTaskDetailModal = openTaskDetailModal;
