@@ -1,6 +1,6 @@
 # Diseño funcional — Módulo de Gestión de Usuarios
 
-**Estado:** diseñado y pendiente de implementación.  
+**Estado:** diseñado y pendiente de implementación.
 **Alcance:** administración exclusiva de cuentas, roles y acceso; no modifica la lógica de tareas, tablero, aprobaciones ni historial.
 
 ## Objetivo
