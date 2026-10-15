@@ -1,5 +1,15 @@
 # Changelog
 
+## [Sin versión - Sincronización operativa en vivo compatible con Ferozo] - 2026-10-15
+### Agregado
+- Eventos persistentes de sincronización y destinatarios autorizados para actualizar sesiones sin recargar la SPA.
+- Endpoints autenticados de cursor y espera larga de máximo 20 s, con cliente modular y reconexión progresiva.
+- Migración `database/migrations/2026-10-15_realtime_sync.sql` y pruebas de aislamiento de destinatarios, cursor y contrato.
+
+### Modificado
+- Tareas, checklist, comentarios/evidencias, aprobaciones, dependencias, columnas y cuentas administrativas emiten eventos después de persistir.
+- La guía de DonWeb Ferozo documenta las variables de entorno reales y el requisito PHP de sincronización.
+
 ## [Sin versión - Patrón oscuro y hora limitada al detalle] - 2026-10-15
 ### Modificado
 - El patrón del modo oscuro ahora es visible con la misma composición de puntos y diagonales que el modo claro.

@@ -12,6 +12,7 @@ $suites = [
     'approvals_test.php',
     'dependencies_test.php',
     'notifications_automation_test.php',
+    'realtime_sync_test.php',
     'dashboard_audit_test.php',
     'qa_security_pilot_test.php'
 ];

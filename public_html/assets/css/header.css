@@ -74,6 +74,32 @@
   gap: 1rem;
 }
 
+.realtime-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.realtime-status::before {
+  content: '';
+  width: 0.48rem;
+  height: 0.48rem;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.realtime-status[data-status="live"]::before { background: var(--status-success-solid); }
+.realtime-status[data-status="connecting"]::before { background: var(--primary-500); }
+.realtime-status[data-status="retrying"]::before { background: var(--status-warning-solid); }
+
+@media (max-width: 980px) {
+  .realtime-status { display: none; }
+}
+
 /* Perfil de Usuario Activo */
 .user-profile-badge {
   display: flex;

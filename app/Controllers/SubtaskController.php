@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Core\Response;
 use App\Models\Subtask;
 use App\Models\Task;
+use App\Models\RealtimeEvent;
 
 /**
  * Controlador de Subtareas / Checklist dentro de Tareas (RF-10, RN-02).
@@ -89,6 +90,7 @@ class SubtaskController
 
         $orden = (int)($body['orden'] ?? 1);
         $subtarea = Subtask::create($taskId, $titulo, $orden);
+        RealtimeEvent::publishTask('CHECKLIST_CREATED', $task, $currentUser);
 
         Response::json([
             'subtarea' => $subtarea,
@@ -128,6 +130,7 @@ class SubtaskController
 
         $body = $request['body'] ?? [];
         $updated = Subtask::update($id, $body);
+        RealtimeEvent::publishTask('CHECKLIST_UPDATED', $task, $currentUser);
 
         Response::json([
             'subtarea' => $updated,
@@ -166,6 +169,7 @@ class SubtaskController
         }
 
         Subtask::delete($id);
+        RealtimeEvent::publishTask('CHECKLIST_DELETED', $task, $currentUser);
 
         Response::json([
             'mensaje' => 'Subtarea eliminada exitosamente.'

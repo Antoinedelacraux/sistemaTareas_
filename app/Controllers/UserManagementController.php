@@ -8,6 +8,7 @@ use App\Core\Response;
 use App\Models\Audit;
 use App\Models\Session;
 use App\Models\User;
+use App\Models\RealtimeEvent;
 
 /** Administración aislada de cuentas y roles para Jefatura. */
 class UserManagementController
@@ -109,6 +110,7 @@ class UserManagementController
         }
         $created = User::create($data + ['password' => $password]);
         Audit::log((int)$actor['id'], 'USUARIO', (int)$created['id'], 'USUARIO_CREADO', null, $created['rol'], ['rol' => $created['rol'], 'activo' => true]);
+        RealtimeEvent::publishForJefatura('USER_CREATED', 'USUARIO', (int)$created['id'], $actor, [(int)$created['id']]);
         Response::json(['usuario' => $created, 'mensaje' => 'Cuenta creada correctamente.'], 201);
     }
 
@@ -124,6 +126,7 @@ class UserManagementController
         $roleChanged = $target['rol'] !== $updated['rol'];
         if ($roleChanged) Session::invalidateForUser((int)$target['id']);
         Audit::log((int)$actor['id'], 'USUARIO', (int)$target['id'], 'USUARIO_ACTUALIZADO', $target['rol'], $updated['rol'], ['rol_anterior' => $target['rol'], 'rol_nuevo' => $updated['rol']]);
+        RealtimeEvent::publishForJefatura('USER_UPDATED', 'USUARIO', (int)$target['id'], $actor, [(int)$target['id']]);
         Response::json([
             'usuario' => User::formatPublic($updated),
             'mensaje' => 'Cuenta actualizada correctamente.',
@@ -154,6 +157,7 @@ class UserManagementController
         $updated = User::setActive((int)$target['id'], $active);
         if (!$active) Session::invalidateForUser((int)$target['id']);
         Audit::log((int)$actor['id'], 'USUARIO', (int)$target['id'], $active ? 'USUARIO_ACTIVADO' : 'USUARIO_DESACTIVADO', $target['activo'] ? 'ACTIVO' : 'INACTIVO', $active ? 'ACTIVO' : 'INACTIVO');
+        RealtimeEvent::publishForJefatura($active ? 'USER_ACTIVATED' : 'USER_DEACTIVATED', 'USUARIO', (int)$target['id'], $actor, $active ? [(int)$target['id']] : []);
         Response::json(['usuario' => User::formatPublic($updated), 'mensaje' => $active ? 'Cuenta activada.' : 'Cuenta desactivada.']);
     }
 
@@ -171,6 +175,7 @@ class UserManagementController
         User::changePassword((int)$target['id'], $password);
         Session::invalidateForUser((int)$target['id']);
         Audit::log((int)$actor['id'], 'USUARIO', (int)$target['id'], 'PASSWORD_CAMBIADA');
+        RealtimeEvent::publishForJefatura('USER_PASSWORD_CHANGED', 'USUARIO', (int)$target['id'], $actor);
         Response::json(['mensaje' => 'Contraseña actualizada. La cuenta deberá iniciar sesión nuevamente.']);
     }
 }

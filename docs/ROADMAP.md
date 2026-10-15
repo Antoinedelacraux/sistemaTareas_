@@ -32,6 +32,7 @@
 - [x] VISTAS-03 Tablero único de Área, permisos simplificados y evidencias descargables con autor visible. [COMPLETADO]
 - [x] VERIF-01 Validación 100% funcional local de punta a punta (creación, arrastre, checklist, adjuntos y filtros por rol). [COMPLETADO]
 - [x] VPS-PREP-01 Empaquetado, checklist y migración lista para DonWeb Ferozo / VPS. [COMPLETADO]
+- [x] REALTIME-01 Sincronización operativa en vivo compatible con Ferozo: eventos persistentes autorizados, espera larga, reconexión SPA y guía de migración. [COMPLETADO]
 
 ## Fase 2 (Planificada - Posterior a VPS)
 Plantillas reutilizables, tareas recurrentes, tiempos de trabajo, calendario laboral.

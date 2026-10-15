@@ -36,6 +36,7 @@ El piloto involucra a 5 integrantes clave del Área de Planeamiento, configurado
 - [x] **Extensiones PHP obligatorias:** `pdo_mysql`, `json`, `mbstring`, `fileinfo`, `openssl`.
 - [x] **Módulo Apache:** `mod_rewrite` activo para soportar URLs amigables (`.htaccess`).
 - [x] **Base de Datos:** MySQL 8.0 o MariaDB 10.5+ con soporte transaccional InnoDB y collation `utf8mb4_unicode_ci`.
+- [ ] **Tiempo de ejecución PHP:** `max_execution_time` configurado en al menos 25 segundos para permitir la espera larga de sincronización (el sistema usa como máximo 20 segundos por solicitud).
 
 ### B. Distribución Física de Archivos en Ferozo
 En el explorador de archivos o vía FTP seguro (SFTP/FTPS) de DonWeb Ferozo, la estructura debe montarse de la siguiente manera:
@@ -50,14 +51,14 @@ En el explorador de archivos o vía FTP seguro (SFTP/FTPS) de DonWeb Ferozo, la 
 │   ├── Models/
 │   ├── Services/
 │   └── bootstrap.php
-├── database/                   <- Scripts SQL (schema.sql, seeds.sql)
+├── database/                   <- Scripts SQL (schema.sql, seeds.sql, migrations/)
 ├── storage/                    <- Almacenamiento seguro
 │   ├── logs/                   <- Bitácoras del sistema (permisos 0750)
 │   └── uploads/                <- Evidencias adjuntas (Aislado con storage/uploads/.htaccess)
 ├── .env                        <- Variables de entorno de producción (NUNCA versionar en Git)
 └── public_html/                <- ÚNICA CARPETA EXPUESTA PÚBLICAMENTE AL SERVIDOR WEB
     ├── .htaccess               <- Enrutamiento hacia api/index.php y seguridad HTTP
-    ├── index.html              <- Interfaz de Usuario SPA
+    ├── index.php               <- Ensamblador de la Interfaz SPA
     ├── assets/
     │   ├── css/                <- Estilos (variables.css, app.css)
     │   └── js/                 <- Lógica interactiva (app.js)
@@ -81,8 +82,8 @@ En el explorador de archivos o vía FTP seguro (SFTP/FTPS) de DonWeb Ferozo, la 
 1. Abrir **phpMyAdmin** desde Ferozo.
 2. Seleccionar la base de datos creada.
 3. En la pestaña **Importar**:
-   - Seleccionar y ejecutar el archivo `database/schema.sql` (Crea las 10 tablas relacionales optimizadas con índices y llaves foráneas).
-   - Seleccionar y ejecutar el archivo `database/seeds.sql` (Inserta las 5 columnas funcionales Kanban y los 5 usuarios del equipo piloto).
+   - En una instalación nueva, seleccionar y ejecutar `database/schema.sql` (incluye las tablas de sincronización) y después `database/seeds.sql` (inserta columnas y usuarios del piloto).
+   - En una instalación existente, realizar un backup y ejecutar una sola vez `database/migrations/2026-10-15_realtime_sync.sql`.
 
 ### Paso 3: Configuración del Archivo `.env` en Producción
 Crear el archivo `.env` en la raíz privada `/home/usuario_ferozo/.env` (tomando como base `.env.example`):
@@ -91,18 +92,26 @@ Crear el archivo `.env` en la raíz privada `/home/usuario_ferozo/.env` (tomando
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://planeamiento.tal.com.pe
-APP_KEY=generar_clave_hexadecimal_aleatoria_de_64_caracteres_minimo
+APP_SECRET=generar_clave_hexadecimal_aleatoria_de_64_caracteres_minimo
 
-DB_CONNECTION=mysql
 DB_HOST=localhost
 DB_PORT=3306
-DB_DATABASE=tal_planeamiento_db
-DB_USERNAME=tal_planeamiento_usr
-DB_PASSWORD="TU_PASSWORD_SEGURO_DE_FEROZO"
+DB_NAME=tal_planeamiento_db
+DB_USER=tal_planeamiento_usr
+DB_PASS="TU_PASSWORD_SEGURO_DE_FEROZO"
 
 SESSION_LIFETIME_HOURS=24
-UPLOAD_MAX_FILE_SIZE_MB=10
+MAX_UPLOAD_SIZE_MB=10
+REALTIME_LONG_POLL_SECONDS=20
+REALTIME_EVENT_RETENTION_DAYS=14
 ```
+
+### Paso 3.1: Verificación de sincronización en vivo
+
+1. Verificar que HTTPS esté activo antes de abrir el sistema a usuarios.
+2. Iniciar dos sesiones con cuentas autorizadas sobre una misma tarea.
+3. Crear un comentario, asignar o mover la tarea en una sesión; la otra debe mostrar `Actualización en vivo` y reflejar el cambio sin recarga manual en un máximo de 20 segundos.
+4. Si el hosting limita el tiempo de ejecución por debajo de 25 segundos, reducir `REALTIME_LONG_POLL_SECONDS` a un valor menor que dicho límite; nunca aumentarlo por encima de 20 segundos.
 
 ### Paso 4: Ajuste de Permisos de Archivos (CHMOD)
 Desde el Administrador de Archivos de Ferozo o terminal SSH:

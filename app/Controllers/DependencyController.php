@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Core\Response;
 use App\Models\Task;
 use App\Models\TaskDependency;
+use App\Models\RealtimeEvent;
 use InvalidArgumentException;
 use RuntimeException;
 use Throwable;
@@ -73,6 +74,10 @@ class DependencyController
 
         try {
             $result = TaskDependency::add($tareaId, $predecesoraId, $currentUser);
+            $task = Task::findById($tareaId);
+            $predecessor = Task::findById($predecesoraId);
+            if ($task) RealtimeEvent::publishTask('TASK_DEPENDENCY_CREATED', $task, $currentUser, [], $predecessor ? RealtimeEvent::taskAudience($predecessor) : []);
+            if ($predecessor) RealtimeEvent::publishTask('TASK_DEPENDENCY_CREATED', $predecessor, $currentUser, [], $task ? RealtimeEvent::taskAudience($task) : []);
             Response::json($result, 201);
         } catch (InvalidArgumentException $e) {
             Response::error($e->getMessage(), $e->getCode() ?: 422, 'ERR_VALIDATION_FAILED');
@@ -108,6 +113,8 @@ class DependencyController
 
         $tareaId = (int)($request['params']['id'] ?? 0);
         $predecesoraId = (int)($request['params']['pred_id'] ?? 0);
+        $task = Task::findById($tareaId);
+        $predecessor = Task::findById($predecesoraId);
 
         try {
             $removed = TaskDependency::remove($tareaId, $predecesoraId, $currentUser);
@@ -115,6 +122,8 @@ class DependencyController
                 Response::error('La relación de dependencia no existe o ya fue eliminada.', 404, 'ERR_DEPENDENCY_NOT_FOUND');
                 return;
             }
+            if ($task) RealtimeEvent::publishTask('TASK_DEPENDENCY_DELETED', $task, $currentUser, [], $predecessor ? RealtimeEvent::taskAudience($predecessor) : []);
+            if ($predecessor) RealtimeEvent::publishTask('TASK_DEPENDENCY_DELETED', $predecessor, $currentUser, [], $task ? RealtimeEvent::taskAudience($task) : []);
 
             Response::json(['mensaje' => 'Dependencia eliminada exitosamente.'], 200);
         } catch (RuntimeException $e) {

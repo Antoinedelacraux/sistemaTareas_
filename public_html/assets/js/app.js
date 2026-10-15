@@ -14,13 +14,40 @@ import { loadHistoryTasks, filterHistoryTasks } from './modules/history.js?v=1.6
 import { fetchNotificationsSummary, loadNotifications, markAllNotificationsRead, startNotificationPolling, stopNotificationPolling, registerNotificationCallbacks } from './modules/notifications.js';
 import { initUserManagementEvents, loadManagedUsers, openManagedUserEditor, saveManagedUser, changeManagedUserStatus } from './modules/users-management.js';
 import { openCreateColumnModal, openEditColumnModal, selectColorHex, handleSaveColumn, handleDeleteColumn } from './modules/columns.js';
+import { registerRealtimeCallback, startRealtimeSync, stopRealtimeSync } from './modules/realtime.js?v=1.7.0';
 
 // -----------------------------------------------------------------------------
 // Registro de Intercomunicación entre Módulos
 // -----------------------------------------------------------------------------
 registerLoginCallback(async () => {
+    await startRealtimeSync();
     await loadInitialData();
     startNotificationPolling();
+});
+
+registerRealtimeCallback(async (events) => {
+    const hasTaskChange = events.some(event => event.tarea_id || event.entidad_tipo === 'TAREA');
+    const hasColumnChange = events.some(event => event.entidad_tipo === 'COLUMNA');
+    const hasApprovalChange = events.some(event => String(event.tipo || '').startsWith('APPROVAL_'));
+    const hasUserChange = events.some(event => event.entidad_tipo === 'USUARIO');
+
+    if (hasColumnChange) await fetchColumns();
+    if (hasTaskChange || hasColumnChange) await fetchTasks();
+    if (hasApprovalChange || hasTaskChange) await fetchPendingApprovalsCount();
+    if ((hasApprovalChange || hasTaskChange) && STATE.currentScope === 'approvals') await fetchPendingApprovals();
+    if (hasTaskChange && STATE.currentScope === 'history' && isCurrentUserJefe()) await loadHistoryTasks();
+    if (hasUserChange && isCurrentUserJefe()) {
+        await fetchUsers();
+        if (STATE.currentScope === 'users') await loadManagedUsers();
+    }
+
+    const activeTaskId = Number(STATE.activeTaskDetail?.id || 0);
+    if (activeTaskId && events.some(event => Number(event.tarea_id) === activeTaskId)) {
+        await loadTaskDetail(activeTaskId);
+    }
+
+    await fetchNotificationsSummary();
+    if (document.getElementById('notif-dropdown')?.style.display === 'block') await loadNotifications();
 });
 
 registerKanbanCallbacks({
@@ -204,6 +231,7 @@ function initEventListeners() {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
             stopNotificationPolling();
+            stopRealtimeSync();
             await doLogout();
         });
     }
