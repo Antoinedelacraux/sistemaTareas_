@@ -268,9 +268,17 @@
 .task-meta-icons {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.65rem;
   font-size: 0.75rem;
   color: var(--text-muted);
+}
+
+.task-created-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
 }
 
 .task-due-chip-overdue {

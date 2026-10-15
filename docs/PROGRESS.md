@@ -1,5 +1,13 @@
 # Registro de avances
 
+### 2026-10-15 — UI-04: selector de responsables y hora de registro
+- **Estado:** implementado, pendiente de validación visual manual.
+- **Alcance:** RF-04, RF-07, RF-10; RN-03 y RN-04.
+- **Selector:** creación y edición de tareas usan un selector accesible con buscador y lista filtrable; cada opción muestra únicamente `Nombre (ROL)` y conserva el ID interno requerido por la API.
+- **Registro:** `created_at` se muestra con fecha y hora en tarjetas del Kanban, bandeja de aprobaciones, historial archivado y detalle de tarea. Se normaliza el valor UTC persistido por backend antes de presentarlo en horario local.
+- **Pruebas:** lint PHP completo: PASS; `php tests/notifications_automation_test.php`: 38/38 PASS; `php tests/user_management_test.php`: 15/15 PASS; HTTP local 200 con controles nuevos: PASS; `git diff --check`: PASS. `tasks_test.php` conserva el fallo heredado T21 de eliminación, no relacionado con este avance.
+- **Siguiente paso:** validar visualmente el buscador en creación/edición y confirmar la hora mostrada en una tarea nueva.
+
 ### 2026-10-15 — UI-03: retiro del zoom visual interno
 - **Estado:** implementado, pendiente de validación visual manual.
 - **Alcance:** RF-07, RF-10, RN-07; ajuste solicitado sobre UI-01/UI-02.

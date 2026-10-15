@@ -6,7 +6,7 @@
 import { apiFetch } from './api.js';
 import { STATE, isCurrentUserJefe } from './state.js';
 import { escapeHtml, formatDate, showToast, openModal, closeModal } from './ui.js';
-import { fetchTasks } from './kanban.js?v=1.6.0';
+import { fetchTasks } from './kanban.js?v=1.6.1';
 
 let onApprovalActionCallback = null;
 
@@ -198,8 +198,9 @@ export function renderApprovalsList(approvals) {
             <h4 class="approval-card-title">${escapeHtml(appr.tarea_titulo)}</h4>
             <div class="approval-meta-row">
                 <span><strong>Responsable:</strong> ${escapeHtml(appr.responsable_nombre || appr.solicitante_nombre || 'Usuario')}</span>
-                <span>${formatDate(appr.fecha_solicitud || appr.created_at)}</span>
+                <span>Solicitud: ${formatDate(appr.fecha_solicitud || appr.created_at)}</span>
             </div>
+            ${appr.tarea_created_at ? `<div class="approval-created-at">Registrada: ${escapeHtml(formatDate(appr.tarea_created_at))}</div>` : ''}
             <div class="approval-actions">
                 <button class="btn btn-outline btn-sm" onclick="openTaskDetailModal(${appr.tarea_id})">
                     <svg class="icon-svg icon-svg-sm" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>

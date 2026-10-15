@@ -115,11 +115,21 @@ export function escapeHtml(str) {
 export function formatDate(isoStr) {
     if (!isoStr) return '';
     try {
-        const d = new Date(isoStr);
-        return d.toLocaleDateString('es-PE', {
-            day: '2-digit', month: '2-digit', year: 'numeric',
-            hour: '2-digit', minute: '2-digit'
-        });
+        const raw = String(isoStr).trim();
+        const hasTime = raw.includes(' ') || raw.includes('T');
+        const normalized = raw.includes(' ') ? raw.replace(' ', 'T') : raw;
+        const hasTimezone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(normalized);
+        const d = new Date(hasTime && !hasTimezone ? `${normalized}Z` : normalized);
+        if (Number.isNaN(d.getTime())) return isoStr;
+
+        const options = {
+            day: '2-digit', month: '2-digit', year: 'numeric'
+        };
+        if (hasTime) {
+            options.hour = '2-digit';
+            options.minute = '2-digit';
+        }
+        return d.toLocaleString('es-PE', options);
     } catch {
         return isoStr;
     }

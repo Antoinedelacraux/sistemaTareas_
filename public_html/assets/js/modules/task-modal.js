@@ -6,10 +6,107 @@
 import { apiFetch } from './api.js';
 import { STATE, isCurrentUserJefe } from './state.js';
 import { escapeHtml, formatDate, showToast, openModal, closeModal } from './ui.js';
-import { fetchTasks } from './kanban.js?v=1.6.0';
+import { fetchTasks } from './kanban.js?v=1.6.1';
 import { renderApprovalBox } from './approvals.js';
 
 let onTaskUpdatedCallback = null;
+const assigneePickerInstances = new Map();
+
+function getAssigneeLabel(user) {
+    return `${user.nombre || 'Usuario'} (${user.rol || 'SIN ROL'})`;
+}
+
+function closeAssigneePicker(instance) {
+    instance.options.hidden = true;
+    instance.picker.classList.remove('is-open');
+    instance.input.setAttribute('aria-expanded', 'false');
+}
+
+function renderAssigneePickerOptions(instance) {
+    const query = instance.input.value.trim().toLowerCase();
+    const matches = instance.users.filter(user => getAssigneeLabel(user).toLowerCase().includes(query));
+
+    instance.options.innerHTML = '';
+    if (matches.length === 0) {
+        instance.options.innerHTML = '<div class="assignee-picker-empty">No se encontraron usuarios.</div>';
+        return;
+    }
+
+    matches.forEach(user => {
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.className = 'assignee-picker-option';
+        option.setAttribute('role', 'option');
+        option.dataset.value = user.id;
+        option.textContent = getAssigneeLabel(user);
+        option.setAttribute('aria-selected', String(String(instance.select.value) === String(user.id)));
+        option.addEventListener('click', () => {
+            instance.select.value = String(user.id);
+            instance.input.value = getAssigneeLabel(user);
+            instance.selectedLabel = instance.input.value;
+            closeAssigneePicker(instance);
+        });
+        instance.options.appendChild(option);
+    });
+}
+
+function initializeAssigneePicker(selectId) {
+    if (assigneePickerInstances.has(selectId)) return assigneePickerInstances.get(selectId);
+
+    const select = document.getElementById(selectId);
+    const picker = select?.closest('[data-assignee-picker]');
+    const input = picker?.querySelector('.assignee-picker-input');
+    const options = picker?.querySelector('.assignee-picker-options');
+    if (!select || !picker || !input || !options) return null;
+
+    const instance = { select, picker, input, options, users: [], selectedLabel: '' };
+    const openPicker = () => {
+        if (input.disabled) return;
+        renderAssigneePickerOptions(instance);
+        options.hidden = false;
+        picker.classList.add('is-open');
+        input.setAttribute('aria-expanded', 'true');
+    };
+
+    input.addEventListener('focus', openPicker);
+    input.addEventListener('click', openPicker);
+    input.addEventListener('input', () => {
+        if (input.value !== instance.selectedLabel) select.value = '';
+        openPicker();
+    });
+    input.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            closeAssigneePicker(instance);
+            input.value = instance.selectedLabel;
+        } else if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            openPicker();
+            options.querySelector('.assignee-picker-option')?.focus();
+        }
+    });
+    document.addEventListener('click', event => {
+        if (!picker.contains(event.target)) closeAssigneePicker(instance);
+    });
+
+    assigneePickerInstances.set(selectId, instance);
+    return instance;
+}
+
+function setAssigneePickerOptions(selectId, users, selectedId, disabled = false) {
+    const instance = initializeAssigneePicker(selectId);
+    if (!instance) return;
+
+    instance.users = users;
+    instance.select.innerHTML = users.map(user => `<option value="${escapeHtml(user.id)}">${escapeHtml(getAssigneeLabel(user))}</option>`).join('');
+    instance.select.value = selectedId ? String(selectedId) : '';
+    const selectedUser = users.find(user => String(user.id) === String(selectedId));
+    instance.selectedLabel = selectedUser ? getAssigneeLabel(selectedUser) : '';
+    instance.input.value = instance.selectedLabel;
+    instance.input.disabled = disabled;
+    instance.select.disabled = disabled;
+    instance.input.setAttribute('aria-disabled', String(disabled));
+    closeAssigneePicker(instance);
+}
 
 export function registerTaskModalCallbacks({ onTaskUpdated }) {
     if (onTaskUpdated) onTaskUpdatedCallback = onTaskUpdated;
@@ -26,11 +123,8 @@ export function updateCreateTaskTypeUI() {
 
     const badge = document.getElementById('create-task-badge');
     const helpSpan = document.getElementById('assignee-help');
-    const assigneeSelect = document.getElementById('task-assignee');
     const groupApproval = document.getElementById('group-requires-approval');
     const requiresApproval = document.getElementById('task-requires-approval');
-
-    assigneeSelect.innerHTML = '';
 
     if (badge) {
         badge.className = 'badge badge-tipo-area';
@@ -38,23 +132,12 @@ export function updateCreateTaskTypeUI() {
     }
     if (groupApproval) groupApproval.style.display = 'block';
     if (user.rol === 'ASISTENTE') {
-        const opt = document.createElement('option');
-        opt.value = user.id;
-        opt.textContent = `${user.nombre} (Autoasignado)`;
-        opt.selected = true;
-        assigneeSelect.appendChild(opt);
-        assigneeSelect.disabled = true;
+        setAssigneePickerOptions('task-assignee', [user], user.id, true);
         if (helpSpan) helpSpan.textContent = 'Como asistente, las tareas creadas se asignan a tu responsabilidad.';
     } else {
-        assigneeSelect.disabled = false;
         if (helpSpan) helpSpan.textContent = 'Puedes asignar tareas a asistentes activos del área.';
-        STATE.users.filter(u => u.rol === 'ASISTENTE' || parseInt(u.id, 10) === parseInt(user.id, 10)).forEach(u => {
-            const opt = document.createElement('option');
-            opt.value = u.id;
-            opt.textContent = `${u.nombre} (${u.rol}) - ${u.cargo || ''}`;
-            if (parseInt(u.id, 10) === parseInt(user.id, 10)) opt.selected = true;
-            assigneeSelect.appendChild(opt);
-        });
+        const eligibleUsers = STATE.users.filter(u => u.rol === 'ASISTENTE' || parseInt(u.id, 10) === parseInt(user.id, 10));
+        setAssigneePickerOptions('task-assignee', eligibleUsers, user.id);
     }
 }
 
@@ -163,6 +246,7 @@ export async function loadTaskDetail(taskId) {
         document.getElementById('detail-desc').textContent = task.descripcion || 'Sin descripción adicional.';
         document.getElementById('detail-assignee').textContent = task.responsable_nombre || 'Sin asignar';
         document.getElementById('detail-creator').textContent = task.creador_nombre || 'Sistema';
+        document.getElementById('detail-created-at').textContent = formatDate(task.created_at) || 'Sin fecha de registro';
         document.getElementById('detail-due-date').textContent = task.fecha_limite || 'Sin fecha límite';
 
         const typeBadge = document.getElementById('detail-type-badge');
@@ -760,26 +844,11 @@ export function toggleTaskEditMode(isEditing) {
             ? ''
             : 'La fecha límite solo puede ser modificada por Jefatura';
 
-        const assigneeSelect = document.getElementById('edit-task-assignee-select');
-        assigneeSelect.innerHTML = '';
         if (user.rol === 'ASISTENTE') {
-            const opt = document.createElement('option');
-            opt.value = user.id;
-            opt.textContent = `${user.nombre} (Autoasignado)`;
-            opt.selected = true;
-            assigneeSelect.appendChild(opt);
-            assigneeSelect.disabled = true;
+            setAssigneePickerOptions('edit-task-assignee-select', [user], user.id, true);
         } else {
-            assigneeSelect.disabled = false;
-            STATE.users.filter(u => u.rol === 'ASISTENTE' || parseInt(u.id, 10) === parseInt(user.id, 10)).forEach(u => {
-                const opt = document.createElement('option');
-                opt.value = u.id;
-                opt.textContent = `${u.nombre} (${u.rol})`;
-                if (parseInt(u.id, 10) === parseInt(task.responsable_id, 10)) {
-                    opt.selected = true;
-                }
-                assigneeSelect.appendChild(opt);
-            });
+            const eligibleUsers = STATE.users.filter(u => u.rol === 'ASISTENTE' || parseInt(u.id, 10) === parseInt(user.id, 10));
+            setAssigneePickerOptions('edit-task-assignee-select', eligibleUsers, task.responsable_id);
         }
 
         viewContainer.style.display = 'none';

@@ -34,10 +34,12 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label" for="task-assignee">Responsable Asignado *</label>
-                            <select id="task-assignee" class="form-select">
-                                <!-- Opciones cargadas según rol (autoasignación para asistentes, selector para jefes) -->
-                            </select>
+                            <label class="form-label" for="task-assignee-search">Responsable Asignado *</label>
+                            <div class="assignee-picker" data-assignee-picker="task-assignee">
+                                <input type="search" id="task-assignee-search" class="form-input assignee-picker-input" placeholder="Buscar por nombre o rol..." autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="task-assignee-options" aria-expanded="false">
+                                <select id="task-assignee" class="assignee-picker-value" tabindex="-1" aria-hidden="true"></select>
+                                <div id="task-assignee-options" class="assignee-picker-options" role="listbox" hidden></div>
+                            </div>
                             <span id="assignee-help" class="form-help"></span>
                         </div>
 
@@ -85,6 +87,7 @@
                             <div style="display: flex; gap: 1rem; margin-bottom: 1.25rem; font-size: 0.8rem; color: var(--text-muted); flex-wrap: wrap;">
                                 <div><strong>Responsable:</strong> <span id="detail-assignee">-</span></div>
                                 <div><strong>Creador:</strong> <span id="detail-creator">-</span></div>
+                                <div><strong>Registrada:</strong> <span id="detail-created-at">-</span></div>
                                 <div><strong>Fecha Límite:</strong> <span id="detail-due-date">-</span></div>
                             </div>
                         </div>
@@ -117,10 +120,12 @@
                                         <input type="date" id="edit-task-due-date-input" class="form-input">
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label" for="edit-task-assignee-select" style="font-size: 0.75rem;">Responsable</label>
-                                        <select id="edit-task-assignee-select" class="form-select">
-                                            <!-- Opciones dinámicas -->
-                                        </select>
+                                        <label class="form-label" for="edit-task-assignee-search" style="font-size: 0.75rem;">Responsable</label>
+                                        <div class="assignee-picker" data-assignee-picker="edit-task-assignee-select">
+                                            <input type="search" id="edit-task-assignee-search" class="form-input assignee-picker-input" placeholder="Buscar por nombre o rol..." autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="edit-task-assignee-options" aria-expanded="false">
+                                            <select id="edit-task-assignee-select" class="assignee-picker-value" tabindex="-1" aria-hidden="true"></select>
+                                            <div id="edit-task-assignee-options" class="assignee-picker-options" role="listbox" hidden></div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">

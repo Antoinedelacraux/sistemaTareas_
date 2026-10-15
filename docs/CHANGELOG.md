@@ -1,5 +1,11 @@
 # Changelog
 
+## [Sin versión - Selector de responsables y hora de registro] - 2026-10-15
+### Modificado
+- El responsable de una tarea se selecciona mediante un buscador con lista desplegable rápida; las opciones muestran únicamente nombre y rol.
+- Se muestra la fecha y hora de registro de la tarea en Kanban, aprobaciones, historial y detalle.
+- La fecha/hora persistida en UTC se convierte correctamente al horario local para su presentación.
+
 ## [Sin versión - Retiro del zoom visual interno] - 2026-10-15
 ### Modificado
 - Se eliminó la escala CSS interna equivalente al 80%; la interfaz vuelve a sus dimensiones normales.

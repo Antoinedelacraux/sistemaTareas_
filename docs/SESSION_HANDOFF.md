@@ -1,5 +1,12 @@
 # Traspaso entre sesiones (leer primero)
 
+## Actualización 2026-10-15 — UI-04 implementado
+- El selector de responsable de creación y edición dejó de mostrar cargo y texto de autoasignación; ahora presenta `Nombre (ROL)` con buscador, lista desplegable filtrable y selección por teclado.
+- La selección mantiene un `<select>` interno con el ID del usuario, por lo que el contrato de creación/actualización no cambia.
+- La hora de creación se muestra junto con la fecha en tarjetas Kanban, aprobaciones, historial y detalle de tarea. El formateador interpreta `created_at` como UTC y lo presenta en horario local `es-PE`.
+- Validación ejecutada: lint PHP completo, notificaciones 38/38, usuarios 15/15, HTTP 200, markup actualizado y `git diff --check`. Node.js no está disponible para un parser JavaScript automático.
+- Pendiente: validación manual con Ctrl + F5, crear una tarea, buscar responsables por nombre/rol, editar una tarea y confirmar fecha/hora.
+
 ## Actualización 2026-10-15 — UI-03 implementado
 - Se retiró por completo el zoom visual interno equivalente al 80%; `.app-scale-shell` conserva únicamente el layout normal de la aplicación.
 - El backdrop de los modales volvió a cubrir el viewport con `inset: 0`, sin `zoom: 0.8` ni dimensiones compensadas. Se conserva el ensamblado que deja los modales como hijos directos de `body`.
