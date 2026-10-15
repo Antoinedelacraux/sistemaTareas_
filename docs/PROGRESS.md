@@ -3,10 +3,10 @@
 ### 2026-10-15 — USERS-MGMT-UI-01: proporciones y alineación de Gestión de Usuarios
 - **Estado:** completado, pendiente de validación visual final del usuario.
 - **Alcance:** RF-14, RN-07.
-- **Cambios:** la vista usa un contenedor de ancho máximo compartido, cabecera compacta y alineada, búsqueda con ancho prioritario, filtros mediante cuadrícula y tabla con columnas explícitas. Las acciones reservan espacio suficiente incluso para “Desactivar mi cuenta”; en móvil, filtros se apilan y la tabla conserva la legibilidad mediante desplazamiento horizontal.
+- **Cambios:** la vista usa el contenedor principal real de la SPA, ocupa el ancho disponible, mantiene una cabecera compacta y alineada, búsqueda con ancho prioritario, filtros mediante cuadrícula y tabla con columnas explícitas. Las acciones reservan espacio suficiente incluso para “Desactivar mi cuenta”; en móvil, filtros se apilan y la tabla conserva la legibilidad mediante desplazamiento horizontal. Se corrigió el ensamblado que dejaba Usuarios fuera de `<main>` y provocaba que se desplazara hacia abajo al cambiar el zoom.
 - **Pruebas:** `git diff --check`: PASS; `php tests/user_management_test.php`: 15/15 PASS; `GET http://127.0.0.1:8000/`: 200 y entrega del markup actualizado.
 - **Limitación:** no hay automatización de navegador configurada en el repositorio; queda pendiente la comprobación visual manual en escritorio y móvil.
-- **Archivos principales:** `public_html/partials/users_management.html`, `public_html/assets/css/views.css`, `public_html/assets/js/modules/users-management.js`, `docs/CHANGELOG.md`, `docs/SESSION_HANDOFF.md`.
+- **Archivos principales:** `public_html/index.php`, `public_html/partials/users_management.html`, `public_html/assets/css/views.css`, `public_html/assets/js/modules/users-management.js`, `docs/CHANGELOG.md`, `docs/SESSION_HANDOFF.md`.
 
 ### 2026-10-14 — USERS-MGMT-01: módulo aislado de gestión de usuarios
 - **Estado:** completado.

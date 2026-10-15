@@ -5,6 +5,8 @@
 - La vista de Gestión de Usuarios ahora usa un contenedor común alineado con el espacio de trabajo, una cabecera compacta y filtros distribuidos en una cuadrícula estable.
 - La tabla reserva columnas para código, rol, estado, fecha y acciones; los botones de administración conservan su espacio sin comprimir el nombre ni el correo.
 - Se añadieron adaptaciones para pantallas medianas y móviles, manteniendo la tabla desplazable cuando el ancho no permite presentar todas las columnas con legibilidad.
+- Se corrigió el ensamblado de la vista: Usuarios vuelve a estar dentro de `<main class="main-content">`, evitando que el espacio flexible del contenido principal la empuje hacia abajo al cambiar el zoom.
+- Se retiró el límite fijo de 1440px para que la vista ocupe el ancho disponible, igual que los demás módulos.
 
 ## [Sin versión - Gestión de Usuarios] - 2026-10-14
 ### Agregado
