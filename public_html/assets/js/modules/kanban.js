@@ -5,7 +5,7 @@
 
 import { apiFetch } from './api.js';
 import { STATE, isCurrentUserJefe } from './state.js';
-import { escapeHtml, formatDate, showToast } from './ui.js';
+import { escapeHtml, showToast } from './ui.js';
 
 let onTaskClickCallback = null;
 let onTransitionCallback = null;
@@ -262,12 +262,6 @@ export function createTaskCardElement(task) {
     const initial = respName.charAt(0).toUpperCase();
 
     const commentsCount = parseInt(task.total_comentarios || 0, 10);
-    const createdAtChip = task.created_at ? `
-        <span class="task-created-chip" title="Registrada: ${escapeHtml(formatDate(task.created_at))}">
-            <svg class="icon-svg icon-svg-sm" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>
-            <span>${escapeHtml(formatDate(task.created_at))}</span>
-        </span>
-    ` : '';
     const dueDateBadge = task.fecha_limite ? `
         <span class="task-due-chip ${isOverdue ? 'task-due-chip-overdue' : ''}" title="${isOverdue ? 'Tarea vencida: ' : 'Fecha límite: '}${task.fecha_limite}">
             <svg class="icon-svg icon-svg-sm" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
@@ -293,7 +287,6 @@ export function createTaskCardElement(task) {
                 <span class="assignee-name">${escapeHtml(respName)}</span>
             </div>
             <div class="task-meta-icons">
-                ${createdAtChip}
                 ${dueDateBadge}
                 <span class="task-comments-chip" title="${commentsCount} Comentarios">
                     <svg class="icon-svg icon-svg-sm" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>

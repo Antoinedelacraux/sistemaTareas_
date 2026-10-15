@@ -450,7 +450,6 @@ class Approval
                 t.descripcion AS tarea_descripcion,
                 t.prioridad AS tarea_prioridad,
                 t.tipo_tarea AS tarea_tipo,
-                t.created_at AS tarea_created_at,
                 t.fecha_limite AS tarea_fecha_limite,
                 u_resp.id AS responsable_id,
                 u_resp.nombre AS responsable_nombre,

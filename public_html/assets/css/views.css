@@ -83,12 +83,6 @@
   border-top: 1px solid var(--border-subtle);
 }
 
-.approval-created-at {
-  margin-top: -0.35rem;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
 .approval-actions {
   display: flex;
   gap: 0.5rem;

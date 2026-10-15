@@ -1,5 +1,13 @@
 # Registro de avances
 
+### 2026-10-15 — UI-05: patrón oscuro visible y hora solo en detalle
+- **Estado:** implementado, pendiente de validación visual manual.
+- **Alcance:** RN-07; refinamiento visual de UI-04.
+- **Fondo:** el modo oscuro recupera la misma composición de puntos y diagonales del patrón claro, con una intensidad índigo ajustada para que se perciba sobre `--bg-primary` sin reducir la legibilidad.
+- **Registro:** la fecha/hora de creación se retiró de tarjetas Kanban, aprobaciones e historial; permanece únicamente en `Registrada` dentro del detalle de tarea.
+- **Pruebas:** lint PHP completo: PASS; notificaciones 38/38; usuarios 15/15; HTTP local y CSS de variables 200; `git diff --check` y búsqueda estática de usos: PASS.
+- **Siguiente paso:** validar visualmente patrón claro/oscuro y apertura del detalle con Ctrl + F5.
+
 ### 2026-10-15 — UI-04: selector de responsables y hora de registro
 - **Estado:** implementado, pendiente de validación visual manual.
 - **Alcance:** RF-04, RF-07, RF-10; RN-03 y RN-04.

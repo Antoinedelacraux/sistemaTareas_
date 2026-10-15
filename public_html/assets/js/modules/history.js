@@ -134,7 +134,6 @@ export function renderHistoryTable(tasks) {
                     <div style="font-weight: 600; font-size: 0.875rem; color: var(--text-main); line-height: 1.3;">
                         ${escapeHtml(t.titulo)}
                     </div>
-                    ${t.created_at ? `<div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.15rem;">Registrada: ${escapeHtml(formatDate(t.created_at))}</div>` : ''}
                     ${t.descripcion ? `<div style="font-size: 0.75rem; color: var(--text-muted); max-width: 420px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.15rem;">${escapeHtml(t.descripcion)}</div>` : ''}
                 </td>
                 <td>

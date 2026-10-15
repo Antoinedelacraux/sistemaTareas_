@@ -1,5 +1,10 @@
 # Changelog
 
+## [Sin versión - Patrón oscuro y hora limitada al detalle] - 2026-10-15
+### Modificado
+- El patrón del modo oscuro ahora es visible con la misma composición de puntos y diagonales que el modo claro.
+- La hora de registro de la tarea se retiró de Kanban, aprobaciones e historial; permanece solo dentro del detalle de la tarea.
+
 ## [Sin versión - Selector de responsables y hora de registro] - 2026-10-15
 ### Modificado
 - El responsable de una tarea se selecciona mediante un buscador con lista desplegable rápida; las opciones muestran únicamente nombre y rol.

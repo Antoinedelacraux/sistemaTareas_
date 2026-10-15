@@ -1,5 +1,10 @@
 # Traspaso entre sesiones (leer primero)
 
+## Actualización 2026-10-15 — UI-05 implementado
+- El patrón del modo oscuro ahora replica la estructura del modo claro: puntos y diagonales a 24px, con mayor contraste índigo sobre el fondo oscuro.
+- La hora de registro de la tarea ya no aparece en tarjetas Kanban, aprobaciones ni historial. Solo se muestra al abrir el detalle, en `Registrada`.
+- Validación técnica ejecutada: lint PHP completo, notificaciones 38/38, usuarios 15/15, raíz/CSS local 200 y hora de registro limitada al detalle. Falta confirmación visual manual en ambos temas.
+
 ## Actualización 2026-10-15 — UI-04 implementado
 - El selector de responsable de creación y edición dejó de mostrar cargo y texto de autoasignación; ahora presenta `Nombre (ROL)` con buscador, lista desplegable filtrable y selección por teclado.
 - La selección mantiene un `<select>` interno con el ID del usuario, por lo que el contrato de creación/actualización no cambia.
