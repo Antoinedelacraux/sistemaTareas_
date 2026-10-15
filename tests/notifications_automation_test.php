@@ -185,7 +185,7 @@ $pdo->exec("
 $pdo->exec("
     INSERT INTO usuarios (id, codigo, nombre, email, password_hash, rol, cargo, activo, created_at, updated_at) VALUES
     (1, 'ASIST-01', 'Marco Chumbes', 'mchumbes@planeamiento.tal', '{$passwordHash}', 'ASISTENTE', 'Asistente 1', 1, '{$now}', '{$now}'),
-    (2, 'PLAN-01', 'Carlos Sanchez', 'planificador@planeamiento.tal', '{$passwordHash}', 'PLANIFICADOR', 'Planificador Senior', 1, '{$now}', '{$now}'),
+    (2, 'JEFE-PER', 'Carlos Sanchez', 'jefe.personal@planeamiento.tal', '{$passwordHash}', 'JEFE_PERSONAL', 'Jefe de Personal', 1, '{$now}', '{$now}'),
     (3, 'JEFE-01', 'Elena Vega', 'jefe.planeamiento@planeamiento.tal', '{$passwordHash}', 'JEFE_PLANEAMIENTO', 'Jefe Planeamiento', 1, '{$now}', '{$now}');
 ");
 
@@ -346,7 +346,7 @@ $colEnProc = BoardColumn::findByTipoEstado('EN_PROCESO');
 $pdo->prepare("UPDATE tareas SET columna_id = :cid, requiere_aprobacion = 1 WHERE id = :id")
     ->execute([':cid' => $colEnProc['id'], ':id' => $t1['id']]);
 
-$aprobacion = Approval::solicitar((int)$t1['id'], (int)$userPlan['id'], 'Listo para revisión formal de jefatura', (int)$userJefe['id']);
+$aprobacion = Approval::solicitar((int)$t1['id'], (int)$userAsist['id'], 'Listo para revisión formal de jefatura', (int)$userJefe['id']);
 
 $notifsJefe = Notification::listByUser((int)$userJefe['id']);
 $notifReq = null;
@@ -358,6 +358,20 @@ foreach ($notifsJefe as $n) {
 }
 
 assertTest(!empty($notifReq), "Automation: APROBACION_SOLICITADA notificada al jefe revisor");
+assertTest(
+    count(array_filter(
+        Notification::listByUser((int)$userPlan['id']),
+        fn($n) => $n['tipo_evento'] === Notification::EVENTO_APROBACION_SOLICITADA && (int)$n['entidad_id'] === (int)$t1['id']
+    )) > 0,
+    "Automation: APROBACION_SOLICITADA llega tambien al Jefe de Personal"
+);
+assertTest(
+    count(array_filter(
+        Notification::listByUser((int)$userAsist['id']),
+        fn($n) => $n['tipo_evento'] === Notification::EVENTO_APROBACION_SOLICITADA && (int)$n['entidad_id'] === (int)$t1['id']
+    )) === 0,
+    "Seguridad: APROBACION_SOLICITADA no llega al Asistente"
+);
 assertTest(str_contains($notifReq['mensaje'], 'aprobación formal'), "Mensaje describe correctamente la solicitud");
 
 // -----------------------------------------------------------------------------
@@ -397,6 +411,13 @@ foreach ($notifsPlanPostApr as $n) {
 }
 
 assertTest(!empty($notifApr), "Automation: TAREA_APROBADA notificada al responsable de la tarea");
+assertTest(
+    count(array_filter(
+        Notification::listByUser((int)$userJefe['id']),
+        fn($n) => $n['tipo_evento'] === Notification::EVENTO_TAREA_APROBADA && (int)$n['entidad_id'] === (int)$t1['id']
+    )) === 0,
+    "Seguridad: el revisor no recibe su propia TAREA_APROBADA"
+);
 
 // -----------------------------------------------------------------------------
 // BLOQUE 8: Disparo Automático: Desbloqueo en Cascada DAG (TAREA_DESBLOQUEADA)
@@ -461,6 +482,13 @@ foreach ($notifsPlanPostComm as $n) {
 
 assertTest(!empty($notifComm), "Automation: NUEVO_COMENTARIO notificado al responsable asignado");
 assertTest(str_contains($notifComm['mensaje'], 'Marco Chumbes'), "Mensaje contiene el nombre del autor del comentario");
+assertTest(
+    count(array_filter(
+        Notification::listByUser((int)$userJefe['id']),
+        fn($n) => $n['tipo_evento'] === Notification::EVENTO_NUEVO_COMENTARIO && (int)$n['entidad_id'] === (int)$t1['id']
+    )) > 0,
+    "Automation: NUEVO_COMENTARIO llega al creador Jefe de Planeamiento"
+);
 
 // Autor no recibe notificación de su propio comentario
 $asistSelfNotif = array_filter(
@@ -509,6 +537,19 @@ $outUnread2 = ob_get_clean();
 $jsonUnread2 = json_decode($outUnread2, true);
 
 assertTest(($jsonUnread2['data']['no_leidas'] ?? -1) === 0, "Tras marcar todas como leídas, unreadCount retorna 0");
+
+// -----------------------------------------------------------------------------
+// BLOQUE 11: ValidaciÃ³n de revisor y aislamiento por rol
+// -----------------------------------------------------------------------------
+echo "\n--- BLOQUE 11: VALIDACIÃ“N DE DESTINATARIO DE APROBACIÃ“N ---\n";
+
+$invalidReviewerRejected = false;
+try {
+    Approval::solicitar((int)$tSucc['id'], (int)$userAsist['id'], 'Revisor invÃ¡lido', (int)$userAsist['id']);
+} catch (RuntimeException $e) {
+    $invalidReviewerRejected = $e->getCode() === 422;
+}
+assertTest($invalidReviewerRejected, "Seguridad: no se crea aprobaciÃ³n dirigida a un Asistente");
 
 // -----------------------------------------------------------------------------
 // Resumen Final

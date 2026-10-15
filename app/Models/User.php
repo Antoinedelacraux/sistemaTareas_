@@ -53,6 +53,28 @@ class User
     }
 
     /**
+     * Lista todas las cuentas activas que pertenecen a cualquiera de los roles indicados.
+     */
+    public static function listActiveByRoles(array $roles): array
+    {
+        $roles = array_values(array_unique(array_filter(
+            array_map(static fn($role) => trim((string)$role), $roles),
+            static fn($role) => $role !== ''
+        )));
+
+        if ($roles === []) {
+            return [];
+        }
+
+        $db = Database::getConnection();
+        $placeholders = implode(',', array_fill(0, count($roles), '?'));
+        $stmt = $db->prepare("SELECT * FROM usuarios WHERE activo = 1 AND rol IN ({$placeholders}) ORDER BY id ASC");
+        $stmt->execute($roles);
+
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Comprueba si un usuario tiene rol de jefatura.
      */
     public static function isJefe(array $user): bool

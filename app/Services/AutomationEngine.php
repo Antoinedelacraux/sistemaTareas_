@@ -16,6 +16,40 @@ use Throwable;
 class AutomationEngine
 {
     /**
+     * Persiste un aviso solo para cuentas activas y con rol vigente.
+     */
+    private static function notifyActiveUser(
+        int $userId,
+        string $event,
+        string $title,
+        string $message,
+        string $entityType,
+        int $entityId,
+        string $idempotencyKey,
+        string $link
+    ): void {
+        $recipient = User::findById($userId);
+        if (!$recipient || (int)($recipient['activo'] ?? 0) !== 1) {
+            return;
+        }
+
+        if (!in_array($recipient['rol'] ?? '', User::validRoles(), true)) {
+            return;
+        }
+
+        Notification::create(
+            $userId,
+            $event,
+            $title,
+            $message,
+            $entityType,
+            $entityId,
+            $idempotencyKey,
+            $link
+        );
+    }
+
+    /**
      * Automatización: Notifica al responsable cuando se le asigna una tarea.
      */
     public static function notifyTaskAssigned(array $task, array $assigner): void
@@ -30,7 +64,7 @@ class AutomationEngine
 
         try {
             $idempotencyKey = "task_assign:{$task['id']}:{$respId}";
-            Notification::create(
+            self::notifyActiveUser(
                 $respId,
                 Notification::EVENTO_TAREA_ASIGNADA,
                 "Nueva Tarea Asignada: {$task['codigo']}",
@@ -53,25 +87,29 @@ class AutomationEngine
         $revisorId = !empty($approval['revisor_id']) ? (int)$approval['revisor_id'] : null;
 
         try {
+            // Ambas Jefaturas pueden resolver aprobaciones. El revisor guardado
+            // identifica la asignación preferente, pero no excluye a la otra jefatura.
+            $jefaturas = User::listActiveByRoles([
+                User::ROL_JEFE_PLANEAMIENTO,
+                User::ROL_JEFE_PERSONAL
+            ]);
+
             if ($revisorId) {
-                $targetIds = [$revisorId];
-            } else {
-                // Notificar a los jefes activos
-                $targetIds = [];
-                $jefePlan = User::findByRol(User::ROL_JEFE_PLANEAMIENTO);
-                if ($jefePlan) $targetIds[] = (int)$jefePlan['id'];
-                $jefePers = User::findByRol(User::ROL_JEFE_PERSONAL);
-                if ($jefePers) $targetIds[] = (int)$jefePers['id'];
+                $revisor = User::findById($revisorId);
+                if (!$revisor || (int)($revisor['activo'] ?? 0) !== 1 || !User::isJefe($revisor)) {
+                    return;
+                }
             }
 
-            foreach ($targetIds as $targetId) {
+            foreach ($jefaturas as $jefatura) {
+                $targetId = (int)$jefatura['id'];
                 // No notificar al mismo solicitante si fuera jefe
                 if ($targetId === (int)$requester['id']) {
                     continue;
                 }
 
                 $idempotencyKey = "appr_req:{$approval['id']}:{$targetId}";
-                Notification::create(
+                self::notifyActiveUser(
                     $targetId,
                     Notification::EVENTO_APROBACION_SOLICITADA,
                     "Revisión Requerida: {$task['codigo']}",
@@ -113,7 +151,7 @@ class AutomationEngine
                 }
 
                 $idempotencyKey = "appr_res:{$approval['id']}:{$dictamen}:{$userId}";
-                Notification::create(
+                self::notifyActiveUser(
                     $userId,
                     $tipoEvento,
                     $titulo,
@@ -137,7 +175,7 @@ class AutomationEngine
 
         try {
             $idempotencyKey = "task_unlock:{$task['id']}:{$triggerTaskId}";
-            Notification::create(
+            self::notifyActiveUser(
                 $respId,
                 Notification::EVENTO_TAREA_DESBLOQUEADA,
                 "Tarea Desbloqueada: {$task['codigo']}",
@@ -174,7 +212,7 @@ class AutomationEngine
                 }
 
                 $idempotencyKey = "comment:{$comment['id']}:{$userId}";
-                Notification::create(
+                self::notifyActiveUser(
                     $userId,
                     Notification::EVENTO_NUEVO_COMENTARIO,
                     "Nuevo Comentario: {$task['codigo']}",

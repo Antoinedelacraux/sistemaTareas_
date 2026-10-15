@@ -1,5 +1,14 @@
 # Registro de avances
 
+### 2026-10-15 — MVP-08-NOTIF-01: verificación y precisión de destinatarios por rol
+- **Estado:** completado.
+- **Alcance:** RF-17, RN-15, D-020; seguridad de autorización de notificaciones.
+- **Hallazgos corregidos:** la solicitud de aprobación podía avisar únicamente al revisor almacenado, aunque ambas Jefaturas pueden resolverla; tampoco existía un filtro central de cuentas activas y roles válidos antes de crear avisos.
+- **Cambios:** `User::listActiveByRoles` obtiene todas las cuentas activas de Jefatura; `AutomationEngine` distribuye `APROBACION_SOLICITADA` a ambas jefaturas, valida destinatarios activos y conserva la exclusión del autor/revisor cuando corresponde; `Approval::solicitar` rechaza revisores que no sean Jefatura activa.
+- **Pruebas:** `php tests/notifications_automation_test.php`: 38/38 PASS; lint PHP de `User.php`, `Approval.php`, `AutomationEngine.php` y la suite: PASS; `git diff --check`: PASS.
+- **Cobertura de rol:** se verificó que la aprobación no llegue al Asistente, que llegue a Jefe de Planeamiento y Jefe de Personal, que el revisor no reciba su propia resolución y que el creador Jefe reciba comentarios.
+- **Archivos principales:** `app/Models/User.php`, `app/Models/Approval.php`, `app/Services/AutomationEngine.php`, `tests/notifications_automation_test.php`.
+
 ### 2026-10-15 — USERS-MGMT-UI-01: proporciones y alineación de Gestión de Usuarios
 - **Estado:** completado, pendiente de validación visual final del usuario.
 - **Alcance:** RF-14, RN-07.

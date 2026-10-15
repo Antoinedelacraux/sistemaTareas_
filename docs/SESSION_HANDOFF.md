@@ -1,5 +1,11 @@
 # Traspaso entre sesiones (leer primero)
 
+## Actualización 2026-10-15 — MVP-08-NOTIF-01 completado
+- El enrutamiento de notificaciones fue verificado y ajustado por rol. `APROBACION_SOLICITADA` llega a todas las cuentas activas de `JEFE_PLANEAMIENTO` y `JEFE_PERSONAL`; no llega a Asistentes.
+- El motor filtra cuentas inactivas y roles obsoletos antes de persistir cualquier aviso. `Approval::solicitar` rechaza un Asistente como revisor.
+- La matriz completa quedó cubierta con `tests/notifications_automation_test.php`: 38/38 PASS, incluyendo exclusiones por rol, anti-auto-notificación e idempotencia.
+- Siguiente verificación recomendada: ingresar en local con una cuenta de cada rol y provocar una asignación, solicitud de aprobación y comentario para confirmar visualmente la campana.
+
 ## Actualización 2026-10-15 — USERS-MGMT-UI-01 completado
 - La Vista de Gestión de Usuarios fue ajustada para corregir las desproporciones observadas: está dentro de `<main class="main-content">`, ocupa el ancho disponible, alinea cabecera, filtros y tabla; la cabecera se compactó; el buscador recibe el espacio principal; y las acciones tienen una columna fija para evitar compresión de nombres y correos.
 - La vista responde sin perder legibilidad: filtros en dos filas a ancho medio, en una columna a ancho móvil y tabla con desplazamiento horizontal controlado cuando corresponde.

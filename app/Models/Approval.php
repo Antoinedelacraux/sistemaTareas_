@@ -61,6 +61,11 @@ class Approval
             }
         }
 
+        $revisor = User::findById((int)$revisorId);
+        if (!$revisor || (int)($revisor['activo'] ?? 0) !== 1 || !User::isJefe($revisor)) {
+            throw new RuntimeException("La aprobación debe dirigirse a una cuenta activa de Jefatura.", 422);
+        }
+
         $now = gmdate('Y-m-d H:i:s');
         $comentarioLimpio = $comentario !== null ? trim($comentario) : null;
 

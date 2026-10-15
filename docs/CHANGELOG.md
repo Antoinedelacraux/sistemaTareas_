@@ -1,5 +1,12 @@
 # Changelog
 
+## [Sin versión - Enrutamiento preciso de notificaciones] - 2026-10-15
+### Modificado
+- Las solicitudes de aprobación se notifican a todas las cuentas activas con rol `JEFE_PLANEAMIENTO` o `JEFE_PERSONAL`, porque ambas Jefaturas tienen autorización para resolverlas.
+- Las notificaciones automáticas ahora descartan cuentas inactivas y roles no vigentes antes de persistir el aviso.
+- Se valida que el revisor de una aprobación sea una cuenta activa de Jefatura; los Asistentes no pueden quedar como destinatarios de aprobación.
+- La suite de automatizaciones fue ampliada para comprobar inclusión y exclusión por rol.
+
 ## [Sin versión - Ajuste visual de Gestión de Usuarios] - 2026-10-15
 ### Modificado
 - La vista de Gestión de Usuarios ahora usa un contenedor común alineado con el espacio de trabajo, una cabecera compacta y filtros distribuidos en una cuadrícula estable.
