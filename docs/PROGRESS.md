@@ -1,5 +1,10 @@
 # Registro de avances
 
+### 2026-10-15 - ENTRYPOINT-01: unificacion del punto de entrada
+- **Estado:** implementado.
+- **Decision:** se conserva `public_html/index.html` como copia historica recuperable, pero no se sirve como interfaz. Apache ya lo redirigia a `/`; `server.php` local ahora aplica la misma redireccion.
+- **Verificacion:** `/` entrega el ensamblador vigente; `/index.html` devuelve redireccion `302` hacia `/` en local.
+
 ### 2026-10-15 - PERF-01: optimizacion inicial de Lighthouse
 - **Estado:** implementado; pendiente de repetir Lighthouse en navegador real.
 - **Alcance:** RF-05, RF-07, RN-01 y RN-07.

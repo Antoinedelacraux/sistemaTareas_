@@ -1,5 +1,10 @@
 # Changelog
 
+## [Sin version - Punto de entrada unico] - 2026-10-15
+### Modificado
+- `index.php` queda como entrada vigente tanto en Apache/Ferozo como en desarrollo local.
+- `index.html` se conserva como respaldo historico, pero `/index.html` ya no expone la copia antigua.
+
 ## [Sin version - Optimizacion inicial Lighthouse] - 2026-10-15
 ### Modificado
 - Se eliminaron las fuentes externas y la cascada CSS de importaciones del primer render.

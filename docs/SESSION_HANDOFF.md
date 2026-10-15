@@ -1,5 +1,9 @@
 # Traspaso entre sesiones (leer primero)
 
+## Actualizacion 2026-10-15 - ENTRYPOINT-01 implementado
+- `public_html/index.php` es el unico punto de entrada navegable.
+- `public_html/index.html` se conserva como copia historica en Git, pero Apache y el servidor local redirigen `/index.html` a `/` para evitar cargar la interfaz antigua.
+
 ## Actualizacion 2026-10-15 - PERF-01 implementado
 - Se retiro la dependencia de Google Fonts del primer render; el frontend usa la pila tipografica nativa ya definida en tokens.
 - Las ocho hojas CSS vigentes se cargan directamente y en paralelo desde `partials/head.html`; `app.css` ya no encadena importaciones.
