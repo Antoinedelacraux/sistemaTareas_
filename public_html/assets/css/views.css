@@ -324,10 +324,130 @@
   flex-wrap: wrap;
 }
 
+.users-management-container {
+  width: min(100%, 1440px);
+  margin: 0 auto;
+}
+
+.users-management-header {
+  align-items: flex-start;
+  min-height: 88px;
+  margin-bottom: 1rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background-color: color-mix(in srgb, var(--bg-surface) 94%, transparent);
+}
+
+.users-management-header .view-title {
+  font-size: 1.375rem;
+}
+
+.users-management-header .view-subtitle {
+  max-width: 44rem;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.users-management-header .btn {
+  min-height: 2.5rem;
+  white-space: nowrap;
+}
+
+.users-management-filter-panel {
+  margin-bottom: 1rem;
+  padding: 1rem 1.5rem;
+}
+
+.users-management-filters {
+  display: grid;
+  grid-template-columns: minmax(20rem, 1fr) minmax(10rem, 12rem) minmax(10rem, 12rem);
+  gap: 0.75rem;
+}
+
 .users-management-filters .search-input-wrapper {
-  flex: 1 1 280px;
+  min-width: 0;
+}
+
+.users-management-filters .search-input,
+.users-management-filters .select-filter {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.625rem;
+}
+
+.users-management-filters .search-input:focus {
+  width: 100%;
+}
+
+.users-management-table-panel {
+  padding: 0;
+  overflow: hidden;
+}
+
+.users-management-table {
+  table-layout: fixed;
+}
+
+.users-management-col-code { width: 8.5rem; }
+.users-management-col-user { width: auto; }
+.users-management-col-role { width: 13rem; }
+.users-management-col-status { width: 10rem; }
+.users-management-col-created { width: 9rem; }
+.users-management-col-actions { width: 18rem; }
+
+.users-management-table th,
+.users-management-table td {
+  padding: 0.75rem 1rem;
+}
+
+.users-management-table td:nth-child(2) {
+  overflow-wrap: anywhere;
+}
+
+.users-management-actions-heading {
+  text-align: right;
 }
 
 .users-management-actions {
   justify-content: flex-end;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+}
+
+@media (max-width: 900px) {
+  .users-management-filters {
+    grid-template-columns: minmax(16rem, 1fr) minmax(9rem, 11rem);
+  }
+
+  .users-management-filters .search-input-wrapper {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .users-management-header {
+    min-height: 0;
+    padding: 1rem;
+  }
+
+  .users-management-header .btn {
+    width: 100%;
+  }
+
+  .users-management-filter-panel {
+    padding: 1rem;
+  }
+
+  .users-management-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .users-management-filters .search-input-wrapper {
+    grid-column: auto;
+  }
+
+  .users-management-table {
+    min-width: 58rem;
+  }
 }

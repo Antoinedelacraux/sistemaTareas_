@@ -1,5 +1,10 @@
 # Traspaso entre sesiones (leer primero)
 
+## Actualización 2026-10-15 — USERS-MGMT-UI-01 completado
+- La Vista de Gestión de Usuarios fue ajustada para corregir las desproporciones observadas: un contenedor común alinea cabecera, filtros y tabla; la cabecera se compactó; el buscador recibe el espacio principal; y las acciones tienen una columna fija para evitar compresión de nombres y correos.
+- La vista responde sin perder legibilidad: filtros en dos filas a ancho medio, en una columna a ancho móvil y tabla con desplazamiento horizontal controlado cuando corresponde.
+- Validación ejecutada: `php tests/user_management_test.php` con 15/15 PASS, `git diff --check` PASS y entrega local HTTP 200. Pendiente: confirmación visual manual del usuario en escritorio y móvil.
+
 ## Actualización 2026-10-14 — USERS-MGMT-01 completado
 - Jefatura dispone de la pestaña **Gestión de Usuarios** para listar, filtrar, crear, editar, asignar rol, cambiar contraseña y activar/desactivar cuentas. La API administrativa está aislada en `/api/gestion-usuarios/*`; el directorio `/api/usuarios` permanece para tareas.
 - Regla jerárquica confirmada y aplicada en servidor: ambos jefes administran cuentas, pero `JEFE_PERSONAL` no puede desactivar una cuenta con rol `JEFE_PLANEAMIENTO`. El intento devuelve `403 ERR_HIERARCHY_PROTECTED`; el Jefe de Área sí puede desactivar cualquier cuenta, incluida la propia.

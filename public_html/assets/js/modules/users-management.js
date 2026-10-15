@@ -54,7 +54,7 @@ function renderManagedUsers() {
             <td>${escapeHtml(roleLabel(user.rol))}</td>
             <td>${status}</td>
             <td>${escapeHtml(user.created_at || '—')}</td>
-            <td style="text-align:right"><div class="users-management-actions">
+            <td class="users-management-actions-cell"><div class="users-management-actions">
                 <button class="btn btn-outline btn-sm" type="button" onclick="openManagedUserEditor(${user.id})">Editar</button>
                 ${statusButton}
             </div></td>

@@ -1,6 +1,7 @@
 <!-- Gestión de Usuarios: exclusiva de Jefatura -->
-<div id="users-management-view" style="display: none;">
-    <div class="view-header-bar">
+<div id="users-management-view" class="users-management-view" style="display: none;">
+    <div class="users-management-container">
+    <div class="view-header-bar users-management-header">
         <div>
             <h2 class="view-title">Gestión de Usuarios</h2>
             <p class="view-subtitle">Administra cuentas, roles y estado de acceso sin afectar la operación del tablero.</p>
@@ -11,7 +12,7 @@
         </button>
     </div>
 
-    <div class="section-box" style="margin-bottom: 1.25rem; padding: 1rem;">
+    <div class="section-box users-management-filter-panel">
         <div class="users-management-filters">
             <div class="search-input-wrapper">
                 <svg class="search-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -32,12 +33,21 @@
         </div>
     </div>
 
-    <div class="section-box" style="padding: 0; overflow: hidden;">
+    <div class="section-box users-management-table-panel">
         <div class="table-responsive">
             <table class="history-table users-management-table">
-                <thead><tr><th>Código</th><th>Usuario</th><th>Rol</th><th>Estado</th><th>Creado</th><th style="text-align: right;">Acciones</th></tr></thead>
+                <colgroup>
+                    <col class="users-management-col-code">
+                    <col class="users-management-col-user">
+                    <col class="users-management-col-role">
+                    <col class="users-management-col-status">
+                    <col class="users-management-col-created">
+                    <col class="users-management-col-actions">
+                </colgroup>
+                <thead><tr><th>Código</th><th>Usuario</th><th>Rol</th><th>Estado</th><th>Creado</th><th class="users-management-actions-heading">Acciones</th></tr></thead>
                 <tbody id="users-management-tbody"></tbody>
             </table>
         </div>
+    </div>
     </div>
 </div>
