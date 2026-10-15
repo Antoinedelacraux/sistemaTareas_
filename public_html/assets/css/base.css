@@ -28,13 +28,25 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
   transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
-/* Escala visual predeterminada equivalente al zoom de navegador preferido (80%). */
+/* Escala visual del contenido equivalente al zoom de navegador preferido (80%).
+   Se mantiene fuera del body para que los modales fixed conserven el viewport real. */
+.app-scale-shell {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
 @supports (zoom: 0.8) {
-  body {
+  .app-scale-shell {
     zoom: 0.8;
+    min-height: 125vh;
+    width: 125%;
   }
 }
 

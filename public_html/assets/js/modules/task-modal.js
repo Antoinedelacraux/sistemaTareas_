@@ -107,7 +107,14 @@ export async function handleCreateTask(e) {
         const result = await res.json();
         if (result.success) {
             closeModal('modal-create-task');
-            showToast(`¡Tarea ${result.data.codigo} creada exitosamente!`, 'success');
+            const createdTask = result.data?.tarea || result.data;
+            const createdCode = createdTask?.codigo;
+            showToast(
+                createdCode
+                    ? `¡Tarea ${createdCode} creada exitosamente!`
+                    : '¡Tarea creada exitosamente!',
+                'success'
+            );
             
             await fetchTasks();
             if (onTaskUpdatedCallback) onTaskUpdatedCallback();

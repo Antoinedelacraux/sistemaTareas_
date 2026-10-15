@@ -1,7 +1,14 @@
 # Traspaso entre sesiones (leer primero)
 
+## Actualización 2026-10-15 — UI-02 implementado
+- Corregido el toast de creación: el backend responde la tarea en `data.tarea`, por lo que el frontend ya no intenta leer `data.codigo`. Si el API no entrega código, muestra `¡Tarea creada exitosamente!` sin interpolar `undefined`.
+- La escala 80% dejó de aplicarse al `body`. `#app-scale-shell` contiene header, barra, vistas y footer; los modales quedan como hijos directos del `body` para que `position: fixed` se mida contra el viewport completo.
+- El backdrop de modales compensa la escala con `125vw/125vh` y `zoom: 0.8`; esto evita que al abrir una tarea quede una franja sin sombrear.
+- Verificación: HTTP 200 local, HTML ensamblado correctamente, lint PHP PASS, notificaciones 38/38 PASS, usuarios 15/15 PASS y casos de creación T02/T04/T05 PASS.
+- Pendiente: validar manualmente con `Ctrl + F5` en navegador al 100%: crear tarea, abrir detalle, abrir devolución y editar usuario/columna. El zoom 80% del navegador se acumularía con la escala interna.
+
 ## Actualización 2026-10-15 — UI-01 implementado
-- La página aplica una escala visual predeterminada equivalente al 80% mediante `body { zoom: 0.8; }` dentro de `@supports`; esto replica la composición preferida del tablero sin usar transformaciones que desplacen o desincronicen los elementos interactivos.
+- La página aplica una escala visual predeterminada equivalente al 80% mediante `.app-scale-shell { zoom: 0.8; }` dentro de `@supports`; los modales quedan fuera de ese contexto para que los elementos interactivos fixed conserven el viewport completo.
 - Se auditó el modo oscuro y se corrigieron contrastes en botones de éxito/peligro, enlaces primarios, textos secundarios, placeholders, alertas de devolución, badges dinámicos, historial, notificaciones, tarjetas vencidas y foco visible. Los tokens semánticos separan color de texto, fondo, borde y fondo sólido de botón.
 - Verificación: `/` y `assets/css/app.css` responden HTTP 200; `php tests/notifications_automation_test.php` 38/38 PASS; `php tests/user_management_test.php` 15/15 PASS; lint PHP completo PASS; `git diff --check` PASS.
 - La batería integral sigue reportando fallos heredados no causados por este avance: permisos esperados antiguos en `tasks_test.php`/`kanban_test.php`, ciclos en `dependencies_test.php` y llamadas a `DashboardService::getMetrics()` retirado en dashboard/QA.

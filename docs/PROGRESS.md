@@ -1,5 +1,13 @@
 # Registro de avances
 
+### 2026-10-15 — UI-02: toast de creación, escala aislada y overlay de tareas
+- **Estado:** implementado, pendiente de validación visual manual.
+- **Alcance:** RF-04, RF-07, RF-10, RN-07; corrección de regresión introducida por la escala visual UI-01.
+- **Correcciones:** el toast de creación ahora lee la respuesta real `data.tarea.codigo` y tiene un mensaje seguro de respaldo; se separó el contenido escalado (`.app-scale-shell`) de los modales; el backdrop usa el viewport físico completo y compensa la escala 80% para sombrear toda la pantalla.
+- **Criterios de aceptación:** crear una tarea no muestra `undefined`; el tablero, aprobaciones, historial y usuarios conservan la composición al 80%; abrir una tarea, devolución, usuario o columna bloquea y sombrea toda la ventana, incluyendo el área fuera del contenido.
+- **Pruebas:** `php -l public_html/index.php` y lint PHP completo: PASS; raíz local HTTP 200 y estructura HTML con shell/modales: PASS; `php tests/notifications_automation_test.php`: 38/38 PASS; `php tests/user_management_test.php`: 15/15 PASS; los casos T02/T04/T05 de creación en `tasks_test.php` PASS. T21 continúa fallando por la expectativa heredada de eliminación, no relacionada con este cambio; `git diff --check`: PASS.
+- **Archivos principales:** `public_html/index.php`, `public_html/partials/footer.html`, `public_html/assets/css/base.css`, `public_html/assets/css/modals.css`, `public_html/assets/js/modules/task-modal.js`.
+
 ### 2026-10-15 — UI-01: escala visual predeterminada y contraste del modo oscuro
 - **Estado:** implementado, pendiente de validación visual final en navegador.
 - **Alcance:** RF-07, RN-07 y consistencia transversal de la interfaz.

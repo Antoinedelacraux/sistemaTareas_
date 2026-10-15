@@ -1,5 +1,11 @@
 # Changelog
 
+## [Sin versión - Corrección de creación y overlays con escala 80%] - 2026-10-15
+### Corregido
+- El toast de creación ya no muestra `undefined`: utiliza el código devuelto en `data.tarea.codigo` y cuenta con un mensaje de respaldo.
+- Se aisló la escala visual del contenido principal para que no afecte los elementos `position: fixed`.
+- Los modales de tarea, devolución, usuarios y columnas ahora sombrean todo el viewport, también en modo oscuro y con la escala visual predeterminada.
+
 ## [Sin versión - Escala visual y contraste del tema oscuro] - 2026-10-15
 ### Modificado
 - La interfaz aplica una escala visual predeterminada equivalente al 80% del navegador mediante `zoom`, manteniendo el flujo responsive y la interacción de los modales.
