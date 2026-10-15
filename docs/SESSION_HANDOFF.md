@@ -7,7 +7,7 @@
 ## Actualizacion 2026-10-15 - PERF-01 implementado
 - Se retiro la dependencia de Google Fonts del primer render; el frontend usa la pila tipografica nativa ya definida en tokens.
 - Las ocho hojas CSS vigentes se cargan directamente y en paralelo desde `partials/head.html`; `app.css` ya no encadena importaciones.
-- El hero del login ahora usa `login_hero.jpg` de 785 KB en lugar del WebP de 3.1 MB, con `width`, `height`, `fetchpriority` y `decoding` declarados.
+- El hero del login fue sustituido por la imagen de usuario `fondo_img.jpg` de 2.18 MB, con `width`, `height`, `fetchpriority` y `decoding` declarados. Esta imagen es visualmente vigente, pero pesa mÃ¡s que la optimizada anterior y debe considerarse en la siguiente mediciÃ³n Lighthouse.
 - La carga inicial de usuarios, columnas, tareas y conteo de aprobaciones se ejecuta en paralelo. El tablero reserva altura minima para reducir CLS durante el montaje.
 - Apache y el servidor local entregan compresion/cache para recursos estaticos. Se versionaron hojas CSS y el modulo principal con `v=1.5.8`.
 - QA: PHP lint PASS; notificaciones 38/38; usuarios 15/15; HTTP 200; `git diff --check` PASS. No se pudo ejecutar Lighthouse porque no hay Chrome/Node/Lighthouse instalado.
