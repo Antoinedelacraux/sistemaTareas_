@@ -6,7 +6,8 @@
 - **RF/RN:** RF-01, RF-07, RF-12, RF-20 y RN-07; coherencia con D-017, D-024 y D-029.
 - **Cambios:** requisitos, decisiones, contexto, roadmap, changelog, wireframes y handoff alineados; `LEEME_PRIMERO.md` actualizado al flujo de instalación limpia; clases vacías y módulo JavaScript del Dashboard retirados; pruebas heredadas actualizadas para validar el tablero único de Área y el Historial; artefactos locales protegidos en `.gitignore`; corregida la respuesta HTTP del Historial para usar el contrato real de `Response`.
 - **Pruebas:** lint PHP `49/49` PASS; suites integrales `10/10` PASS; QA piloto `43/43` PASS; Test Runner HTTP `10/10` PASS; raíz local HTTP `200`; `git diff --check` PASS.
-- **Siguiente paso:** revisar staging y crear checkpoint local sin incluir `.env`, base SQLite, backups ni `.tmp-cloudflare`.
+- **Commit:** `33be20d chore(cleanup): align active scope and remove legacy modules`.
+- **Siguiente paso:** validación visual final y preparación del despliegue piloto; no se hizo push remoto.
 
 ### 2026-10-15 - PROD-READY-01: instalacion limpia para produccion
 - **Estado:** implementado y validado tecnicamente.

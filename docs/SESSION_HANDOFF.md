@@ -18,6 +18,7 @@
 - Entrada vigente: `public_html/index.php` ensamblando partials.
 - Producción: preparada técnicamente, todavía no desplegada en Ferozo.
 - Limpieza CLEANUP-01: verificada con lint PHP `49/49`, suite integral `10/10`, QA piloto `43/43` y Test Runner HTTP `10/10`.
+- Commit de limpieza: `33be20d chore(cleanup): align active scope and remove legacy modules`.
 
 ## Pendientes después de esta limpieza
 
