@@ -1,5 +1,28 @@
 # Traspaso entre sesiones
 
+## Actualización 2026-10-16 — Acceso rápido a edición de tarea
+
+- Se añadió un icono de edición/actualización en el encabezado del detalle de tarea, junto al botón de cierre.
+- El icono reutiliza el formulario de edición inline ya existente; no se creó un endpoint paralelo ni se duplicaron reglas de negocio.
+- El botón del encabezado y el botón del pie se muestran u ocultan juntos según las reglas de Jefatura, responsable y estado (`PENDIENTE`/`EN_PROCESO`).
+- Al guardar se mantiene el refresco de la ficha, Kanban y resumen de notificaciones, por lo que la conversación de la tarea no depende de recargar toda la página.
+
+## Estado verificable
+
+- Rama: `main`, con cambios locales de este avance todavía pendientes de commit.
+- Último commit confirmado: `f2122b6 docs(context): record cleanup checkpoint`.
+- Plataforma local: PHP 8.4 + SQLite.
+- Verificación actual: `php tests/run_all.php` completó 10/10 suites; QA piloto integrado 43/43 PASS; `git diff --check` PASS.
+- Limitación: falta validación visual manual del botón en escritorio y móvil y el checkpoint Git local.
+
+## Primer paso de la próxima sesión
+
+1. Revisar visualmente la ficha de tarea y confirmar el acceso rápido en ambos breakpoints.
+2. Ejecutar `git status`, revisar el diff y crear el commit local convencional si no aparecen observaciones.
+3. Mantener pendiente el despliegue remoto hasta autorización explícita.
+
+---
+
 ## Actualización 2026-10-16 — Limpieza técnica y documental
 
 - Se está alineando el repositorio con el alcance vigente: tablero único de Área, Historial de Jefatura e instalación limpia.

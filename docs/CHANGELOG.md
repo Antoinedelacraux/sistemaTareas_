@@ -1,5 +1,13 @@
 # Changelog
 
+## [Sin versión - Acceso rápido a edición de tarea] - 2026-10-16
+### Modificado
+- Se agregó un botón de icono en el encabezado del detalle de tarea para actualizar su información sin salir de la ficha.
+- El control reutiliza la edición inline existente, conserva las restricciones por rol/estado y refresca la ficha y el tablero después de guardar.
+- Se ajustaron los estilos del encabezado para mantener foco visible, tamaño táctil y legibilidad en pantallas estrechas.
+
+---
+
 ## [Sin versión - Limpieza técnica y documental] - 2026-10-16
 ### Modificado
 - Eliminadas las referencias vigentes a credenciales demo y actualizado `LEEME_PRIMERO.md` para el flujo real de instalación limpia.

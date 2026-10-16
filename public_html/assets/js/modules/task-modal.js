@@ -12,6 +12,12 @@ import { renderApprovalBox } from './approvals.js';
 let onTaskUpdatedCallback = null;
 const assigneePickerInstances = new Map();
 
+function setTaskEditButtonsVisibility(isVisible) {
+    document.querySelectorAll('[data-task-edit-trigger]').forEach(button => {
+        button.style.display = isVisible ? 'inline-flex' : 'none';
+    });
+}
+
 function getAssigneeLabel(user) {
     return `${user.nombre || 'Usuario'} (${user.rol || 'SIN ROL'})`;
 }
@@ -295,10 +301,9 @@ export async function loadTaskDetail(taskId) {
         const isOwner = user && parseInt(task.responsable_id, 10) === parseInt(user.id, 10);
         const canModify = isJefe || (!isReadOnlyForAssistant && isOwner);
 
-        const btnEdit = document.getElementById('btn-edit-task');
         const btnDelete = document.getElementById('btn-delete-task');
         const btnFinalizeImmediately = document.getElementById('btn-finalize-immediately');
-        if (btnEdit) btnEdit.style.display = canModify ? 'inline-flex' : 'none';
+        setTaskEditButtonsVisibility(canModify);
         if (btnDelete) btnDelete.style.display = isJefe ? 'inline-flex' : 'none';
         if (btnFinalizeImmediately) btnFinalizeImmediately.style.display = isJefe && !task.historial_inmediato ? 'inline-flex' : 'none';
 
@@ -821,7 +826,6 @@ export function renderAuditTimeline(events) {
 export function toggleTaskEditMode(isEditing) {
     const viewContainer = document.getElementById('detail-view-container');
     const editContainer = document.getElementById('detail-edit-container');
-    const editBtn = document.getElementById('btn-edit-task');
     if (!viewContainer || !editContainer) return;
 
     if (isEditing && STATE.activeTaskDetail) {
@@ -853,18 +857,16 @@ export function toggleTaskEditMode(isEditing) {
 
         viewContainer.style.display = 'none';
         editContainer.style.display = 'block';
-        if (editBtn) editBtn.style.display = 'none';
+        setTaskEditButtonsVisibility(false);
     } else {
         viewContainer.style.display = 'block';
         editContainer.style.display = 'none';
-        if (editBtn) {
-            const task = STATE.activeTaskDetail;
-            const user = STATE.currentUser;
-            const isJefe = isCurrentUserJefe();
-            const isOwner = task && user && parseInt(task.responsable_id, 10) === parseInt(user.id, 10);
-            const canModify = isJefe || (isOwner && task && ['PENDIENTE', 'EN_PROCESO'].includes(task.columna_tipo_estado));
-            editBtn.style.display = canModify ? 'inline-flex' : 'none';
-        }
+        const task = STATE.activeTaskDetail;
+        const user = STATE.currentUser;
+        const isJefe = isCurrentUserJefe();
+        const isOwner = task && user && parseInt(task.responsable_id, 10) === parseInt(user.id, 10);
+        const canModify = isJefe || (isOwner && task && ['PENDIENTE', 'EN_PROCESO'].includes(task.columna_tipo_estado));
+        setTaskEditButtonsVisibility(canModify);
     }
 }
 

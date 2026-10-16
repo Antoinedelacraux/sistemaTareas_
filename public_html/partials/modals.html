@@ -74,7 +74,12 @@
                     <span id="detail-priority-badge" class="badge">MEDIA</span>
                     <h3 id="detail-title" class="modal-title" style="margin-left: 0.5rem;">Título</h3>
                 </div>
-                <button class="btn-close" aria-label="Cerrar modal de detalle de tarea" onclick="closeModal('modal-task-detail')">&times;</button>
+                <div class="modal-header-actions">
+                    <button type="button" id="btn-edit-task-header" class="btn btn-outline btn-icon" data-task-edit-trigger onclick="toggleTaskEditMode(true)" aria-label="Actualizar información de la tarea" title="Actualizar información de la tarea">
+                        <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+                    </button>
+                    <button class="btn-close" aria-label="Cerrar modal de detalle de tarea" onclick="closeModal('modal-task-detail')">&times;</button>
+                </div>
             </div>
             <div class="modal-body">
                 <div class="task-detail-grid">
@@ -253,7 +258,7 @@
                         <!-- Columnas -->
                     </select>
                 </div>
-                <button type="button" id="btn-edit-task" class="btn btn-outline" onclick="toggleTaskEditMode(true)" aria-label="Editar tarea">
+                <button type="button" id="btn-edit-task" class="btn btn-outline" data-task-edit-trigger onclick="toggleTaskEditMode(true)" aria-label="Editar tarea">
                     <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                     <span>Editar</span>
                 </button>
