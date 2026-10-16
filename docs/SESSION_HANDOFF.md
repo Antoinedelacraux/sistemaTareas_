@@ -1,5 +1,11 @@
 # Traspaso entre sesiones
 
+## Actualización 2026-10-16 — Corrección de caché de módulos JavaScript
+
+- Se corrigió `Uncaught ReferenceError: refreshBoard is not defined` observado en la sesión de Jefe de Área.
+- La causa era la mezcla de HTML nuevo con `app.js?v=1.6.0` cacheado; se subieron a `v=1.6.2` el script principal y los módulos `kanban.js`/`task-modal.js`.
+- La autorización por rol no era el problema: el botón y los endpoints funcionan para Asistentes, Jefe de Planeamiento y Jefe de Personal según la matriz vigente.
+
 ## Actualización 2026-10-16 — Refresco de ficha de tarea
 
 - Se añadió un icono de refresco en el encabezado del detalle de tarea, junto al botón de cierre.
@@ -15,7 +21,7 @@
 ## Estado verificable
 
 - Rama: `main`, árbol de trabajo limpio después del checkpoint local.
-- Último commit confirmado: `becde1f feat(kanban): add board refresh action`.
+- Último commit confirmado: `8ac44af docs(context): record board refresh checkpoint`; la corrección de caché está pendiente de checkpoint.
 - Plataforma local: PHP 8.4 + SQLite.
 - Verificación actual: `php tests/run_all.php` completó 10/10 suites; QA piloto integrado 43/43 PASS; `git diff --check` PASS.
 - Limitación: falta validación visual manual del botón en escritorio y móvil.

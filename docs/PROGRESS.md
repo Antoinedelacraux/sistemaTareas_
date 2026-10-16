@@ -1,5 +1,13 @@
 # Registro de avances
 
+### 2026-10-16 - CACHE-REFRESH-UI-01: corrección de carga del refresco para Jefatura
+- **Estado:** implementado y verificado; pendiente únicamente del checkpoint Git.
+- **Hallazgo:** el HTML actualizado podía convivir con una copia cacheada de `app.js?v=1.6.0`, dejando `refreshBoard` sin exponerse en `window` y provocando `Uncaught ReferenceError`.
+- **Corrección:** se versionaron `app.js`, `kanban.js` y `task-modal.js` con `v=1.6.2` para invalidar el caché del navegador y cargar las exportaciones actuales en todos los roles.
+- **Pruebas:** `php tests/kanban_test.php`: 18/18 PASS; `php tests/qa_security_pilot_test.php`: 43/43 PASS; lint de entrypoints PHP PASS; raíz HTTP 200; comprobación estática de URLs `v=1.6.2` PASS; `git diff --check` PASS.
+- **Limitación:** no hay automatización de navegador para hacer clic real en cada sesión; se requiere recarga normal/forzada del navegador para obtener los nuevos recursos.
+- **Siguiente paso:** crear checkpoint Git local y probar el botón con la sesión de Jefe de Área; no hacer push remoto.
+
 ### 2026-10-16 - BOARD-REFRESH-UI-01: actualización manual del tablero
 - **Estado:** implementado y verificado.
 - **Objetivo:** permitir refrescar el tablero completo mediante un icono, sin recargar la página.

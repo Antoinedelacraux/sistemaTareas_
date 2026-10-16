@@ -1,5 +1,11 @@
 # Changelog
 
+## [Sin versión - Corrección de caché de refrescos] - 2026-10-16
+### Corregido
+- Se incrementó la versión de caché de los módulos JavaScript a `1.6.2` para evitar que Jefatura recibiera el botón nuevo junto con un `app.js` antiguo sin `refreshBoard`.
+
+---
+
 ## [Sin versión - Refresco manual del tablero] - 2026-10-16
 ### Modificado
 - Se agregó un botón de icono en la barra de la Vista Área para actualizar columnas y tarjetas sin recargar la página.
