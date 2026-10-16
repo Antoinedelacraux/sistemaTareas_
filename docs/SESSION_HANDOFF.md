@@ -15,7 +15,7 @@
 ## Estado verificable
 
 - Rama: `main`, árbol de trabajo limpio después del checkpoint local.
-- Último commit confirmado: `94d4632 docs(context): record task refresh correction`; el refresco del tablero está pendiente de checkpoint.
+- Último commit confirmado: `becde1f feat(kanban): add board refresh action`.
 - Plataforma local: PHP 8.4 + SQLite.
 - Verificación actual: `php tests/run_all.php` completó 10/10 suites; QA piloto integrado 43/43 PASS; `git diff --check` PASS.
 - Limitación: falta validación visual manual del botón en escritorio y móvil.

@@ -1,13 +1,14 @@
 # Registro de avances
 
 ### 2026-10-16 - BOARD-REFRESH-UI-01: actualización manual del tablero
-- **Estado:** implementado y pendiente únicamente del checkpoint Git.
+- **Estado:** implementado y verificado.
 - **Objetivo:** permitir refrescar el tablero completo mediante un icono, sin recargar la página.
 - **RF/RN:** RF-05, RF-06 y RN-01, RN-07.
 - **Cambios:** se agregó un botón iconográfico en la barra de filtros de la Vista Área; actualiza columnas y tarjetas, muestra estado de carga, evita solicitudes duplicadas y permanece oculto fuera del tablero operativo.
-- **Pruebas:** pendientes de ejecutar en este avance; `git diff --check` PASS.
+- **Pruebas:** `php tests/run_all.php`: 10/10 suites y 100% PASS; lint PHP completo PASS; raíz HTTP 200; `git diff --check` PASS.
 - **Limitación:** queda validación visual manual del icono en escritorio y móvil.
-- **Siguiente paso:** ejecutar regresión y crear el checkpoint Git local; no hacer push remoto.
+- **Commit:** `becde1f feat(kanban): add board refresh action`.
+- **Siguiente paso:** validación visual manual del icono; no hacer push remoto.
 
 ### 2026-10-16 - TASK-REFRESH-UI-01: sincronización de la ficha desde el detalle
 - **Estado:** implementado y verificado.
