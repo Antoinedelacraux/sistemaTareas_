@@ -9,16 +9,16 @@
 
 ## Estado verificable
 
-- Rama: `main`, con cambios locales de este avance todavía pendientes de commit.
-- Último commit confirmado: `f2122b6 docs(context): record cleanup checkpoint`.
+- Rama: `main`, árbol de trabajo limpio después del checkpoint local.
+- Último commit confirmado: `b1299de feat(task): add quick edit action to task detail`.
 - Plataforma local: PHP 8.4 + SQLite.
 - Verificación actual: `php tests/run_all.php` completó 10/10 suites; QA piloto integrado 43/43 PASS; `git diff --check` PASS.
-- Limitación: falta validación visual manual del botón en escritorio y móvil y el checkpoint Git local.
+- Limitación: falta validación visual manual del botón en escritorio y móvil.
 
 ## Primer paso de la próxima sesión
 
 1. Revisar visualmente la ficha de tarea y confirmar el acceso rápido en ambos breakpoints.
-2. Ejecutar `git status`, revisar el diff y crear el commit local convencional si no aparecen observaciones.
+2. Ejecutar `git status` para confirmar que no haya cambios ajenos antes de la siguiente unidad.
 3. Mantener pendiente el despliegue remoto hasta autorización explícita.
 
 ---
