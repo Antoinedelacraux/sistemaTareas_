@@ -7,7 +7,7 @@ import { STATE, isCurrentUserJefe } from './modules/state.js';
 import { apiFetch } from './modules/api.js';
 import { initTheme, openModal, closeModal, showToast } from './modules/ui.js';
 import { checkSession, doLogin, doLogout, registerLoginCallback } from './modules/auth.js';
-import { fetchUsers, fetchColumns, fetchTasks, renderKanban, executeTaskTransition, registerKanbanCallbacks } from './modules/kanban.js?v=1.6.1';
+import { fetchUsers, fetchColumns, fetchTasks, refreshBoard, renderKanban, executeTaskTransition, registerKanbanCallbacks } from './modules/kanban.js?v=1.6.1';
 import { openCreateTaskModal, handleCreateTask, openTaskDetailModal, refreshTaskDetail, loadTaskDetail, handleAddSubtask, toggleSubtask, deleteSubtask, handleAddComment, handleDeleteActiveTask, handleFinalizeImmediately, handleAddDependency, removeDependency, toggleTaskEditMode, handleSaveTaskEdit, registerTaskModalCallbacks } from './modules/task-modal.js?v=1.6.1';
 import { fetchPendingApprovals, fetchPendingApprovalsCount, approveTask, openReturnModal, handleReturnTaskSubmit, requestApproval, registerApprovalCallbacks } from './modules/approvals.js';
 import { loadHistoryTasks, filterHistoryTasks } from './modules/history.js?v=1.6.1';
@@ -57,6 +57,7 @@ window.openModal = openModal;
 window.closeModal = closeModal;
 window.openTaskDetailModal = openTaskDetailModal;
 window.refreshTaskDetail = refreshTaskDetail;
+window.refreshBoard = refreshBoard;
 window.toggleSubtask = toggleSubtask;
 window.deleteSubtask = deleteSubtask;
 window.handleDeleteActiveTask = handleDeleteActiveTask;
@@ -147,6 +148,11 @@ export async function setScope(scope) {
     const btnCreateTask = document.getElementById('btn-open-create-task');
     if (btnCreateTask) {
         btnCreateTask.style.display = scope === 'users' ? 'none' : 'inline-flex';
+    }
+
+    const btnRefreshBoard = document.getElementById('btn-refresh-board');
+    if (btnRefreshBoard) {
+        btnRefreshBoard.style.display = scope === 'area' ? 'inline-flex' : 'none';
     }
 
     const btnCreateColumn = document.getElementById('btn-open-create-column');

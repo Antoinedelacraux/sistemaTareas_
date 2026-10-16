@@ -1,5 +1,12 @@
 # Changelog
 
+## [Sin versión - Refresco manual del tablero] - 2026-10-16
+### Modificado
+- Se agregó un botón de icono en la barra de la Vista Área para actualizar columnas y tarjetas sin recargar la página.
+- El control muestra animación durante la consulta, evita solicitudes duplicadas y se oculta en ámbitos que no corresponden al tablero operativo.
+
+---
+
 ## [Sin versión - Refresco de ficha de tarea] - 2026-10-16
 ### Modificado
 - Se reemplazó el acceso de edición del encabezado por un botón de refresco que vuelve a consultar la tarea, comentarios, evidencias, checklist y dependencias sin cerrar la ficha.

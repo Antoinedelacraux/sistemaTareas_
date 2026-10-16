@@ -7,10 +7,15 @@
 - Mientras consulta, el icono gira y el botón queda deshabilitado para evitar solicitudes duplicadas.
 - La edición continúa disponible únicamente mediante el botón inferior y las reglas de Jefatura, responsable y estado (`PENDIENTE`/`EN_PROCESO`).
 
+## Actualización 2026-10-16 — Refresco manual del tablero
+
+- Se añadió un botón de icono en la barra de filtros de la Vista Área para actualizar columnas y tarjetas sin recargar la página.
+- El botón muestra animación, bloquea clics duplicados y no aparece fuera del tablero operativo.
+
 ## Estado verificable
 
 - Rama: `main`, árbol de trabajo limpio después del checkpoint local.
-- Último commit confirmado: `7f3c088 fix(task): refresh detail instead of opening editor`.
+- Último commit confirmado: `94d4632 docs(context): record task refresh correction`; el refresco del tablero está pendiente de checkpoint.
 - Plataforma local: PHP 8.4 + SQLite.
 - Verificación actual: `php tests/run_all.php` completó 10/10 suites; QA piloto integrado 43/43 PASS; `git diff --check` PASS.
 - Limitación: falta validación visual manual del botón en escritorio y móvil.

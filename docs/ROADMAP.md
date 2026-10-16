@@ -37,6 +37,7 @@
 
 - [x] PROD-READY-01 Instalacion limpia para produccion: sin datos demo, aprovisionamiento inicial de Jefatura protegido y guia de despliegue. [COMPLETADO]
 - [x] TASK-REFRESH-UI-01 Refresco de la ficha de tarea desde el encabezado, sin recarga completa de la página. [COMPLETADO]
+- [x] BOARD-REFRESH-UI-01 Refresco manual de columnas y tarjetas desde la barra de la Vista Área. [COMPLETADO]
 
 ## Fase 2 (Planificada - Posterior a VPS)
 - [x] PERF-01 Optimizacion inicial Lighthouse: recursos estaticos, LCP, CLS y carga inicial concurrente. [COMPLETADO; pendiente medicion con navegador real]

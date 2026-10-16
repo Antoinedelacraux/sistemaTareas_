@@ -86,9 +86,39 @@ export async function fetchTasks() {
             });
             STATE.tasks = allTasks;
             renderKanban();
+            return true;
         }
+        return false;
     } catch (e) {
         console.error('Error al cargar tareas', e);
+        return false;
+    }
+}
+
+/**
+ * Refresca columnas y tarjetas del tablero sin recargar la página.
+ */
+export async function refreshBoard() {
+    const button = document.getElementById('btn-refresh-board');
+    if (!button || button.disabled) return;
+
+    const icon = button.querySelector('svg');
+    button.disabled = true;
+    button.setAttribute('aria-busy', 'true');
+    icon?.classList.add('icon-spin');
+
+    try {
+        await fetchColumns();
+        const loaded = await fetchTasks();
+        if (loaded) {
+            showToast('Tablero actualizado', 'success');
+        } else {
+            showToast('No se pudo actualizar el tablero', 'error');
+        }
+    } finally {
+        button.disabled = false;
+        button.removeAttribute('aria-busy');
+        icon?.classList.remove('icon-spin');
     }
 }
 
