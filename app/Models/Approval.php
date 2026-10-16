@@ -39,6 +39,10 @@ class Approval
             throw new RuntimeException("La tarea solicitada no existe.", 404);
         }
 
+        if (empty($tarea['requiere_aprobacion'])) {
+            throw new RuntimeException("Esta tarea no requiere aprobación de Jefatura y no puede entrar en revisión.", 422);
+        }
+
         // Obtener la columna del tablero configurada como 'EN_REVISION'
         $colRevision = BoardColumn::findByTipoEstado('EN_REVISION');
         if (!$colRevision) {
@@ -71,11 +75,11 @@ class Approval
 
         $db->beginTransaction();
         try {
-            // Actualizar la tarea hacia 'EN_REVISION' con requiere_aprobacion activo
+            // Actualizar la tarea hacia 'EN_REVISION'. La bandera de aprobación
+            // debe existir desde la creación/edición autorizada de la tarea.
             $stmtUpdate = $db->prepare("
                 UPDATE tareas
                 SET columna_id = :col_id,
-                    requiere_aprobacion = 1,
                     revisor_id = :revisor_id,
                     updated_at = :now
                 WHERE id = :id

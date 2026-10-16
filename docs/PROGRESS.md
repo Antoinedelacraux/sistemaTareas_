@@ -1054,4 +1054,12 @@
 - **Pruebas:** `php tests/run_all.php` PASS (10/10 suites); PHP lint de `public_html/index.php` y `public_html/api/index.php` PASS; `git diff --check` PASS. Node no está instalado en el entorno, por lo que no se ejecutó `node --check`.
 - **Limitación:** falta validación visual manual en navegador con una sesión real de Jefatura de Área y otra de Asistencia.
 
+### 2026-10-16 — Corrección del circuito de aprobación en tareas sin aprobación
+- **Estado:** implementado y verificado.
+- **Objetivo:** impedir que una tarea creada sin solicitar aprobación sea enviada accidentalmente a `EN_REVISION` y quede bloqueada para el asistente.
+- **RF/RN:** RF-05, RF-06, RF-13, RN-01, RN-10, RN-11.
+- **Cambios:** el backend rechaza la transición y la solicitud manual con `ERR_APPROVAL_NOT_REQUIRED`; `Approval::solicitar()` ya no activa la bandera por sí mismo; el drag-and-drop y el selector del detalle no ofrecen `EN_REVISION` para tareas sin aprobación.
+- **Pruebas:** `tests/approvals_test.php` PASS (25/25); `php tests/run_all.php` PASS (10/10 suites); QA piloto PASS (43/43); PHP lint PASS; `git diff --check` PASS.
+- **Limitación:** falta validación visual manual del flujo en navegador con tarea sin aprobación y tarea con aprobación.
+
 

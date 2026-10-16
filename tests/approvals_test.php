@@ -253,6 +253,60 @@ runTest("T04: Asistente 1 crea tarea oficial con requiere_aprobacion = 1 -> 201 
     }
 });
 
+// T04b: Una tarea sin aprobación conserva el circuito de cierre directo
+$tareaSinAprobacionId = 0;
+runTest("T04b: Asistente 1 crea tarea sin aprobación -> 201 Created y circuito directo", function () use ($userAsist1, &$tareaSinAprobacionId) {
+    $taskCtrl = new TaskController();
+    $res = captureResponse(fn() => $taskCtrl->create([
+        'user' => $userAsist1,
+        'body' => [
+            'titulo'       => 'Tarea sin revisión formal',
+            'descripcion'  => 'Debe poder cerrarse directamente.',
+            'tipo_tarea'   => 'AREA',
+            'prioridad'    => 'MEDIA'
+        ]
+    ]));
+
+    if (!($res['success'] ?? false) || empty($res['data']['tarea']['id'])) {
+        throw new Exception("No se creó la tarea sin aprobación: " . json_encode($res));
+    }
+
+    $tareaSinAprobacionId = (int)$res['data']['tarea']['id'];
+    if (($res['data']['tarea']['requiere_aprobacion'] ?? true) !== false) {
+        throw new Exception("La tarea debería conservar requiere_aprobacion = false");
+    }
+});
+
+// T04c: Una tarea sin aprobación no puede entrar a EN_REVISION ni crear una solicitud
+runTest("T04c: Tarea sin aprobación rechaza transición y solicitud a EN_REVISION", function () use ($userAsist1, $tareaSinAprobacionId) {
+    $boardCtrl = new BoardController();
+    $transition = captureResponse(fn() => $boardCtrl->transition([
+        'user'   => $userAsist1,
+        'params' => ['id' => $tareaSinAprobacionId],
+        'body'   => ['nueva_columna_id' => 4]
+    ]));
+
+    if (($transition['error']['code'] ?? '') !== 'ERR_APPROVAL_NOT_REQUIRED') {
+        throw new Exception("La transición debería rechazarse con ERR_APPROVAL_NOT_REQUIRED: " . json_encode($transition));
+    }
+
+    $approvalCtrl = new ApprovalController();
+    $request = captureResponse(fn() => $approvalCtrl->solicitar([
+        'user'   => $userAsist1,
+        'params' => ['id' => $tareaSinAprobacionId],
+        'body'   => []
+    ]));
+
+    if (($request['error']['code'] ?? '') !== 'ERR_APPROVAL_NOT_REQUIRED') {
+        throw new Exception("La solicitud debería rechazarse con ERR_APPROVAL_NOT_REQUIRED: " . json_encode($request));
+    }
+
+    $task = Task::findById($tareaSinAprobacionId);
+    if ((int)$task['columna_id'] !== 1 || !empty($task['requiere_aprobacion'])) {
+        throw new Exception("La tarea no debería cambiar de columna ni activar aprobación.");
+    }
+});
+
 // T05: [Seguridad RN-10] Intento de pasar directamente a Finalizada es rechazado con 409 Conflict
 runTest("T05: [Seguridad RN-10] Cierre directo a Finalizada en tarea que requiere aprobación es rechazado (409 Conflict)", function () use ($userAsist1, $tarea1Id) {
     $boardCtrl = new BoardController();

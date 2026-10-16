@@ -671,6 +671,17 @@ class Task
         $fechaFinalizada = $task['fecha_finalizada'];
         $isJefe = in_array($currentUser['rol'] ?? '', [User::ROL_JEFE_PERSONAL, User::ROL_JEFE_PLANEAMIENTO], true);
 
+        // Solo las tareas que nacieron con circuito formal pueden entrar en revisión.
+        // Evita que una tarea de cierre directo quede atrapada para el asistente.
+        if ($estadoDestino === BoardColumn::ESTADO_EN_REVISION && empty($task['requiere_aprobacion'])) {
+            return [
+                'success' => false,
+                'status'  => 422,
+                'code'    => 'ERR_APPROVAL_NOT_REQUIRED',
+                'message' => 'Esta tarea no requiere aprobación de Jefatura y no puede pasar a revisión.'
+            ];
+        }
+
         if ($task['columna_tipo_estado'] === BoardColumn::ESTADO_FINALIZADA
             && (!$isJefe || $estadoDestino !== BoardColumn::ESTADO_EN_PROCESO)) {
             return ['success' => false, 'status' => 422, 'code' => 'ERR_REOPEN_TARGET_INVALID', 'message' => 'Una tarea finalizada solo puede ser reabierta por Jefatura en una columna En proceso.'];

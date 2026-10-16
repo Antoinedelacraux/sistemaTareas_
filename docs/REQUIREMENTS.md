@@ -25,6 +25,10 @@
 - RN-07 El código debe ser limpio, modular y fácilmente modificable para permitir futuros cambios sin romper el sistema.
 - RN-17 El instalador inicial está desactivado por defecto, exige token secreto, solo funciona sobre una base sin usuarios y queda bloqueado tras crear la primera cuenta.
 
+## Ajuste confirmado 2026-10-16 — Coherencia del circuito de aprobación
+- Solo una tarea creada o configurada con `requiere_aprobacion = true` puede entrar a `EN_REVISION` o generar una solicitud a Jefatura.
+- Una tarea sin aprobación mantiene el cierre directo con confirmación de finalización; el backend debe rechazar cualquier intento de enviarla a revisión y la interfaz no debe ofrecer ese destino ni el botón de envío.
+
 ## Aceptación mínima para subida a VPS
 1. Login y cambio de usuario funcional entre Asistente y Jefa.
 2. Creación ágil de tarea con título, prioridad, fecha y responsable.

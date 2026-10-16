@@ -78,3 +78,11 @@
 - `docs/ROADMAP.md`
 - `docs/PROGRESS.md`
 - `docs/CHANGELOG.md`
+
+## Actualización 2026-10-16 — Coherencia de aprobación y revisión
+
+- Se corrigió el caso en que una tarea sin aprobación era arrastrada a `EN_REVISION`; antes `Approval::solicitar()` activaba la bandera y dejaba al asistente en modo consulta.
+- Ahora la API rechaza la transición y la solicitud con `ERR_APPROVAL_NOT_REQUIRED`, sin cambiar la tarea ni crear aprobaciones.
+- La interfaz bloquea el destino `EN_REVISION` en drag-and-drop y lo excluye del selector para tareas sin aprobación; el botón de envío no aparece.
+- Verificación: `tests/approvals_test.php` 25/25, suite integral 10/10 y QA 43/43 PASS.
+- Siguiente paso: validación visual manual de ambos tipos de tarea en navegador.

@@ -210,6 +210,11 @@ export function renderKanban() {
             cardsContainer.classList.remove('drag-over');
             const taskId = e.dataTransfer.getData('text/plain') || window._draggedTaskId;
             if (taskId) {
+                const draggedTask = STATE.tasks.find(task => parseInt(task.id, 10) === parseInt(taskId, 10));
+                if (col.tipo_estado === 'EN_REVISION' && draggedTask && !draggedTask.requiere_aprobacion) {
+                    showToast('Esta tarea no requiere aprobación y no puede pasar a revisión.', 'info');
+                    return;
+                }
                 await executeTaskTransition(parseInt(taskId, 10), parseInt(col.id, 10));
             }
         });

@@ -1,5 +1,12 @@
 # Changelog
 
+## [Sin versión - Coherencia del circuito de aprobación] - 2026-10-16
+### Corregido
+- Las tareas sin aprobación ya no pueden entrar accidentalmente a `EN_REVISION` ni generar una solicitud a Jefatura.
+- El backend mantiene `requiere_aprobacion` sin activarlo durante una transición.
+- El drag-and-drop y el selector de columna ocultan/rechazan el destino `EN_REVISION` para tareas de cierre directo.
+- Se agregaron pruebas de regresión para transición y solicitud de aprobación no permitidas.
+
 ## [Sin versión - Compatibilidad de refresco para Jefatura] - 2026-10-16
 ### Corregido
 - Se incrementó la versión de caché de `app.js` y `kanban.js` a `1.6.3` para que Jefatura reciba la definición vigente de `refreshBoard`.

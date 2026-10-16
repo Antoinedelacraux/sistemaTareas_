@@ -48,6 +48,15 @@ class ApprovalController
             return;
         }
 
+        if (empty($tarea['requiere_aprobacion'])) {
+            Response::error(
+                "Esta tarea no requiere aprobación de Jefatura y no puede entrar en revisión.",
+                422,
+                'ERR_APPROVAL_NOT_REQUIRED'
+            );
+            return;
+        }
+
         $body = $request['body'] ?? [];
         $comentario = isset($body['comentario_entrega']) ? (string)$body['comentario_entrega'] : null;
         $revisorId = !empty($body['revisor_id']) ? (int)$body['revisor_id'] : null;

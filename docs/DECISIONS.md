@@ -37,6 +37,7 @@
 - D-024 Tablero único de Área: se retira la Vista Personal y sus rutas de uso. Todas las tareas nuevas se fuerzan a `AREA`; asistentes crean y gestionan solo sus tareas asignadas, mientras Jefe de Personal y Jefe de Área ven todas las tareas y pueden asignarlas a asistentes activos. Las tareas personales históricas se conservan en datos, pero no se exponen.
 
 - D-029 Instalación limpia de producción: se eliminan usuarios, tareas y accesos demo de las semillas y del login. Un instalador temporal protegido por `INSTALL_TOKEN` crea únicamente el primer Jefe de Área sobre una base vacía; queda bloqueado después de usarse.
+- D-030 Coherencia del circuito formal: una tarea sin `requiere_aprobacion` no puede pasar a `EN_REVISION`, no puede crear solicitudes de aprobación y conserva el cierre directo. La restricción se aplica en backend, drag-and-drop y selector del detalle.
 
 ## Propuestas pendientes de validación
 - P-001 Privacidad de tareas personales también ante jefes, exclusión de KPIs oficiales.

@@ -6,7 +6,7 @@
 import { apiFetch } from './api.js';
 import { STATE, isCurrentUserJefe } from './state.js';
 import { escapeHtml, formatDate, showToast, openModal, closeModal } from './ui.js';
-import { fetchTasks } from './kanban.js?v=1.6.1';
+import { fetchTasks } from './kanban.js?v=1.6.4';
 import { renderApprovalBox } from './approvals.js';
 
 let onTaskUpdatedCallback = null;
@@ -295,9 +295,13 @@ export async function loadTaskDetail(taskId) {
         const isReadOnlyForAssistant = !isJefe && !['PENDIENTE', 'EN_PROCESO'].includes(task.columna_tipo_estado);
 
         const colSelect = document.getElementById('detail-column-select');
-        const selectableColumns = isFinalizada && isJefe
+        const selectableColumns = (isFinalizada && isJefe
             ? STATE.columns.filter(c => parseInt(c.id, 10) === parseInt(task.columna_id, 10) || c.tipo_estado === 'EN_PROCESO')
-            : STATE.columns;
+            : STATE.columns).filter(c =>
+                c.tipo_estado !== 'EN_REVISION'
+                || !!task.requiere_aprobacion
+                || parseInt(c.id, 10) === parseInt(task.columna_id, 10)
+            );
         colSelect.innerHTML = selectableColumns.map(c => `
             <option value="${c.id}" ${parseInt(c.id, 10) === parseInt(task.columna_id, 10) ? 'selected' : ''}>
                 ${escapeHtml(c.nombre)}
