@@ -21,7 +21,7 @@
 ## Estado verificable
 
 - Rama: `main`, árbol de trabajo limpio después del checkpoint local.
-- Último commit confirmado: `8ac44af docs(context): record board refresh checkpoint`; la corrección de caché está pendiente de checkpoint.
+- Último commit confirmado: `f6d8142 fix(frontend): bust cache for refresh actions`.
 - Plataforma local: PHP 8.4 + SQLite.
 - Verificación actual: `php tests/run_all.php` completó 10/10 suites; QA piloto integrado 43/43 PASS; `git diff --check` PASS.
 - Limitación: falta validación visual manual del botón en escritorio y móvil.
