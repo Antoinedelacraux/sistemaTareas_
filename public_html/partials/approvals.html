@@ -10,6 +10,23 @@
                     <span>Actualizar Lista</span>
                 </button>
             </div>
+            <div class="section-box approvals-filter-panel">
+                <div class="approvals-filters">
+                    <div class="search-input-wrapper">
+                        <svg class="search-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="search" id="approvals-search-input" class="search-input"
+                            placeholder="Buscar tarea o código..." aria-label="Buscar tarea o código en aprobaciones"
+                            oninput="filterPendingApprovals()">
+                    </div>
+                    <select id="approvals-assignee-filter" class="select-filter"
+                        aria-label="Filtrar aprobaciones por asistente" onchange="filterPendingApprovals()">
+                        <option value="">Todos los asistentes</option>
+                    </select>
+                </div>
+            </div>
             <div id="approvals-container" class="approvals-grid">
                 <!-- Tarjetas de aprobación cargadas dinámicamente -->
             </div>

@@ -9,6 +9,7 @@ import { escapeHtml, formatDate, showToast, openModal, closeModal } from './ui.j
 import { fetchTasks } from './kanban.js?v=1.6.4';
 
 let onApprovalActionCallback = null;
+let pendingApprovalsCache = [];
 
 export function registerApprovalCallbacks({ onAction }) {
     if (onAction) onApprovalActionCallback = onAction;
@@ -156,8 +157,9 @@ export async function fetchPendingApprovals() {
         const res = await apiFetch('/api/aprobaciones/pendientes');
         const json = await res.json();
         if (json.success) {
-            STATE.pendingApprovals = json.data;
-            renderApprovalsList(json.data);
+            pendingApprovalsCache = Array.isArray(json.data) ? json.data : [];
+            STATE.pendingApprovals = pendingApprovalsCache;
+            renderApprovalsList(pendingApprovalsCache);
             const badge = document.getElementById('approvals-badge');
             if (badge) {
                 badge.textContent = json.data.length;
@@ -171,9 +173,13 @@ export async function fetchPendingApprovals() {
     }
 }
 
-export function renderApprovalsList(approvals) {
+export function renderApprovalsList(approvals, preserveCache = false) {
     const container = document.getElementById('approvals-container');
     if (!container) return;
+    if (!preserveCache) {
+        pendingApprovalsCache = Array.isArray(approvals) ? approvals : [];
+        populateApprovalAssigneeFilter(pendingApprovalsCache);
+    }
     container.innerHTML = '';
 
     if (!approvals || approvals.length === 0) {
@@ -217,6 +223,48 @@ export function renderApprovalsList(approvals) {
         `;
         container.appendChild(card);
     });
+}
+
+export function filterPendingApprovals() {
+    const search = (document.getElementById('approvals-search-input')?.value || '').toLowerCase().trim();
+    const assigneeId = document.getElementById('approvals-assignee-filter')?.value || '';
+    const filtered = pendingApprovalsCache.filter(approval => {
+        const matchesSearch = !search
+            || (approval.tarea_codigo || '').toLowerCase().includes(search)
+            || (approval.tarea_titulo || '').toLowerCase().includes(search)
+            || (approval.responsable_nombre || '').toLowerCase().includes(search);
+        const matchesAssignee = !assigneeId
+            || Number(approval.responsable_id) === Number(assigneeId);
+        return matchesSearch && matchesAssignee;
+    });
+    renderApprovalsList(filtered, true);
+}
+
+function populateApprovalAssigneeFilter(approvals) {
+    const select = document.getElementById('approvals-assignee-filter');
+    if (!select) return;
+
+    const currentValue = select.value;
+    const assistants = new Map();
+    (STATE.users || [])
+        .filter(user => user.rol === 'ASISTENTE' || user.es_jefe === false || user.es_jefe === 0)
+        .forEach(user => assistants.set(Number(user.id), user.nombre));
+    (approvals || []).forEach(approval => {
+        if (approval.responsable_id && approval.responsable_nombre) {
+            assistants.set(Number(approval.responsable_id), approval.responsable_nombre);
+        }
+    });
+
+    select.innerHTML = '<option value="">Todos los asistentes</option>';
+    Array.from(assistants.entries())
+        .sort((a, b) => a[1].localeCompare(b[1], 'es'))
+        .forEach(([id, name]) => {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = name;
+            select.appendChild(option);
+        });
+    select.value = currentValue;
 }
 
 /**

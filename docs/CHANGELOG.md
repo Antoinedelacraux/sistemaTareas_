@@ -1,5 +1,11 @@
 # Changelog
 
+## [Sin version - Filtros en Bandeja de Aprobaciones] - 2026-10-16
+### Agregado
+- Buscador por codigo, titulo o responsable en la Bandeja de Aprobaciones.
+- Selector para filtrar las tareas por asistente responsable.
+- Filtrado en memoria para mantener una respuesta inmediata sin recargar la lista.
+
 ## [Sin version - Alineacion visual y visibilidad de contraseñas] - 2026-10-16
 ### Modificado
 - Se homogeneizaron altura, padding, borde, foco y flecha de los selectores.

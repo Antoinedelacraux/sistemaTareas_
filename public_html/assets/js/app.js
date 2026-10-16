@@ -9,7 +9,7 @@ import { initTheme, openModal, closeModal, showToast, togglePasswordVisibility }
 import { checkSession, doLogin, doLogout, registerLoginCallback } from './modules/auth.js';
 import { fetchUsers, fetchColumns, fetchTasks, refreshBoard, renderKanban, executeTaskTransition, registerKanbanCallbacks } from './modules/kanban.js?v=1.6.4';
 import { openCreateTaskModal, handleCreateTask, openTaskDetailModal, refreshTaskDetail, loadTaskDetail, handleAddSubtask, toggleSubtask, deleteSubtask, handleAddComment, handleDeleteActiveTask, handleFinalizeImmediately, handleAddDependency, removeDependency, toggleTaskEditMode, handleSaveTaskEdit, registerTaskModalCallbacks } from './modules/task-modal.js?v=1.6.4';
-import { fetchPendingApprovals, fetchPendingApprovalsCount, approveTask, openReturnModal, handleReturnTaskSubmit, requestApproval, registerApprovalCallbacks } from './modules/approvals.js';
+import { fetchPendingApprovals, fetchPendingApprovalsCount, approveTask, openReturnModal, handleReturnTaskSubmit, requestApproval, filterPendingApprovals, registerApprovalCallbacks } from './modules/approvals.js?v=1.7.1';
 import { loadHistoryTasks, filterHistoryTasks, toggleHistorySelection, toggleAllHistorySelection, deleteHistoryTask, deleteSelectedHistoryTasks } from './modules/history.js?v=1.7.0';
 import { fetchNotificationsSummary, loadNotifications, markAllNotificationsRead, startNotificationPolling, stopNotificationPolling, registerNotificationCallbacks } from './modules/notifications.js';
 import { initUserManagementEvents, loadManagedUsers, openManagedUserEditor, saveManagedUser, changeManagedUserStatus } from './modules/users-management.js';
@@ -69,6 +69,7 @@ window.approveTask = approveTask;
 window.openReturnModal = openReturnModal;
 window.requestApproval = requestApproval;
 window.fetchPendingApprovals = fetchPendingApprovals;
+window.filterPendingApprovals = filterPendingApprovals;
 window.loadHistoryTasks = loadHistoryTasks;
 window.filterHistoryTasks = filterHistoryTasks;
 window.toggleHistorySelection = toggleHistorySelection;

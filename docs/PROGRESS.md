@@ -1,5 +1,13 @@
 # Registro de avances
 
+### 2026-10-16 - APPROVALS-FILTER-UI-01: busqueda y filtro por asistente
+- **Estado:** implementado y verificado.
+- **Objetivo:** encontrar rapidamente una tarea especifica en la Bandeja de Aprobaciones y filtrar por asistente responsable.
+- **RF/RN:** RF-10a, RN-01, RN-07.
+- **Cambios:** se agrego buscador por codigo, titulo o responsable y selector de asistentes; ambos filtran la lista ya cargada, sin solicitudes por cada tecla y sin alterar las acciones existentes.
+- **Pruebas:** PHP lint, suite integral y git diff --check pendientes de ejecutar en este avance; Node no esta instalado para node --check.
+- **Limitacion:** pendiente validacion visual manual de la barra en escritorio y movil.
+
 ### 2026-10-16 - UI-ALIGNMENT-01: alineacion de controles y visibilidad de contraseñas
 - **Estado:** implementado y verificado.
 - **Objetivo:** corregir bordes y centrado visual en filtros y tarjetas, y permitir revisar temporalmente las contraseñas escritas.

@@ -1,5 +1,13 @@
 # Traspaso entre sesiones
 
+## Actualizacion 2026-10-16 - Filtros de la Bandeja de Aprobaciones
+
+- Se agrego buscador por codigo, titulo o responsable.
+- Se agrego selector de asistente responsable; sus opciones se construyen con los usuarios cargados y se complementan con los responsables presentes en la bandeja.
+- Ambos filtros trabajan sobre la cache de aprobaciones y no generan una peticion por cada tecla.
+- Las acciones Ver Detalle, Aprobar y Devolver permanecen ligadas al ID real de cada tarjeta.
+- Pendiente: ejecutar verificaciones finales y validacion visual manual.
+
 ## Actualizacion 2026-10-16 - Alineacion visual y contraseñas
 
 - Se unifico la geometria de selectores y controles: altura minima, padding derecho para la flecha, apariencia nativa reemplazada por un chevron consistente y foco visible.
