@@ -66,7 +66,8 @@
             <option value="BAJA">Baja</option>
         </select>
 
-        <button id="btn-refresh-board" type="button" class="btn btn-outline btn-icon" onclick="refreshBoard()"
+        <button id="btn-refresh-board" type="button" class="btn btn-outline btn-icon"
+            onclick="if (typeof window.refreshBoard === 'function') { window.refreshBoard(); } else { window.location.reload(); }"
             aria-label="Actualizar tablero" title="Actualizar tablero">
             <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

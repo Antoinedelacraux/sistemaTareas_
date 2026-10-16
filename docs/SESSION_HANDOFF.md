@@ -32,6 +32,14 @@
 2. Ejecutar `git status` para confirmar que no haya cambios ajenos antes de la siguiente unidad.
 3. Mantener pendiente el despliegue remoto hasta autorización explícita.
 
+## Actualización 2026-10-16 — Corrección definitiva de caché de `refreshBoard`
+
+- Se detectó que Jefatura de Área recibía el HTML del botón junto con una versión anterior de `app.js`, provocando `Uncaught ReferenceError: refreshBoard is not defined`.
+- Se publicó la versión `1.6.3` del script principal y del módulo Kanban, manteniendo `window.refreshBoard` fuera de cualquier condición de rol.
+- El `onclick` del botón ahora verifica la función antes de invocarla y usa recarga completa únicamente como fallback de transición si el módulo todavía no está disponible.
+- Verificación: `php tests/run_all.php` 10/10 suites y lint PHP PASS.
+- Siguiente paso: probar el icono en navegador con Jefe de Área, Jefe de Personal y Asistente; confirmar que actualiza tarjetas sin recargar la página en las tres sesiones.
+
 ---
 
 ## Actualización 2026-10-16 — Limpieza técnica y documental

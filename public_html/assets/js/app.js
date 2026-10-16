@@ -7,7 +7,7 @@ import { STATE, isCurrentUserJefe } from './modules/state.js';
 import { apiFetch } from './modules/api.js';
 import { initTheme, openModal, closeModal, showToast } from './modules/ui.js';
 import { checkSession, doLogin, doLogout, registerLoginCallback } from './modules/auth.js';
-import { fetchUsers, fetchColumns, fetchTasks, refreshBoard, renderKanban, executeTaskTransition, registerKanbanCallbacks } from './modules/kanban.js?v=1.6.2';
+import { fetchUsers, fetchColumns, fetchTasks, refreshBoard, renderKanban, executeTaskTransition, registerKanbanCallbacks } from './modules/kanban.js?v=1.6.3';
 import { openCreateTaskModal, handleCreateTask, openTaskDetailModal, refreshTaskDetail, loadTaskDetail, handleAddSubtask, toggleSubtask, deleteSubtask, handleAddComment, handleDeleteActiveTask, handleFinalizeImmediately, handleAddDependency, removeDependency, toggleTaskEditMode, handleSaveTaskEdit, registerTaskModalCallbacks } from './modules/task-modal.js?v=1.6.2';
 import { fetchPendingApprovals, fetchPendingApprovalsCount, approveTask, openReturnModal, handleReturnTaskSubmit, requestApproval, registerApprovalCallbacks } from './modules/approvals.js';
 import { loadHistoryTasks, filterHistoryTasks } from './modules/history.js?v=1.6.1';
@@ -57,6 +57,8 @@ window.openModal = openModal;
 window.closeModal = closeModal;
 window.openTaskDetailModal = openTaskDetailModal;
 window.refreshTaskDetail = refreshTaskDetail;
+// La acción es global porque el botón del tablero vive en un partial HTML.
+// No depende del rol: Jefatura y Asistencia usan la misma función de refresco.
 window.refreshBoard = refreshBoard;
 window.toggleSubtask = toggleSubtask;
 window.deleteSubtask = deleteSubtask;

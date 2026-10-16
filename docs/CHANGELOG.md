@@ -1,5 +1,11 @@
 # Changelog
 
+## [Sin versión - Compatibilidad de refresco para Jefatura] - 2026-10-16
+### Corregido
+- Se incrementó la versión de caché de `app.js` y `kanban.js` a `1.6.3` para que Jefatura reciba la definición vigente de `refreshBoard`.
+- La función global de refresco no depende del rol; el botón incluye una protección contra referencias globales ausentes durante una transición de caché.
+- Se mantiene el refresco parcial del tablero como comportamiento normal; la recarga completa solo queda como fallback de compatibilidad.
+
 ## [Sin versión - Corrección de caché de refrescos] - 2026-10-16
 ### Corregido
 - Se incrementó la versión de caché de los módulos JavaScript a `1.6.2` para evitar que Jefatura recibiera el botón nuevo junto con un `app.js` antiguo sin `refreshBoard`.

@@ -1045,4 +1045,13 @@
 - **Documento:** `docs/USER_MANAGEMENT_MODULE.md`.
 - **Pendiente:** solicitar la fase de implementación `USERS-MGMT-01`.
 
+### 2026-10-16 — Compatibilidad de refresco del tablero para Jefatura
+- **Estado:** implementado y verificado.
+- **Objetivo:** corregir el `ReferenceError: refreshBoard is not defined` observado al usar el icono desde la sesión de Jefatura de Área.
+- **RF/RN:** RF-10, RN-01, RN-07.
+- **Cambios:** se actualizó la versión de caché de `app.js` y `kanban.js` a `1.6.3`; la función `refreshBoard` continúa expuesta globalmente sin condición de rol; el botón incluye un fallback seguro para evitar una referencia global inexistente durante una transición de caché.
+- **Archivos:** `public_html/assets/js/app.js`, `public_html/partials/footer.html`, `public_html/partials/workspace_bar.html`.
+- **Pruebas:** `php tests/run_all.php` PASS (10/10 suites); PHP lint de `public_html/index.php` y `public_html/api/index.php` PASS; `git diff --check` PASS. Node no está instalado en el entorno, por lo que no se ejecutó `node --check`.
+- **Limitación:** falta validación visual manual en navegador con una sesión real de Jefatura de Área y otra de Asistencia.
+
 
