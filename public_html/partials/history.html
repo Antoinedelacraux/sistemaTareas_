@@ -10,10 +10,18 @@
                         Archivo histórico de tareas concluidas para consulta y auditoría interna. Acceso exclusivo de Jefatura.
                     </p>
                 </div>
-                <button class="btn btn-outline btn-sm" onclick="loadHistoryTasks()">
-                    <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-                    <span>Actualizar Historial</span>
-                </button>
+                <div class="history-header-actions">
+                    <button type="button" class="btn btn-outline btn-icon" onclick="loadHistoryTasks()"
+                        aria-label="Actualizar historial" title="Actualizar historial">
+                        <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    </button>
+                    <button type="button" id="history-delete-selected-btn" class="btn btn-outline btn-icon history-delete-selected-btn"
+                        onclick="deleteSelectedHistoryTasks()" disabled aria-label="Eliminar tareas seleccionadas del historial"
+                        title="Eliminar tareas seleccionadas del historial">
+                        <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                    <span id="history-selection-status" class="history-selection-status" aria-live="polite">0 seleccionadas</span>
+                </div>
             </div>
 
             <!-- Barra de Filtros Internos del Historial -->
@@ -44,6 +52,11 @@
                     <table class="history-table" style="margin: 0;">
                         <thead>
                             <tr>
+                                <th class="history-selection-cell" style="width: 48px;">
+                                    <input type="checkbox" id="history-select-all" class="history-select-checkbox"
+                                        aria-label="Seleccionar todas las tareas visibles del historial"
+                                        onchange="toggleAllHistorySelection(this.checked)">
+                                </th>
                                 <th style="width: 110px;">Código</th>
                                 <th>Tarea / Descripción</th>
                                 <th>Responsable</th>

@@ -49,6 +49,10 @@
 - P-007 Modo de reasignar/convertir tarea personal a oficial y su autorización por el usuario o jefe.
 
 ## ADR (Architecture Decision Records)
+## Decision confirmada 2026-10-16 - Acciones del Historial por iconos y seleccion masiva
+- La tabla de tareas archivadas usa iconos accesibles para ver el expediente y eliminarlo.
+- Jefatura puede seleccionar filas individuales o todas las visibles, siempre con confirmacion, autorizacion backend y auditoria.
+
 - **ADR-0001** | Estado: ACEPTADA | 2026-10-13
   - **Contexto:** El sistema se desplegará en la infraestructura de DonWeb bajo panel Ferozo (Web Hosting tradicional compartido).
   - **Alternativas consideradas:**

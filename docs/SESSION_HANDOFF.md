@@ -1,5 +1,15 @@
 # Traspaso entre sesiones
 
+## Actualizacion 2026-10-16 - Historial: consulta y eliminacion por iconos
+
+- Se agrego seleccion individual y seleccion de todas las filas visibles del Historial.
+- Las acciones de fila ahora son iconos accesibles: ver tarea cerrada y eliminar del Historial.
+- El boton superior de papelera elimina las tareas seleccionadas una por una mediante DELETE /api/historial/{id}; cada operacion exige confirmacion.
+- Backend: solo Jefatura puede eliminar y la tarea debe cumplir exactamente condicion de archivo (AREA, FINALIZADA, fecha valida y archivo inmediato o antiguedad mayor a 24 horas).
+- Auditoria: se registra ELIMINAR_HISTORIAL; una tarea activa no puede eliminarse desde este endpoint.
+- Verificacion: tests/approvals_test.php 27/27, suite integral 10/10, QA 43/43 y lint PHP PASS.
+- Siguiente paso: validacion visual manual con Jefe de Area y Jefe de Personal, incluyendo seleccion filtrada y confirmacion de eliminacion.
+
 ## Actualización 2026-10-16 — Corrección de caché de módulos JavaScript
 
 - Se corrigió `Uncaught ReferenceError: refreshBoard is not defined` observado en la sesión de Jefe de Área.

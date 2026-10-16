@@ -7,6 +7,7 @@ require_once __DIR__ . '/../app/bootstrap.php';
 use App\Config\Database;
 use App\Controllers\ApprovalController;
 use App\Controllers\BoardController;
+use App\Controllers\HistoryController;
 use App\Controllers\TaskController;
 use App\Core\Middleware\AuthMiddleware;
 use App\Core\Response;
@@ -586,6 +587,77 @@ runTest("T23: Despacho end-to-end con Router para GET /api/aprobaciones/pendient
     $res2 = captureResponse(fn() => $router->dispatch('GET', "/api/tareas/{$tarea1Id}/aprobaciones"));
     if (!($res2['success'] ?? false) || count($res2['data']) !== 2) {
         throw new Exception("Fallo en router dispatch historial: " . json_encode($res2));
+    }
+});
+
+// T24: El historial solo incluye tareas AREA finalizadas y permite consulta a Jefatura
+$historialTaskId = 0;
+runTest("T24: Historial lista una tarea archivada y restringe el acceso a asistentes", function () use ($userJefe, $userAsist1, &$historialTaskId) {
+    Task::ensureHistorySchema();
+    $task = Task::create([
+        'titulo'       => 'Tarea archivada para pruebas',
+        'descripcion'  => 'Registro creado para validar el historial.',
+        'tipo_tarea'   => 'AREA',
+        'prioridad'    => 'MEDIA'
+    ], $userAsist1);
+    $historialTaskId = (int)$task['id'];
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare('UPDATE tareas SET columna_id = 5, fecha_finalizada = :fecha, historial_inmediato = 0, updated_at = :updated_at WHERE id = :id');
+    $past = gmdate('Y-m-d H:i:s', time() - 172800);
+    $stmt->execute([':fecha' => $past, ':updated_at' => $past, ':id' => $historialTaskId]);
+
+    $ctrl = new HistoryController();
+    $jefeResponse = captureResponse(fn() => $ctrl->index(['user' => $userJefe]));
+    if (!($jefeResponse['success'] ?? false)) {
+        throw new Exception('Jefatura no pudo consultar el historial: ' . json_encode($jefeResponse));
+    }
+
+    $ids = array_map('intval', array_column($jefeResponse['data']['tareas'] ?? [], 'id'));
+    if (!in_array($historialTaskId, $ids, true)) {
+        throw new Exception('La tarea archivada no aparece en el historial.');
+    }
+
+    $assistantResponse = captureResponse(fn() => $ctrl->index(['user' => $userAsist1]));
+    if (($assistantResponse['error']['code'] ?? '') !== 'ERR_FORBIDDEN_HISTORY_ACCESS') {
+        throw new Exception('El asistente deberia recibir ERR_FORBIDDEN_HISTORY_ACCESS.');
+    }
+});
+
+// T25: La eliminacion del historial exige Jefatura y no acepta tareas activas
+runTest("T25: Eliminacion del historial valida rol, estado archivado y auditoria", function () use ($userJefe, $userAsist1, $historialTaskId, $pdo) {
+    $ctrl = new HistoryController();
+
+    $unauthorized = captureResponse(fn() => $ctrl->delete(['user' => null, 'params' => ['id' => $historialTaskId]]));
+    if (($unauthorized['error']['code'] ?? '') !== 'ERR_UNAUTHORIZED') {
+        throw new Exception('La eliminacion sin sesion deberia retornar ERR_UNAUTHORIZED.');
+    }
+
+    $forbidden = captureResponse(fn() => $ctrl->delete(['user' => $userAsist1, 'params' => ['id' => $historialTaskId]]));
+    if (($forbidden['error']['code'] ?? '') !== 'ERR_FORBIDDEN_HISTORY_ACCESS') {
+        throw new Exception('El asistente deberia recibir ERR_FORBIDDEN_HISTORY_ACCESS al eliminar.');
+    }
+
+    $active = Task::create([
+        'titulo'      => 'Tarea activa no eliminable desde historial',
+        'descripcion' => 'Debe permanecer en el tablero.',
+        'prioridad'   => 'BAJA'
+    ], $userAsist1);
+    $activeId = (int)$active['id'];
+    $activeResponse = captureResponse(fn() => $ctrl->delete(['user' => $userJefe, 'params' => ['id' => $activeId]]));
+    if (($activeResponse['error']['code'] ?? '') !== 'ERR_HISTORY_TASK_NOT_FOUND' || !Task::findById($activeId)) {
+        throw new Exception('Una tarea activa no debe eliminarse desde el historial.');
+    }
+
+    $deleted = captureResponse(fn() => $ctrl->delete(['user' => $userJefe, 'params' => ['id' => $historialTaskId]]));
+    if (!($deleted['success'] ?? false) || Task::findById($historialTaskId)) {
+        throw new Exception('La tarea archivada no fue eliminada correctamente: ' . json_encode($deleted));
+    }
+
+    $audit = $pdo->prepare("SELECT COUNT(*) FROM auditoria_eventos WHERE entidad_tipo = 'TAREA' AND entidad_id = :id AND accion = 'ELIMINAR_HISTORIAL'");
+    $audit->execute([':id' => $historialTaskId]);
+    if ((int)$audit->fetchColumn() !== 1) {
+        throw new Exception('La eliminacion no quedo registrada con accion ELIMINAR_HISTORIAL.');
     }
 });
 

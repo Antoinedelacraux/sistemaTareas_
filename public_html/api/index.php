@@ -137,6 +137,7 @@ use App\Controllers\HistoryController;
 $router->get('/api/tareas/{id}/historial', [AuditController::class, 'taskHistory'], [AuthMiddleware::class]);
 $router->get('/api/auditoria', [AuditController::class, 'index'], [AuthMiddleware::class]);
 $router->get('/api/historial', [HistoryController::class, 'index'], [AuthMiddleware::class]);
+$router->delete('/api/historial/{id}', [HistoryController::class, 'delete'], [AuthMiddleware::class]);
 
 // Rutas base informativas
 $router->get('/api', function () {
@@ -203,7 +204,8 @@ $router->get('/api', function () {
                 'eventos'        => 'GET /api/auditoria'
             ],
             'historial' => [
-                'archivadas'     => 'GET /api/historial'
+                'archivadas'     => 'GET /api/historial',
+                'eliminar'       => 'DELETE /api/historial/{id}'
             ]
         ]
     ]);

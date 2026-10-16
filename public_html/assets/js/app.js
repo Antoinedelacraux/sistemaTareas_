@@ -10,7 +10,7 @@ import { checkSession, doLogin, doLogout, registerLoginCallback } from './module
 import { fetchUsers, fetchColumns, fetchTasks, refreshBoard, renderKanban, executeTaskTransition, registerKanbanCallbacks } from './modules/kanban.js?v=1.6.4';
 import { openCreateTaskModal, handleCreateTask, openTaskDetailModal, refreshTaskDetail, loadTaskDetail, handleAddSubtask, toggleSubtask, deleteSubtask, handleAddComment, handleDeleteActiveTask, handleFinalizeImmediately, handleAddDependency, removeDependency, toggleTaskEditMode, handleSaveTaskEdit, registerTaskModalCallbacks } from './modules/task-modal.js?v=1.6.4';
 import { fetchPendingApprovals, fetchPendingApprovalsCount, approveTask, openReturnModal, handleReturnTaskSubmit, requestApproval, registerApprovalCallbacks } from './modules/approvals.js';
-import { loadHistoryTasks, filterHistoryTasks } from './modules/history.js?v=1.6.1';
+import { loadHistoryTasks, filterHistoryTasks, toggleHistorySelection, toggleAllHistorySelection, deleteHistoryTask, deleteSelectedHistoryTasks } from './modules/history.js?v=1.7.0';
 import { fetchNotificationsSummary, loadNotifications, markAllNotificationsRead, startNotificationPolling, stopNotificationPolling, registerNotificationCallbacks } from './modules/notifications.js';
 import { initUserManagementEvents, loadManagedUsers, openManagedUserEditor, saveManagedUser, changeManagedUserStatus } from './modules/users-management.js';
 import { openCreateColumnModal, openEditColumnModal, selectColorHex, handleSaveColumn, handleDeleteColumn } from './modules/columns.js';
@@ -70,6 +70,10 @@ window.requestApproval = requestApproval;
 window.fetchPendingApprovals = fetchPendingApprovals;
 window.loadHistoryTasks = loadHistoryTasks;
 window.filterHistoryTasks = filterHistoryTasks;
+window.toggleHistorySelection = toggleHistorySelection;
+window.toggleAllHistorySelection = toggleAllHistorySelection;
+window.deleteHistoryTask = deleteHistoryTask;
+window.deleteSelectedHistoryTasks = deleteSelectedHistoryTasks;
 window.removeDependency = removeDependency;
 
 // Nuevas funcionalidades: Edición de tareas, Usuarios y Columnas estilo Trello

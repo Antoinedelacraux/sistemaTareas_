@@ -1,5 +1,13 @@
 # Registro de avances
 
+### 2026-10-16 - HISTORY-ARCHIVE-UI-01: acciones y eliminacion controlada del Historial
+- **Estado:** implementado y verificado.
+- **Objetivo:** consultar o eliminar tareas cerradas desde el Historial sin abandonar la vista, con seleccion individual y masiva.
+- **RF/RN:** RF-13, RF-18, RN-05, RN-07, RN-13.
+- **Cambios:** acciones unicamente con iconos para ver y eliminar, checkbox por fila, seleccion de todas las filas visibles y boton superior de eliminacion. El endpoint DELETE /api/historial/{id} solo acepta tareas AREA archivadas, exige Jefatura, confirma la operacion en frontend y registra ELIMINAR_HISTORIAL.
+- **Pruebas:** tests/approvals_test.php PASS (27/27); php tests/run_all.php PASS (10/10 suites); QA piloto PASS (43/43); PHP lint PASS; git diff --check PASS.
+- **Limitacion:** pendiente validacion visual manual en navegador de iconos, seleccion e interaccion de confirmacion.
+
 ### 2026-10-16 - CACHE-REFRESH-UI-01: corrección de carga del refresco para Jefatura
 - **Estado:** implementado y verificado.
 - **Hallazgo:** el HTML actualizado podía convivir con una copia cacheada de `app.js?v=1.6.0`, dejando `refreshBoard` sin exponerse en `window` y provocando `Uncaught ReferenceError`.

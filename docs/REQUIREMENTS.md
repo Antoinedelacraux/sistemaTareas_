@@ -39,6 +39,12 @@
 7. Visualización del Historial de tareas archivadas para Jefatura con trazabilidad y cumplimiento de plazo.
 8. Verificación 100% funcional local sin errores de consola ni de PHP.
 
+## Ajuste confirmado 2026-10-16 - Gestion del Historial archivado
+- Jefatura puede consultar una tarea cerrada desde el Historial mediante una accion de icono.
+- Jefatura puede eliminar permanentemente del Historial una tarea archivada, con confirmacion explicita y registro de auditoria.
+- El Historial permite seleccionar filas individualmente o todas las filas visibles y ejecutar la eliminacion masiva de forma controlada.
+- Asistentes no tienen acceso a la consulta ni a la eliminacion del Historial.
+
 ## Requisitos retirados del alcance vigente
 
 - RF-11 Dashboard operativo: retirado por D-017. La supervisión operativa vigente se realiza mediante el tablero Kanban, la bandeja de aprobaciones y el Historial de Jefatura.

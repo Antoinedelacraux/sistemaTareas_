@@ -295,6 +295,23 @@ class Task
         }, $rows);
     }
 
+    /** Determina si una tarea cumple exactamente la condición de archivo histórico. */
+    public static function isArchived(array $task): bool
+    {
+        if (($task['tipo_tarea'] ?? null) !== self::TIPO_AREA
+            || ($task['columna_tipo_estado'] ?? null) !== BoardColumn::ESTADO_FINALIZADA
+            || empty($task['fecha_finalizada'])) {
+            return false;
+        }
+
+        $finalizedAt = strtotime((string)$task['fecha_finalizada']);
+        if ($finalizedAt === false) {
+            return false;
+        }
+
+        return !empty($task['historial_inmediato']) || $finalizedAt <= (time() - 86400);
+    }
+
     /**
      * Valida si un usuario tiene autorización para ver una tarea (RF-07, RN-01, RN-02, RN-05).
      */
@@ -582,7 +599,7 @@ class Task
     /**
      * Elimina una tarea y sus registros dependientes.
      */
-    public static function delete(int $id, array $currentUser): bool
+    public static function delete(int $id, array $currentUser, string $auditAction = 'ELIMINAR'): bool
     {
         $db = Database::getConnection();
         $task = self::findById($id);
@@ -604,7 +621,7 @@ class Task
                 $userId,
                 'TAREA',
                 $id,
-                'ELIMINAR',
+                $auditAction,
                 $task['columna_tipo_estado'] ?? null,
                 'ELIMINADA',
                 ['codigo' => $task['codigo'], 'titulo' => $task['titulo']]

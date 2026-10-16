@@ -1,5 +1,12 @@
 # Changelog
 
+## [Sin version - Acciones del Historial archivado] - 2026-10-16
+### Agregado
+- Acciones por iconos para ver una tarea cerrada y eliminarla del Historial.
+- Seleccion individual, seleccion de todas las filas visibles y boton superior para eliminar seleccionadas.
+- Endpoint protegido DELETE /api/historial/{id} con validacion de estado archivado, permisos exclusivos de Jefatura y auditoria ELIMINAR_HISTORIAL.
+- Pruebas de regresion para autorizacion, proteccion de tareas activas y trazabilidad.
+
 ## [Sin versión - Coherencia del circuito de aprobación] - 2026-10-16
 ### Corregido
 - Las tareas sin aprobación ya no pueden entrar accidentalmente a `EN_REVISION` ni generar una solicitud a Jefatura.

@@ -83,6 +83,63 @@
   border-top: 1px solid var(--border-subtle);
 }
 
+.history-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.history-selection-status {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.history-selection-cell {
+    text-align: center;
+}
+
+.history-select-checkbox {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--primary-500);
+    cursor: pointer;
+}
+
+.history-actions-cell {
+    text-align: right;
+}
+
+.history-row-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.history-action-btn {
+    flex: 0 0 auto;
+}
+
+.history-delete-selected-btn:not(:disabled),
+.history-action-delete:not(:disabled) {
+    color: var(--status-danger-text);
+    border-color: var(--status-danger-text);
+}
+
+.history-table th.history-selection-cell,
+.history-table td.history-selection-cell {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+.history-table .btn-icon:focus-visible,
+.history-select-checkbox:focus-visible {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
+}
+
 .approval-actions {
   display: flex;
   gap: 0.5rem;
