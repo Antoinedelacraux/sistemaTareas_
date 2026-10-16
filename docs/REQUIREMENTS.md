@@ -12,6 +12,7 @@
 - RF-09 Muro de comentarios y notas de avance con soporte de archivos adjuntos/evidencias.
 - RF-10 Filtros rápidos en un solo clic dentro de "Vista Área": filtro por responsable y por prioridad.
 - RF-10a Bandeja de Aprobaciones: Jefatura puede buscar por código/título y filtrar por asistente responsable sin salir de la vista.
+- RF-10b Alcance de controles por módulo: la búsqueda global, filtros del tablero, actualización del tablero y creación de tareas solo se muestran en "Vista Área"; Aprobaciones mantiene sus filtros propios.
 - RF-12 Compatibilidad nativa con PHP 8.2+ y MySQL/MariaDB para despliegue directo en DonWeb Ferozo / VPS.
 - RF-14 Módulo exclusivo de Jefatura para crear, editar, activar, desactivar cuentas y asignar permisos por rol, separado del directorio usado para tareas.
 - RF-20 Instalación inicial de producción sin datos demostrativos, con creación única y segura del primer Jefe de Área.

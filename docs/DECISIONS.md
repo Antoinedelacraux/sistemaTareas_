@@ -3,6 +3,7 @@
 ## Decisiones CONFIRMADAS con el usuario
 - D-032 Consistencia de controles y visibilidad de contraseñas: los selectores y tarjetas conservan un sistema visual uniforme; login y gestión de usuarios incorporan un control accesible para mostrar u ocultar la contraseña sin alterar su valor.
 - D-033 Filtros de la Bandeja de Aprobaciones: la búsqueda por tarea/código y el filtro por asistente se ejecutan sobre la lista cargada, conservando las acciones de aprobar y devolver sobre cada tarjeta.
+- D-034 Separación de controles por módulo: la barra global de búsqueda, filtros, refresco y creación se reserva para Vista Área; Aprobaciones conserva únicamente sus controles locales.
 - D-001 Equipo inicial 5: tres asistentes y dos jefes.
 - D-002 Creación de tareas por jefes y asistentes sujeta a permisos.
 - D-003 Asistentes solo asignan a sí mismos; jefes asignan a otros.

@@ -1,5 +1,13 @@
 # Registro de avances
 
+### 2026-10-16 - AREA-CONTROLS-SCOPE-UI-01: controles globales exclusivos de Vista Área
+- **Estado:** implementado; verificación automática pendiente de ejecutar en este avance.
+- **Objetivo:** evitar que la búsqueda global, el filtro de prioridad y la creación de tareas del tablero aparezcan en Aprobaciones, Historial o Usuarios.
+- **RF/RN:** RF-05, RF-06, RF-10, RF-10a, RN-01 y RN-07.
+- **Cambios:** `setScope()` controla la barra completa y la muestra solo cuando el ámbito activo es `area`; el botón Nueva Tarea también queda restringido a ese ámbito. Aprobaciones conserva sus filtros locales.
+- **Pruebas:** pendiente ejecutar lint PHP, suite integral y `git diff --check`; pendiente validación visual manual de navegación entre pestañas.
+- **Limitación:** no se dispone de automatización de navegador para comprobar el clic real en cada rol.
+
 ### 2026-10-16 - APPROVALS-FILTER-UI-01: busqueda y filtro por asistente
 - **Estado:** implementado y verificado.
 - **Objetivo:** encontrar rapidamente una tarea especifica en la Bandeja de Aprobaciones y filtrar por asistente responsable.

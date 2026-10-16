@@ -138,10 +138,14 @@ export async function setScope(scope) {
     const historyView = document.getElementById('history-view');
     const approvalsView = document.getElementById('approvals-view');
     const usersManagementView = document.getElementById('users-management-view');
+    const workspaceControlsBar = document.getElementById('workspace-controls-bar');
     const memberFilter = document.getElementById('member-filter-select');
     const workspaceActions = document.querySelector('.workspace-actions');
 
-    if (workspaceActions) workspaceActions.style.display = scope === 'users' ? 'none' : 'flex';
+    // La búsqueda, filtros globales y acciones de creación pertenecen al tablero.
+    // Las vistas de Aprobaciones, Historial y Usuarios tienen controles propios.
+    if (workspaceControlsBar) workspaceControlsBar.style.display = scope === 'area' ? 'flex' : 'none';
+    if (workspaceActions) workspaceActions.style.display = scope === 'area' ? 'flex' : 'none';
 
     if (memberFilter) {
         if (!isCurrentUserJefe()) {
@@ -155,7 +159,7 @@ export async function setScope(scope) {
 
     const btnCreateTask = document.getElementById('btn-open-create-task');
     if (btnCreateTask) {
-        btnCreateTask.style.display = scope === 'users' ? 'none' : 'inline-flex';
+        btnCreateTask.style.display = scope === 'area' ? 'inline-flex' : 'none';
     }
 
     const btnRefreshBoard = document.getElementById('btn-refresh-board');

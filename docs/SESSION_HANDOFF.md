@@ -1,5 +1,13 @@
 # Traspaso entre sesiones
 
+## Actualización 2026-10-16 - Alcance de controles entre módulos
+
+- La barra superior global (`workspace-controls-bar`) se muestra solo con `currentScope = area`.
+- En Aprobaciones, Historial y Usuarios quedan ocultos el buscador global, el filtro de prioridad, el botón de refresco del tablero y Nueva Tarea.
+- Aprobaciones conserva su buscador y filtro por asistente dentro de la propia bandeja.
+- `app.js` usa `v=1.7.3` para invalidar caché.
+- Pendiente: ejecutar suite/lint y validar visualmente la navegación entre Vista Área y Aprobaciones con los roles disponibles.
+
 ## Actualizacion 2026-10-16 - Filtros de la Bandeja de Aprobaciones
 
 - Se agrego buscador por codigo, titulo o responsable.
