@@ -2,7 +2,7 @@
 
 ## [Sin versión - Alcance de controles del tablero] - 2026-10-16
 ### Corregido
-- La barra global de búsqueda, filtros, actualización y creación de tareas ahora solo aparece en Vista Área.
+- El contenedor de acciones globales de búsqueda, filtros, actualización y creación de tareas ahora solo aparece en Vista Área, manteniendo visibles las pestañas de navegación.
 - Aprobaciones, Historial y Usuarios ya no heredan el buscador, filtro de prioridad ni botón Nueva Tarea del tablero.
 - Al regresar a Vista Área, los controles vuelven a mostrarse; los filtros propios de Aprobaciones permanecen disponibles en su módulo.
 

@@ -4,7 +4,7 @@
 - **Estado:** implementado; verificación automática pendiente de ejecutar en este avance.
 - **Objetivo:** evitar que la búsqueda global, el filtro de prioridad y la creación de tareas del tablero aparezcan en Aprobaciones, Historial o Usuarios.
 - **RF/RN:** RF-05, RF-06, RF-10, RF-10a, RN-01 y RN-07.
-- **Cambios:** `setScope()` controla la barra completa y la muestra solo cuando el ámbito activo es `area`; el botón Nueva Tarea también queda restringido a ese ámbito. Aprobaciones conserva sus filtros locales.
+- **Cambios:** `setScope()` oculta únicamente el contenedor de acciones globales cuando el ámbito no es `area`, manteniendo visibles las pestañas de navegación; el botón Nueva Tarea también queda restringido a ese ámbito. Aprobaciones conserva sus filtros locales.
 - **Pruebas:** pendiente ejecutar lint PHP, suite integral y `git diff --check`; pendiente validación visual manual de navegación entre pestañas.
 - **Limitación:** no se dispone de automatización de navegador para comprobar el clic real en cada rol.
 

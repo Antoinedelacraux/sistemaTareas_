@@ -138,13 +138,11 @@ export async function setScope(scope) {
     const historyView = document.getElementById('history-view');
     const approvalsView = document.getElementById('approvals-view');
     const usersManagementView = document.getElementById('users-management-view');
-    const workspaceControlsBar = document.getElementById('workspace-controls-bar');
     const memberFilter = document.getElementById('member-filter-select');
     const workspaceActions = document.querySelector('.workspace-actions');
 
-    // La búsqueda, filtros globales y acciones de creación pertenecen al tablero.
-    // Las vistas de Aprobaciones, Historial y Usuarios tienen controles propios.
-    if (workspaceControlsBar) workspaceControlsBar.style.display = scope === 'area' ? 'flex' : 'none';
+    // Las pestañas permanecen visibles para poder cambiar de módulo; las acciones
+    // globales de tablero solo aparecen dentro de Vista Área.
     if (workspaceActions) workspaceActions.style.display = scope === 'area' ? 'flex' : 'none';
 
     if (memberFilter) {
