@@ -1,5 +1,14 @@
 # Traspaso entre sesiones
 
+## Actualizacion 2026-10-16 - Alineacion visual y contraseñas
+
+- Se unifico la geometria de selectores y controles: altura minima, padding derecho para la flecha, apariencia nativa reemplazada por un chevron consistente y foco visible.
+- Las tarjetas de tarea mantienen un borde exterior de un pixel; los estados cerrado/vencido usan un acento interno para no deformar las esquinas.
+- Login y Gestion de Usuarios tienen boton de ojo accesible para mostrar u ocultar contraseña; el valor no se modifica.
+- Cache actualizada: hojas CSS a v1.5.9, app y UI a v1.7.1.
+- Verificacion parcial: PHP lint y git diff --check PASS; Node no esta instalado.
+- Siguiente paso: ejecutar suite integral y revisar visualmente en navegador claro/oscuro y viewport movil.
+
 ## Actualizacion 2026-10-16 - Historial: consulta y eliminacion por iconos
 
 - Se agrego seleccion individual y seleccion de todas las filas visibles del Historial.

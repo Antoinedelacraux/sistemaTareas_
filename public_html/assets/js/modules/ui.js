@@ -97,6 +97,24 @@ export function closeModal(id) {
 }
 
 /**
+ * Alterna la visibilidad de un campo de contraseña sin perder el foco.
+ */
+export function togglePasswordVisibility(inputId, button) {
+    const input = document.getElementById(inputId);
+    if (!input || !button) return;
+
+    const shouldShow = input.type === 'password';
+    input.type = shouldShow ? 'text' : 'password';
+    button.setAttribute('aria-pressed', String(shouldShow));
+    button.setAttribute('aria-label', shouldShow ? 'Ocultar contraseña' : 'Mostrar contraseña');
+    button.setAttribute('title', shouldShow ? 'Ocultar contraseña' : 'Mostrar contraseña');
+    button.innerHTML = shouldShow
+        ? '<svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"></path><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"></path><path d="M9.9 5.1A10.5 10.5 0 0 1 12 5c6.5 0 10 7 10 7a18.4 18.4 0 0 1-3.1 4.3"></path><path d="M6.6 6.6C3.8 8.3 2 12 2 12s3.5 7 10 7a10.6 10.6 0 0 0 4.1-.8"></path></svg>'
+        : '<svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+    input.focus({ preventScroll: true });
+}
+
+/**
  * Escape de caracteres especiales para prevenir XSS.
  */
 export function escapeHtml(str) {

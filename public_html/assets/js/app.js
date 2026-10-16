@@ -5,7 +5,7 @@
 
 import { STATE, isCurrentUserJefe } from './modules/state.js';
 import { apiFetch } from './modules/api.js';
-import { initTheme, openModal, closeModal, showToast } from './modules/ui.js';
+import { initTheme, openModal, closeModal, showToast, togglePasswordVisibility } from './modules/ui.js?v=1.7.1';
 import { checkSession, doLogin, doLogout, registerLoginCallback } from './modules/auth.js';
 import { fetchUsers, fetchColumns, fetchTasks, refreshBoard, renderKanban, executeTaskTransition, registerKanbanCallbacks } from './modules/kanban.js?v=1.6.4';
 import { openCreateTaskModal, handleCreateTask, openTaskDetailModal, refreshTaskDetail, loadTaskDetail, handleAddSubtask, toggleSubtask, deleteSubtask, handleAddComment, handleDeleteActiveTask, handleFinalizeImmediately, handleAddDependency, removeDependency, toggleTaskEditMode, handleSaveTaskEdit, registerTaskModalCallbacks } from './modules/task-modal.js?v=1.6.4';
@@ -55,6 +55,7 @@ registerNotificationCallbacks({
 // -----------------------------------------------------------------------------
 window.openModal = openModal;
 window.closeModal = closeModal;
+window.togglePasswordVisibility = togglePasswordVisibility;
 window.openTaskDetailModal = openTaskDetailModal;
 window.refreshTaskDetail = refreshTaskDetail;
 // La acción es global porque el botón del tablero vive en un partial HTML.

@@ -45,6 +45,10 @@
 - El Historial permite seleccionar filas individualmente o todas las filas visibles y ejecutar la eliminacion masiva de forma controlada.
 - Asistentes no tienen acceso a la consulta ni a la eliminacion del Historial.
 
+## Ajuste confirmado 2026-10-16 - Consistencia visual y contraseñas
+- Los controles de filtro, formularios y tarjetas deben conservar altura, centrado, radios y bordes uniformes en los modulos operativos.
+- El login y el formulario de gestion de usuarios deben permitir mostrar y ocultar temporalmente la contraseña escrita.
+
 ## Requisitos retirados del alcance vigente
 
 - RF-11 Dashboard operativo: retirado por D-017. La supervisión operativa vigente se realiza mediante el tablero Kanban, la bandeja de aprobaciones y el Historial de Jefatura.

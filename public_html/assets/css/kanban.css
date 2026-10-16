@@ -154,7 +154,8 @@
 }
 
 .task-card.task-card-closed {
-  border-left: 3.5px solid #64748b;
+  border-left: 1px solid var(--border-subtle);
+  box-shadow: inset 3px 0 0 #64748b, var(--shadow-sm);
   opacity: 0.92;
 }
 
@@ -163,7 +164,8 @@
 }
 
 .task-card.task-card-overdue {
-  border-left: 4px solid #dc2626;
+  border-left: 1px solid var(--border-subtle);
+  box-shadow: inset 3px 0 0 #dc2626, var(--shadow-sm);
   background: linear-gradient(90deg, rgba(254, 226, 226, 0.82) 0, var(--bg-surface) 18%);
 }
 
@@ -172,7 +174,7 @@
 }
 
 [data-theme="dark"] .task-card.task-card-overdue {
-  border-left-color: var(--status-danger-text);
+  box-shadow: inset 3px 0 0 var(--status-danger-text), var(--shadow-sm);
   background: linear-gradient(90deg, rgba(127, 29, 29, 0.35) 0, var(--bg-surface) 18%);
 }
 

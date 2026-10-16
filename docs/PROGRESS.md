@@ -1,5 +1,13 @@
 # Registro de avances
 
+### 2026-10-16 - UI-ALIGNMENT-01: alineacion de controles y visibilidad de contraseñas
+- **Estado:** implementado y verificado.
+- **Objetivo:** corregir bordes y centrado visual en filtros y tarjetas, y permitir revisar temporalmente las contraseñas escritas.
+- **RF/RN:** RF-01, RF-02, RN-01, RN-07.
+- **Cambios:** selectores con altura, padding, chevron y foco uniformes; tarjetas con borde exterior constante y acento interno para estados; campos de contraseña con boton accesible de mostrar/ocultar en login y gestion de usuarios; cache versionada.
+- **Pruebas:** PHP lint PASS; git diff --check PASS; pendiente suite integral y validacion visual manual.
+- **Limitacion:** Node no esta instalado, por lo que no se ejecuto node --check; la validacion final de centrado requiere navegador real.
+
 ### 2026-10-16 - HISTORY-ARCHIVE-UI-01: acciones y eliminacion controlada del Historial
 - **Estado:** implementado y verificado.
 - **Objetivo:** consultar o eliminar tareas cerradas desde el Historial sin abandonar la vista, con seleccion individual y masiva.

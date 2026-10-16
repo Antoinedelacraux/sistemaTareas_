@@ -1,5 +1,14 @@
 # Changelog
 
+## [Sin version - Alineacion visual y visibilidad de contraseñas] - 2026-10-16
+### Modificado
+- Se homogeneizaron altura, padding, borde, foco y flecha de los selectores.
+- Se corrigieron tarjetas Kanban que variaban el grosor del borde lateral y hacian parecer desalineadas las esquinas.
+
+### Agregado
+- Boton accesible para mostrar y ocultar la contraseña en Login y Gestion de Usuarios.
+- Versiones de cache actualizadas para cargar los estilos y el modulo UI vigentes.
+
 ## [Sin version - Acciones del Historial archivado] - 2026-10-16
 ### Agregado
 - Acciones por iconos para ver una tarea cerrada y eliminarla del Historial.

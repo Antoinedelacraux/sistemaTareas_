@@ -339,7 +339,17 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="managed-user-password">Contraseña <span id="managed-user-password-optional">inicial *</span></label>
-                        <input type="password" id="managed-user-password" class="form-input" required placeholder="Mínimo 8 caracteres" minlength="8">
+                        <div class="password-field">
+                            <input type="password" id="managed-user-password" class="form-input" required placeholder="Mínimo 8 caracteres" minlength="8"
+                                autocomplete="new-password">
+                            <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('managed-user-password', this)"
+                                aria-label="Mostrar contraseña" title="Mostrar contraseña" aria-pressed="false">
+                                <svg class="icon-svg" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
                         <span class="form-help" id="managed-user-password-help">Asigna una contraseña y comunícala directamente al usuario.</span>
                     </div>
                 </div>

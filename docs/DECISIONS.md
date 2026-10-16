@@ -1,6 +1,7 @@
 # Registro de decisiones y supuestos
 
 ## Decisiones CONFIRMADAS con el usuario
+- D-032 Consistencia de controles y visibilidad de contraseñas: los selectores y tarjetas conservan un sistema visual uniforme; login y gestión de usuarios incorporan un control accesible para mostrar u ocultar la contraseña sin alterar su valor.
 - D-001 Equipo inicial 5: tres asistentes y dos jefes.
 - D-002 Creación de tareas por jefes y asistentes sujeta a permisos.
 - D-003 Asistentes solo asignan a sí mismos; jefes asignan a otros.
