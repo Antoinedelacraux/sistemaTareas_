@@ -36,7 +36,7 @@
 - [x] VPS-PREP-01 Empaquetado, checklist y migración lista para DonWeb Ferozo / VPS. [COMPLETADO]
 
 - [x] PROD-READY-01 Instalacion limpia para produccion: sin datos demo, aprovisionamiento inicial de Jefatura protegido y guia de despliegue. [COMPLETADO]
-- [x] TASK-EDIT-UI-01 Acceso rápido para actualizar una tarea desde el encabezado de su ficha, con permisos y refresco posterior. [COMPLETADO]
+- [x] TASK-REFRESH-UI-01 Refresco de la ficha de tarea desde el encabezado, sin recarga completa de la página. [COMPLETADO]
 
 ## Fase 2 (Planificada - Posterior a VPS)
 - [x] PERF-01 Optimizacion inicial Lighthouse: recursos estaticos, LCP, CLS y carga inicial concurrente. [COMPLETADO; pendiente medicion con navegador real]

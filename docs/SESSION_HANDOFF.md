@@ -1,16 +1,16 @@
 # Traspaso entre sesiones
 
-## Actualización 2026-10-16 — Acceso rápido a edición de tarea
+## Actualización 2026-10-16 — Refresco de ficha de tarea
 
-- Se añadió un icono de edición/actualización en el encabezado del detalle de tarea, junto al botón de cierre.
-- El icono reutiliza el formulario de edición inline ya existente; no se creó un endpoint paralelo ni se duplicaron reglas de negocio.
-- El botón del encabezado y el botón del pie se muestran u ocultan juntos según las reglas de Jefatura, responsable y estado (`PENDIENTE`/`EN_PROCESO`).
-- Al guardar se mantiene el refresco de la ficha, Kanban y resumen de notificaciones, por lo que la conversación de la tarea no depende de recargar toda la página.
+- Se añadió un icono de refresco en el encabezado del detalle de tarea, junto al botón de cierre.
+- El botón vuelve a consultar la tarea, comentarios, evidencias, checklist y dependencias; mantiene abierta la ficha y actualiza el Kanban sin recargar toda la página.
+- Mientras consulta, el icono gira y el botón queda deshabilitado para evitar solicitudes duplicadas.
+- La edición continúa disponible únicamente mediante el botón inferior y las reglas de Jefatura, responsable y estado (`PENDIENTE`/`EN_PROCESO`).
 
 ## Estado verificable
 
 - Rama: `main`, árbol de trabajo limpio después del checkpoint local.
-- Último commit confirmado: `b1299de feat(task): add quick edit action to task detail`.
+- Último commit confirmado: `0a51861 docs(context): record task edit checkpoint`; la corrección de refresco está pendiente de checkpoint.
 - Plataforma local: PHP 8.4 + SQLite.
 - Verificación actual: `php tests/run_all.php` completó 10/10 suites; QA piloto integrado 43/43 PASS; `git diff --check` PASS.
 - Limitación: falta validación visual manual del botón en escritorio y móvil.

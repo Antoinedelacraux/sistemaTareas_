@@ -223,6 +223,32 @@ export async function openTaskDetailModal(taskId) {
     openModal('modal-task-detail');
 }
 
+/**
+ * Refresca la información de la ficha activa sin cerrar el modal ni recargar la página.
+ */
+export async function refreshTaskDetail() {
+    const taskId = STATE.activeTaskDetail?.id;
+    const button = document.getElementById('btn-refresh-task');
+    if (!taskId || !button || button.disabled) return;
+
+    const icon = button.querySelector('svg');
+    button.disabled = true;
+    button.setAttribute('aria-busy', 'true');
+    icon?.classList.add('icon-spin');
+
+    try {
+        const loaded = await loadTaskDetail(taskId);
+        if (loaded) {
+            await fetchTasks();
+            showToast('Información de la tarea actualizada', 'success');
+        }
+    } finally {
+        button.disabled = false;
+        button.removeAttribute('aria-busy');
+        icon?.classList.remove('icon-spin');
+    }
+}
+
 export async function loadTaskDetail(taskId) {
     try {
         const [taskRes, subRes, comRes] = await Promise.all([
@@ -237,13 +263,13 @@ export async function loadTaskDetail(taskId) {
 
         if (!taskJson.success) {
             showToast('No tienes permisos para ver esta tarea', 'error');
-            return;
+            return false;
         }
 
         const task = taskJson.data?.tarea || taskJson.data;
         if (!task || !task.id) {
             showToast('No se pudieron obtener los datos de la tarea', 'error');
-            return;
+            return false;
         }
         STATE.activeTaskDetail = task;
 
@@ -335,8 +361,11 @@ export async function loadTaskDetail(taskId) {
             console.warn('Error al cargar dependencias', e);
         }
 
+        return true;
+
     } catch {
         showToast('Error al cargar detalle de la tarea', 'error');
+        return false;
     }
 }
 

@@ -1,10 +1,10 @@
 # Changelog
 
-## [Sin versión - Acceso rápido a edición de tarea] - 2026-10-16
+## [Sin versión - Refresco de ficha de tarea] - 2026-10-16
 ### Modificado
-- Se agregó un botón de icono en el encabezado del detalle de tarea para actualizar su información sin salir de la ficha.
-- El control reutiliza la edición inline existente, conserva las restricciones por rol/estado y refresca la ficha y el tablero después de guardar.
-- Se ajustaron los estilos del encabezado para mantener foco visible, tamaño táctil y legibilidad en pantallas estrechas.
+- Se reemplazó el acceso de edición del encabezado por un botón de refresco que vuelve a consultar la tarea, comentarios, evidencias, checklist y dependencias sin cerrar la ficha.
+- El refresco actualiza también el tablero y muestra una animación breve mientras consulta, evitando recargas completas y clics duplicados.
+- Se conserva el botón inferior para editar únicamente cuando los permisos vigentes lo permiten.
 
 ---
 

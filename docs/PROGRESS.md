@@ -1,13 +1,13 @@
 # Registro de avances
 
-### 2026-10-16 - TASK-EDIT-UI-01: acceso visible a la actualización desde el detalle
+### 2026-10-16 - TASK-REFRESH-UI-01: sincronización de la ficha desde el detalle
 - **Estado:** implementado y verificado.
-- **Objetivo:** permitir que la persona actualice la información de la tarea desde el encabezado de la misma ficha, sin depender de cerrar el detalle ni recargar la pantalla.
+- **Objetivo:** permitir que la persona refresque la información de la tarea desde el encabezado de la misma ficha, sin editar ni cerrar el detalle ni recargar la pantalla completa.
 - **RF/RN:** RF-07; RN-01, RN-07, RN-10 y RN-11.
-- **Cambios:** se agregó un botón de icono con etiqueta accesible junto al cierre del detalle; reutiliza la edición inline existente, comparte la visibilidad con el botón del pie y respeta las reglas vigentes de Jefatura/asignación/estado. El guardado continúa refrescando la ficha, el tablero y las notificaciones.
+- **Cambios:** se agregó un botón de refresco con etiqueta accesible junto al cierre del detalle; vuelve a consultar tarea, comentarios, evidencias, checklist y dependencias, actualiza también el tablero y mantiene abierta la ficha. Durante la consulta muestra animación y evita clics duplicados.
 - **Pruebas:** `php tests/run_all.php`: 10/10 suites y 100% PASS; `git diff --check`: PASS. El intento de ejecutar `tests/qa_pilot.php` no aplica porque ese archivo no existe; la suite vigente `tests/qa_security_pilot_test.php` sí se ejecutó dentro de `run_all.php` con 43/43 PASS.
 - **Limitación:** queda validación visual manual en navegador para confirmar el comportamiento responsive del encabezado en escritorio y móvil.
-- **Commit:** `b1299de feat(task): add quick edit action to task detail`.
+- **Commit:** pendiente del checkpoint de corrección.
 - **Siguiente paso:** revisar visualmente el icono en la ficha; no hacer push remoto.
 
 ### 2026-10-16 - CLEANUP-01: limpieza técnica y documental del alcance vigente
