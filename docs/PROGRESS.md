@@ -7,7 +7,7 @@
 - **Cambios:** se agregó un botón de refresco con etiqueta accesible junto al cierre del detalle; vuelve a consultar tarea, comentarios, evidencias, checklist y dependencias, actualiza también el tablero y mantiene abierta la ficha. Durante la consulta muestra animación y evita clics duplicados.
 - **Pruebas:** `php tests/run_all.php`: 10/10 suites y 100% PASS; `git diff --check`: PASS. El intento de ejecutar `tests/qa_pilot.php` no aplica porque ese archivo no existe; la suite vigente `tests/qa_security_pilot_test.php` sí se ejecutó dentro de `run_all.php` con 43/43 PASS.
 - **Limitación:** queda validación visual manual en navegador para confirmar el comportamiento responsive del encabezado en escritorio y móvil.
-- **Commit:** pendiente del checkpoint de corrección.
+- **Commit:** `7f3c088 fix(task): refresh detail instead of opening editor`.
 - **Siguiente paso:** revisar visualmente el icono en la ficha; no hacer push remoto.
 
 ### 2026-10-16 - CLEANUP-01: limpieza técnica y documental del alcance vigente

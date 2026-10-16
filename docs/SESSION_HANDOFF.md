@@ -10,7 +10,7 @@
 ## Estado verificable
 
 - Rama: `main`, árbol de trabajo limpio después del checkpoint local.
-- Último commit confirmado: `0a51861 docs(context): record task edit checkpoint`; la corrección de refresco está pendiente de checkpoint.
+- Último commit confirmado: `7f3c088 fix(task): refresh detail instead of opening editor`.
 - Plataforma local: PHP 8.4 + SQLite.
 - Verificación actual: `php tests/run_all.php` completó 10/10 suites; QA piloto integrado 43/43 PASS; `git diff --check` PASS.
 - Limitación: falta validación visual manual del botón en escritorio y móvil.
