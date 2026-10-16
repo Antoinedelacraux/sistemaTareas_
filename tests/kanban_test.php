@@ -110,7 +110,7 @@ $pdo->exec("
     (5, 'Finalizada', 5, 'FINALIZADA', '#059669', 1);
 ");
 
-$hashSeguro = password_hash('Planeamiento2026!', PASSWORD_BCRYPT, ['cost' => 10]);
+$hashSeguro = password_hash('TestOnly-Planeamiento-2026!', PASSWORD_BCRYPT, ['cost' => 10]);
 $now = gmdate('Y-m-d H:i:s');
 
 $usuariosSeed = [
@@ -184,8 +184,8 @@ $boardController = new BoardController();
 // =============================================================================
 
 // T01: Obtener columnas del tablero
-$res = invokeCapture(function () use ($boardController) {
-    $boardController->columns([]);
+$res = invokeCapture(function () use ($boardController, $userAsistente1) {
+    $boardController->columns(['user' => $userAsistente1]);
 });
 $columnas = $res['json']['data']['columnas'] ?? [];
 testAssert(
@@ -211,12 +211,12 @@ foreach ($kanbanAsist['columnas'] ?? [] as $col) {
     }
 }
 testAssert(
-    "T03: [Kanban Asistente] Asistente 1 solo ve sus tareas (1, 2, 4) y NO ve la de Asistente 2 (Tarea 3)",
+    "T03: [Kanban Asistente] Asistente 1 solo ve sus tareas oficiales (1, 2) y excluye el registro personal histórico (4) y la tarea de Asistente 2 (3)",
     $res['status'] === 200 &&
-    count($todasTareasAsist) === 3 &&
+    count($todasTareasAsist) === 2 &&
     in_array(1, $todasTareasAsist, true) &&
     in_array(2, $todasTareasAsist, true) &&
-    in_array(4, $todasTareasAsist, true) &&
+    !in_array(4, $todasTareasAsist, true) &&
     !in_array(3, $todasTareasAsist, true)
 );
 
@@ -245,9 +245,9 @@ testAssert(
 // =============================================================================
 
 // T05: Transición básica: Asistente 1 mueve Tarea 1 de Pendiente (1) a En proceso (2)
-$res = invokeCapture(function () use ($boardController, $userAsistente1) {
+$res = invokeCapture(function () use ($boardController, $userJefe) {
     $boardController->transition([
-        'user'   => $userAsistente1,
+        'user'   => $userJefe,
         'params' => ['id' => '1'],
         'body'   => ['nueva_columna_id' => 2, 'motivo' => 'Iniciando recopilación de datos']
     ]);
@@ -258,9 +258,9 @@ testAssert(
 );
 
 // T06: Transición a la misma columna actual (sin cambios)
-$res = invokeCapture(function () use ($boardController, $userAsistente1) {
+$res = invokeCapture(function () use ($boardController, $userJefe) {
     $boardController->transition([
-        'user'   => $userAsistente1,
+        'user'   => $userJefe,
         'params' => ['id' => '1'],
         'body'   => ['nueva_columna_id' => 2]
     ]);
@@ -354,10 +354,10 @@ testAssert(
     $res['status'] === 200 && ($res['json']['data']['tarea']['columna_id'] ?? 0) === 4
 );
 
-// T12 (Reapertura de tarea): Mover Tarea 1 de Finalizada (5) a En proceso (2)
-$res = invokeCapture(function () use ($boardController, $userAsistente1) {
+// T12 (Reapertura de tarea): solo Jefatura puede reabrir una tarea finalizada.
+$res = invokeCapture(function () use ($boardController, $userJefe) {
     $boardController->transition([
-        'user'   => $userAsistente1,
+        'user'   => $userJefe,
         'params' => ['id' => '1'],
         'body'   => ['nueva_columna_id' => 2, 'motivo' => 'Reapertura por observación menor']
     ]);
@@ -370,9 +370,9 @@ testAssert(
 );
 
 // T13: Intento de mover a columna inexistente -> 404
-$res = invokeCapture(function () use ($boardController, $userAsistente1) {
+$res = invokeCapture(function () use ($boardController, $userJefe) {
     $boardController->transition([
-        'user'   => $userAsistente1,
+        'user'   => $userJefe,
         'params' => ['id' => '1'],
         'body'   => ['nueva_columna_id' => 999]
     ]);

@@ -301,3 +301,6 @@ Para garantizar que el sistema cumpla con estándares de accesibilidad y soporte
 | **Bloqueada (Blocked)** | Borde sutil color rubí (`--status-blocked`), icono de candado `🔒` y etiqueta con el ID de la tarea bloqueante | Al pasar el cursor o enfocar, tooltip accesible: *"Bloqueada por #101"*. |
 | **En Revisión** | Borde color ámbar (`--status-review`), icono de reloj `⏳` y etiqueta *"En espera de aprobación"*. | Solo lectura para el asistente hasta que el jefe decida. |
 | **Error de Red** | Banner flotante accesible (*toast alert*) con botón `[ Reintentar ]` | Conserva el estado local del formulario o movimiento sin perder datos. |
+# Nota de vigencia
+
+Este documento conserva wireframes históricos de exploración. El diseño operativo vigente expone únicamente la Vista Área, Aprobaciones, Historial y Gestión de Usuarios; las pantallas de Vista Personal y Dashboard no forman parte de la interfaz actual.

@@ -1,64 +1,39 @@
-# Sistema de Gestión y Seguimiento de Tareas (TAL S.A.) — Guía Rápida
+# Sistema de Gestión y Seguimiento de Tareas (TAL S.A.) — Guía rápida
 
-Bienvenido al sistema de gestión de tareas ágil, ligero y 100% funcional, diseñado específicamente para el equipo de Planeamiento y compatible de forma nativa con **PHP 8.2+ / MySQL / Vanilla JS** para despliegue directo en **DonWeb Ferozo**.
+Aplicación web interna del área de Planeamiento, construida con PHP 8.2+, MySQL/MariaDB y frontend Vanilla JS/CSS. El paquete de producción no incluye cuentas, tareas ni contraseñas demo.
 
----
+## Desarrollo local
 
-## 🚀 ¿Cómo probar el sistema inmediatamente en tu máquina?
+Abre [http://127.0.0.1:8000](http://127.0.0.1:8000). La base SQLite local puede contener datos de desarrollo históricos; no uses esas cuentas como procedimiento de producción.
 
-El servidor de desarrollo local ya se encuentra activo en segundo plano:
+Para una instalación nueva, sigue [`docs/DEPLOYMENT_AND_PILOT_GUIDE.md`](docs/DEPLOYMENT_AND_PILOT_GUIDE.md). El primer usuario se crea una sola vez desde `/instalar.php`, con `INSTALLER_ENABLED=true`, un `INSTALL_TOKEN` de al menos 32 caracteres y una contraseña de al menos 12 caracteres. Después de crear la cuenta, desactiva inmediatamente el instalador.
 
-1. **Abre tu navegador:**
-   👉 Ve a: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+## Alcance operativo vigente
 
-2. **Inicia sesión con cualquiera de los usuarios de prueba:**
-   - **Como Asistente (Marco Chumbes):**
-     - Correo: `mchumbes@planeamiento.tal`
-     - Contraseña: `Planeamiento2026!`
-   - **Como Jefa de Planeamiento (Elena Vega):**
-     - Correo: `jefe.planeamiento@planeamiento.tal`
-     - Contraseña: `Planeamiento2026!`
+- Tablero único de Área con columnas configurables y movimiento directo de tareas.
+- Creación, asignación, edición, checklist, comentarios y evidencias.
+- Aprobaciones, notificaciones, vencimientos y cierre con archivo después de 24 horas.
+- Historial de tareas archivadas y auditoría para Jefatura.
+- Gestión administrativa de usuarios para Jefatura.
+- Las referencias históricas a Dashboard y Vista Personal ya no representan módulos operativos activos.
 
----
+## Verificaciones
 
-## ✨ Características del Nuevo Enfoque Ágil (V1.3)
+Lint PHP de la aplicación:
 
-1. **Kanban Fluido con Drag & Drop Nativo:**
-   - Arrastra cualquier tarjeta a la columna deseada y se mueve de inmediato, sin modales ni confirmaciones que frenen el flujo.
-2. **Vistas Separadas y Prácticas:**
-   - **"Mis Tareas":** Tu tablero personal enfocado en lo que tienes asignado hoy.
-   - **"Tablero del Equipo":** Tablero colaborativo para ver en qué está trabajando cada miembro y evitar duplicar esfuerzos.
-   - **"Dashboard & Métricas":** Resumen ejecutivo con porcentaje de avance, tareas atrasadas y balance por integrante.
-3. **Filtros Ágiles en Vivo:**
-   - Buscador instantáneo por código o título.
-   - Selector interactivo para filtrar tareas por integrante del equipo (`Todos los miembros`, `Marco`, `Elena`, etc.).
-   - Filtro por prioridad (`Urgente`, `Alta`, `Media`, `Baja`).
-4. **Modal de Detalle Dinámico:**
-   - **Checklist de subtareas:** Agrega subtareas y márcalas con cálculo automático de porcentaje de progreso.
-   - **Comentarios y notas:** Historial cronológico con opción de adjuntar evidencias y archivos.
-   - **Reasignación rápida:** Cambia el responsable o columna desde el modal.
-   - **Eliminar tarea:** Botón directo para descartar tareas que ya no aplican.
-
----
-
-## 🧪 Pruebas Automatizadas (100% Verificado)
-
-Para verificar que todos los módulos y la seguridad backend funcionan al 100%:
-
-```bash
-php tests/run_all.php
+```powershell
+$phpFiles = @(Get-ChildItem app,public_html,tests -Filter *.php -Recurse -File) + @(Get-Item server.php)
+foreach ($file in $phpFiles) { php -l $file.FullName }
 ```
 
-Resultado: **10 suites de prueba ejecutadas, 10 suites aprobadas (100% PASS, 250+ tests)**.
+Las pruebas aisladas disponibles se encuentran en `tests/`. La suite integral debe interpretarse junto con el alcance vigente y no debe incluir módulos retirados.
 
----
+## Documentación principal
 
-## 📂 Estructura y Documentación
-
-- `docs/DECISIONS.md`: Registro de decisiones técnicas y de producto (incluyendo D-012 sobre simplificación ágil).
-- `docs/PROJECT_CONTEXT.md`: Contexto arquitectónico y visión del sistema V1.3.
-- `docs/REQUIREMENTS.md`: 12 requisitos funcionales prácticos y reglas de negocio.
-- `docs/ROADMAP.md`: Estado de fases y tareas completadas.
-- `docs/PROGRESS.md`: Bitácora histórica del trabajo verificado.
-- `docs/SESSION_HANDOFF.md`: Traspaso técnico para futuras sesiones.
-- `docs/DEPLOYMENT_AND_PILOT_GUIDE.md`: Guía paso a paso para subir el sistema a DonWeb Ferozo.
+- `docs/PROJECT_CONTEXT.md`: contexto y alcance.
+- `docs/REQUIREMENTS.md`: requisitos y reglas vigentes.
+- `docs/DECISIONS.md`: decisiones confirmadas y decisiones superadas.
+- `docs/ROADMAP.md`: fases y tareas.
+- `docs/PROGRESS.md`: bitácora verificable.
+- `docs/SESSION_HANDOFF.md`: estado para la siguiente sesión.
+- `docs/DEPLOYMENT_AND_PILOT_GUIDE.md`: despliegue seguro en DonWeb Ferozo.

@@ -214,7 +214,7 @@ export function renderUserBar() {
         if (memberFilter) memberFilter.style.display = 'none';
         if (btnCreateColumn) btnCreateColumn.style.display = 'none';
 
-        if (STATE.currentScope === 'approvals' || STATE.currentScope === 'history' || STATE.currentScope === 'users' || STATE.currentScope === 'personal') {
+        if (STATE.currentScope === 'approvals' || STATE.currentScope === 'history' || STATE.currentScope === 'users') {
             STATE.currentScope = 'area';
         }
     }

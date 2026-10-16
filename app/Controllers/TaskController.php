@@ -10,8 +10,8 @@ use App\Models\User;
 
 /**
  * Controlador de Gestión de Tareas (Fase 1: MVP-03).
- * Implementa el CRUD de tareas personales y del área con aplicación estricta
- * de reglas de asignación, visibilidad por alcance y auditoría
+ * Implementa el CRUD de tareas del Área con aplicación estricta
+ * de reglas de asignación, visibilidad y auditoría
  * (RF-03, RF-04, RF-05, RF-06, RF-07, RF-09, RN-01, RN-02, RN-03, RN-04, RN-05).
  */
 class TaskController

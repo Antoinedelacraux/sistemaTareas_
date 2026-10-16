@@ -10,7 +10,8 @@ use PDO;
 /**
  * Modelo de Tarea (Fase 1: MVP-03).
  * Maneja el ciclo de vida, alcance, persistencia y reglas de negocio
- * asociadas a tareas personales y oficiales del área (RF-03, RF-04, RF-05, RF-06, RF-07, RF-09).
+ * asociadas a tareas oficiales del área (RF-03, RF-04, RF-05, RF-06, RF-07, RF-09).
+ * La constante y los registros PERSONAL se conservan únicamente para compatibilidad histórica.
  */
 class Task
 {
@@ -132,7 +133,7 @@ class Task
     /**
      * Lista tareas según el alcance y rol del usuario autenticado (RF-07, RN-01, RN-02, RN-05).
      * - Asistentes: solo tareas donde son responsable o creador.
-     * - Jefes: todas las tareas del área (tipo AREA) y sus propias tareas personales.
+     * - Jefes: todas las tareas oficiales del área (tipo AREA).
      */
     public static function listForUser(array $currentUser, array $filters = []): array
     {
@@ -319,7 +320,7 @@ class Task
      * Valida si un usuario tiene autorización para editar una tarea.
      * - En FINALIZADA, solo Jefatura conserva la facultad de edición.
      * - Jefes: pueden editar cualquier tarea del área.
-     * - Asistentes: en Vista Área NO pueden editar. En Vista Personal tienen todos los permisos.
+     * - Asistentes: pueden editar sus tareas asignadas solo en PENDIENTE y EN_PROCESO.
      */
     public static function canEdit(array $currentUser, array $task): bool
     {

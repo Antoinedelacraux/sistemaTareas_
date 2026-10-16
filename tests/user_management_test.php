@@ -53,7 +53,7 @@ CREATE TABLE auditoria_eventos (
 );");
 Database::setConnection($pdo);
 
-$password = 'Planeamiento2026!';
+$password = 'TestOnly-Planeamiento-2026!';
 $hash = password_hash($password, PASSWORD_BCRYPT);
 $now = gmdate('Y-m-d H:i:s');
 $seed = [

@@ -331,35 +331,3 @@
   transform: translateY(-2px);
   box-shadow: var(--shadow-sm);
 }
-
-/* Banner Informativo de Vista Personal */
-.personal-board-banner {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(59, 130, 246, 0.05) 100%);
-  border: 1px solid rgba(99, 102, 241, 0.22);
-  border-left: 4px solid var(--primary-500);
-  border-radius: var(--radius-md);
-  padding: 0.75rem 1.15rem;
-  margin-bottom: 1.25rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.personal-board-banner .banner-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--primary-text);
-  flex-shrink: 0;
-}
-
-.personal-board-banner .banner-text {
-  font-size: 0.86rem;
-  color: var(--text-main);
-  line-height: 1.45;
-}
-
-.personal-board-banner .banner-text strong {
-  color: var(--primary-text);
-}

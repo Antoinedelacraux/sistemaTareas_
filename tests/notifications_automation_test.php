@@ -171,7 +171,7 @@ Database::setConnection($pdo);
 // 2. Sembrar Datos Iniciales
 // -----------------------------------------------------------------------------
 $now = gmdate('Y-m-d H:i:s');
-$passwordHash = password_hash('Planeamiento2026!', PASSWORD_BCRYPT);
+$passwordHash = password_hash('TestOnly-Planeamiento-2026!', PASSWORD_BCRYPT);
 
 $pdo->exec("
     INSERT INTO tableros_columnas (id, nombre, orden, tipo_estado, color_hex, activo, created_at) VALUES

@@ -68,7 +68,7 @@ $pdo->exec("
 Database::setConnection($pdo);
 
 // Insertar semillas de prueba
-$passwordHash = password_hash('Planeamiento2026!', PASSWORD_BCRYPT);
+$passwordHash = password_hash('TestOnly-Planeamiento-2026!', PASSWORD_BCRYPT);
 $now = gmdate('Y-m-d H:i:s');
 
 $pdo->exec("
@@ -127,7 +127,7 @@ $res1 = runController(function () use ($auth) {
     $auth->login([
         'body' => [
             'email'    => 'mchumbes@planeamiento.tal',
-            'password' => 'Planeamiento2026!'
+            'password' => 'TestOnly-Planeamiento-2026!'
         ]
     ]);
 });
@@ -148,7 +148,7 @@ $res2 = runController(function () use ($auth) {
     $auth->login([
         'body' => [
             'email'    => 'jefe.planeamiento@planeamiento.tal',
-            'password' => 'Planeamiento2026!'
+            'password' => 'TestOnly-Planeamiento-2026!'
         ]
     ]);
 });
@@ -205,7 +205,7 @@ $res6 = runController(function () use ($auth) {
     $auth->login([
         'body' => [
             'email'    => 'inactivo@planeamiento.tal',
-            'password' => 'Planeamiento2026!'
+            'password' => 'TestOnly-Planeamiento-2026!'
         ]
     ]);
 });

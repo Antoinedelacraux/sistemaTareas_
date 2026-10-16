@@ -138,7 +138,7 @@ $pdo->exec("
     (5, 'Finalizada', 5, 'FINALIZADA', '#059669', 1);
 ");
 
-$hashSeguro = password_hash('Planeamiento2026!', PASSWORD_BCRYPT, ['cost' => 10]);
+$hashSeguro = password_hash('TestOnly-Planeamiento-2026!', PASSWORD_BCRYPT, ['cost' => 10]);
 $now = gmdate('Y-m-d H:i:s');
 
 $usuariosSeed = [

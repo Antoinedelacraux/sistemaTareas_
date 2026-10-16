@@ -1,5 +1,17 @@
 # Changelog
 
+## [Sin versión - Limpieza técnica y documental] - 2026-10-16
+### Modificado
+- Eliminadas las referencias vigentes a credenciales demo y actualizado `LEEME_PRIMERO.md` para el flujo real de instalación limpia.
+- Alineados requisitos, decisiones y roadmap con el tablero único de Área y el Historial de Jefatura; RF-11 Dashboard queda registrado como retirado por D-017.
+- Retiradas las clases vacías y el módulo JavaScript no utilizado del Dashboard.
+- Actualizadas las pruebas de QA para retirar expectativas de Dashboard/Vista Personal y validar el acceso al Historial.
+- Se conserva `tipo_tarea = PERSONAL` en el modelo y esquema solo para compatibilidad con datos históricos no expuestos.
+- `.gitignore` ahora excluye artefactos de túnel y respaldos locales.
+- Corregida la respuesta de acceso denegado del Historial para usar el contrato disponible en `Response` y evitar errores fatales.
+
+---
+
 ## [Sin version - Instalacion limpia para produccion] - 2026-10-15
 ### Seguridad
 - Se retiraron del repositorio operativo las cuentas, contrasenas, tareas y comentarios de demostracion.

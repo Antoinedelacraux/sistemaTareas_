@@ -115,7 +115,7 @@ export function registerTaskModalCallbacks({ onTaskUpdated }) {
 /**
  * Abre el modal para crear una nueva tarea.
 /**
- * Actualiza los campos y badges del modal de creación según el tipo seleccionado (AREA vs PERSONAL).
+ * Actualiza los campos y badges del modal de creación para el tablero único de Área.
  */
 export function updateCreateTaskTypeUI() {
     const user = STATE.currentUser;

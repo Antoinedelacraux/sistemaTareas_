@@ -11,7 +11,6 @@
 - RF-08 Checklist interactivo de subtareas con barra de progreso porcentual visible en tarjeta y detalle.
 - RF-09 Muro de comentarios y notas de avance con soporte de archivos adjuntos/evidencias.
 - RF-10 Filtros rápidos en un solo clic dentro de "Vista Área": filtro por responsable y por prioridad.
-- RF-11 Dashboard operativo con métricas de tareas completadas, en progreso, tasa de cumplimiento y balance general.
 - RF-12 Compatibilidad nativa con PHP 8.2+ y MySQL/MariaDB para despliegue directo en DonWeb Ferozo / VPS.
 - RF-14 Módulo exclusivo de Jefatura para crear, editar, activar, desactivar cuentas y asignar permisos por rol, separado del directorio usado para tareas.
 - RF-20 Instalación inicial de producción sin datos demostrativos, con creación única y segura del primer Jefe de Área.
@@ -33,8 +32,13 @@
 4. Agregar, marcar y desmarcar subtareas con cálculo inmediato de % de progreso.
 5. Dejar comentarios y adjuntar archivos con descarga funcional.
 6. Filtro ágil por responsable y prioridad dentro de "Vista Área".
-7. Visualización del Dashboard con métricas reales.
+7. Visualización del Historial de tareas archivadas para Jefatura con trazabilidad y cumplimiento de plazo.
 8. Verificación 100% funcional local sin errores de consola ni de PHP.
+
+## Requisitos retirados del alcance vigente
+
+- RF-11 Dashboard operativo: retirado por D-017. La supervisión operativa vigente se realiza mediante el tablero Kanban, la bandeja de aprobaciones y el Historial de Jefatura.
+- Vista Personal y tareas personales nuevas: retiradas por D-024. Los registros históricos `PERSONAL` se conservan en la base para compatibilidad, pero no se exponen por la interfaz ni por los listados operativos actuales.
 
 ## Ajuste confirmado 2026-10-14 — Ciclo de cierre y vencimientos
 - RF-13 Cierre y archivo: al aprobarse una tarea o moverla a `FINALIZADA`, queda cerrada y visible en esa columna por 24 horas; Jefatura puede enviarla al historial de inmediato.

@@ -1,5 +1,7 @@
 # Roadmap del proyecto
 
+> **Alcance vigente:** el roadmap conserva las fases históricas para trazabilidad. Dashboard y Vista Personal fueron retirados del producto operativo por D-017 y D-024; los registros de `PERSONAL` se conservan únicamente por compatibilidad histórica.
+
 ## Estados
 `PENDIENTE`, `EN_CURSO`, `EN_REVISION`, `COMPLETADO`, `BLOQUEADO`.
 

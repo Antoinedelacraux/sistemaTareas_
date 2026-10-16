@@ -134,7 +134,7 @@ $pdo->exec("
     (5, 'Finalizada', 5, 'FINALIZADA', '#059669', 1);
 ");
 
-$hashSeguro = password_hash('Planeamiento2026!', PASSWORD_BCRYPT, ['cost' => 10]);
+$hashSeguro = password_hash('TestOnly-Planeamiento-2026!', PASSWORD_BCRYPT, ['cost' => 10]);
 $now = gmdate('Y-m-d H:i:s');
 
 $usuariosSeed = [
@@ -478,7 +478,7 @@ testAssert(
     $res['status'] === 403
 );
 
-// T21 (Eliminación autorizada): Asistente 1 elimina su propia tarea personal
+// T21: las tareas del Área no pueden ser eliminadas por un asistente, aunque las haya creado.
 $res = invokeCapture(function () use ($taskController, $userAsistente1, $tareaPersonalAsist1) {
     $taskController->delete([
         'user'   => $userAsistente1,
@@ -486,8 +486,8 @@ $res = invokeCapture(function () use ($taskController, $userAsistente1, $tareaPe
     ]);
 });
 testAssert(
-    "T21: Creador elimina su tarea -> 200 OK y eliminada exitosamente",
-    $res['status'] === 200
+    "T21: Asistente no puede eliminar tarea del Área creada por él -> 403 Forbidden",
+    $res['status'] === 403
 );
 
 // T22 (Filtros en listado): Jefe filtra tareas por ?tipo=AREA

@@ -210,24 +210,8 @@ class TestRunnerController
             $db->prepare("UPDATE tareas SET columna_id = :col_id, fecha_finalizada = :ff WHERE id = :id")
                ->execute([':col_id' => $colFin['id'], ':ff' => $fecha2hAtras, ':id' => $tareaAreaReciente['id']]);
 
-            // 3) Tarea PERSONAL finalizada hace 35 horas (debe permanecer en Vista Personal y NUNCA ir al Historial)
-            $tareaPersonal = Task::create([
-                'titulo'         => 'Tarea Personal Apoyo ' . time(),
-                'tipo_tarea'     => 'PERSONAL',
-                'responsable_id' => $asistente['id']
-            ], $asistente);
-
-            $colFinPersonal = BoardColumn::findByTipoEstado('FINALIZADA', BoardColumn::AMBITO_PERSONAL, (int)$asistente['id']);
-            if (!$colFinPersonal) {
-                throw new \Exception("No existe columna FINALIZADA en el tablero personal.");
-            }
-
-            $fecha35hAtras = gmdate('Y-m-d H:i:s', time() - (35 * 3600));
-            $db->prepare("UPDATE tareas SET columna_id = :col_id, fecha_finalizada = :ff WHERE id = :id")
-               ->execute([':col_id' => $colFinPersonal['id'], ':ff' => $fecha35hAtras, ':id' => $tareaPersonal['id']]);
-
-            // Comprobar Vista Área (scope=area): solo tareas de AREA
-            $areaTasks = Task::listForUser($asistente, ['scope' => 'area']);
+            // 3) Comprobar el tablero vigente: solo tareas de ÁREA y regla de archivo de 24 horas.
+            $areaTasks = Task::listForUser($asistente);
             $areaIds = array_column($areaTasks, 'id');
 
             if (in_array((int)$tareaAreaAntigua['id'], $areaIds, true)) {
@@ -236,29 +220,11 @@ class TestRunnerController
             if (!in_array((int)$tareaAreaReciente['id'], $areaIds, true)) {
                 throw new \Exception("La tarea de área de 2h debe permanecer visible en la Vista Área.");
             }
-            if (in_array((int)$tareaPersonal['id'], $areaIds, true)) {
-                throw new \Exception("Una tarea PERSONAL nunca debe filtrarse en la Vista Área.");
-            }
-
-            // Comprobar Vista Personal (scope=personal): solo tareas personales y no expiran
-            $personalTasks = Task::listForUser($asistente, ['scope' => 'personal']);
-            $personalIds = array_column($personalTasks, 'id');
-
-            if (!in_array((int)$tareaPersonal['id'], $personalIds, true)) {
-                throw new \Exception("La tarea PERSONAL debe permanecer en la Vista Personal (no expira tras 24h, requiere borrado manual).");
-            }
-            if (in_array((int)$tareaAreaReciente['id'], $personalIds, true) || in_array((int)$tareaAreaAntigua['id'], $personalIds, true)) {
-                throw new \Exception("Tareas de ÁREA nunca deben aparecer en la Vista Personal.");
-            }
-
-            // Comprobar Historial de Jefatura: contiene la de área antigua y NUNCA contiene la personal
+            // Comprobar Historial de Jefatura: contiene la tarea de área antigua.
             $archived = Task::listArchived($jefePlan);
             $archivedIds = array_column($archived, 'id');
             if (!in_array((int)$tareaAreaAntigua['id'], $archivedIds, true)) {
                 throw new \Exception("La tarea de área de más de 24h debe estar en el módulo de Historial.");
-            }
-            if (in_array((int)$tareaPersonal['id'], $archivedIds, true)) {
-                throw new \Exception("Las tareas personales NUNCA deben registrarse en el módulo de Historial del área.");
             }
 
             // Comprobar seguridad: Asistente NO puede consultar el Historial (retorna vacío)
@@ -267,7 +233,7 @@ class TestRunnerController
                 throw new \Exception("Un asistente no debe poder consultar el Historial de tareas archivadas.");
             }
 
-            return "Vistas validadas: Vista Área (regla 24h a historial), Vista Personal (aislada, sin historial, retención) y seguridad RBAC.";
+            return "Tablero único de Área validado: regla de 24h al Historial y seguridad RBAC.";
         });
 
         $totalTime = round((microtime(true) - $startTime) * 1000, 2);

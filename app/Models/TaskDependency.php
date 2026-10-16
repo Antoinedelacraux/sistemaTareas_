@@ -96,7 +96,7 @@ class TaskDependency
         // 5. Regla RN-07: Comprobar que no forme un ciclo en el DAG
         if (self::wouldCreateCycle($tareaId, $predecesoraId)) {
             throw new RuntimeException(
-                "No se puede agregar la dependencia: formaría una referencia circular cerrada entre tareas.",
+                "No se puede agregar la dependencia: formaría un ciclo en el grafo de tareas.",
                 409
             );
         }

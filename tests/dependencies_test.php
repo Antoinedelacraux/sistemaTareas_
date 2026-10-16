@@ -157,7 +157,7 @@ Database::setConnection($pdo);
 // 2. Insertar Datos de Prueba (Usuarios y Columnas)
 // -----------------------------------------------------------------------------
 $now = gmdate('Y-m-d H:i:s');
-$passwordHash = password_hash('Planeamiento2026!', PASSWORD_BCRYPT);
+$passwordHash = password_hash('TestOnly-Planeamiento-2026!', PASSWORD_BCRYPT);
 
 // Columnas Kanban (1: Pendiente, 2: En proceso, 3: Bloqueada, 4: En revisión, 5: Finalizada)
 $pdo->exec("
@@ -440,7 +440,7 @@ assertTest(
 );
 
 // Test 20: Permisos RBAC: Asistente no puede agregar dependencia en tarea ajena (403 Forbidden)
-$tAjena = Task::create(['titulo' => 'Tarea de Asistente 2', 'tipo_tarea' => 'PERSONAL'], $userAsist2);
+$tAjena = Task::create(['titulo' => 'Tarea de Área de Asistente 2', 'tipo_tarea' => 'AREA'], $userAsist2);
 $_SERVER['REQUEST_METHOD'] = 'POST';
 $_SERVER['HTTP_AUTHORIZATION'] = "Bearer {$asist1Token}";
 $_POST = ['predecesora_id' => (int)$tHttpA['id']];
@@ -449,7 +449,7 @@ $res = captureResponse(function() use ($router, $tAjena) {
 });
 assertTest(
     $res['status'] === 403,
-    "Asistente 1 recibe 403 Forbidden al intentar alterar dependencias de tarea privada ajena"
+    "Asistente 1 recibe 403 Forbidden al intentar alterar dependencias de tarea de Área ajena"
 );
 
 // Test 21: Permisos RBAC: Asistente 1 no puede ver dependencias de tarea privada ajena (403)
@@ -458,7 +458,7 @@ $res = captureResponse(function() use ($router, $tAjena) {
 });
 assertTest(
     $res['status'] === 403,
-    "Asistente 1 recibe 403 Forbidden al consultar dependencias de tarea privada ajena (anti-IDOR)"
+    "Asistente 1 recibe 403 Forbidden al consultar dependencias de tarea de Área ajena (anti-IDOR)"
 );
 
 // Test 22: Tarea inexistente responde 404 Not Found

@@ -32,6 +32,8 @@ coverage/
 *.db
 *.log
 storage/installation.lock
+storage/*.backup*
+.tmp-cloudflare/
 
 # Sistema operativo
 .DS_Store

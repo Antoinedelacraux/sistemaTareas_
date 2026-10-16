@@ -16,9 +16,9 @@
 - D-015 Test Runner Web Autónomo en Memoria: Suite de autodiagnóstico integral ejecutable vía HTTP en `/api/test-runner` sin depender de consola de comandos ni permisos locales de PowerShell.
 - D-016 Personalización Cromática de Columnas Trello-Style: Configuración libre de columnas con paleta de 8 colores y border-top identificador.
 - D-017 Retiro de Dashboard y Módulo de Historial con Expiración de 24h: Descarte del módulo de métricas/dashboard y creación de un Historial exclusivo para Jefatura (`JEFE_PLANEAMIENTO`, `JEFE_PERSONAL`) con auto-archivo pasivo de tareas finalizadas tras 24 horas (`t.fecha_finalizada <= time() - 86400`).
-- D-018 Separación Estricta de Vista Área vs Vista Personal: Separación de la navegación principal en dos pestañas dedicadas: "Vista Área" (para tareas oficiales de equipo sujetas a auditoría y regla 24h hacia el historial) y "Vista Personal" (tablero privado de auto-organización de cada colaborador donde las tareas finalizadas permanecen hasta su borrado manual por el propio usuario, sin enviarse al historial).
+- D-018 Separación Estricta de Vista Área vs Vista Personal: **SUPERADA por D-024**. Fue una decisión intermedia del diseño y ya no describe el alcance operativo vigente.
 - D-019 Centralización de Trazabilidad en Módulo de Historial y Modal de Tarea sin Scroll: Se retira la sección de bitácora del formulario de detalle para dejarla en el módulo de Historial de Jefatura. Se expande el modal a 1140px (95vw) con cuadrícula 1fr / 1fr balanceada para permitir visualizar la información de la tarea, checklist, dependencias, comentarios y selector de columna sin requerir barras de desplazamiento vertical.
-- D-020 Matriz de Permisos Diferenciada por Roles (Jefes vs Asistentes): Los Jefes de Planeamiento y Personal tienen control total (módulos, registros, dependencias, columnas, usuarios). Los asistentes tienen acceso a Vista Área (checklist, evidencias, comentarios, dependencias read-only, sin edición/borrado de tareas de área ni columnas) y Vista Personal (control total sin dependencias DAG).
+- D-020 Matriz de Permisos Diferenciada por Roles (Jefes vs Asistentes): Los Jefes de Planeamiento y Personal tienen control total (módulos, registros, dependencias, columnas, usuarios). Los asistentes tienen acceso a Vista Área (checklist, evidencias, comentarios, dependencias read-only, sin edición/borrado de tareas de área ni columnas). La referencia a Vista Personal quedó superada por D-024.
 - D-021 Rediseño de Login Réplica Referencia y Lógica Operativa de Estados de Columna:
   1. Login con tarjeta flotante orgánica split (panel curvo esmeralda con logo circular blanco TAL, bienvenida corporativa; panel derecho blanco con inputs alargados menta suave, botón píldora 'LOG IN' y accesos rápidos demostrativos).
   2. Botón `+ Columna` en barra superior (`#workspace-controls-bar`) para jefaturas, evitando scroll horizontal/vertical innecesario.
@@ -33,7 +33,7 @@
   4. Aislamiento estricto de la vista de autenticación: `login.css` desacoplado y eliminación de bloqueos `!important` en display, garantizando que el Login y el Tablero Kanban sean estados visualmente mutuamente excluyentes.
   5. Creación de la Skill `.agents/skills/modularizar-archivos-grandes/SKILL.md` para estandarizar el proceso en el repositorio.
 
-- D-023 Cierre visible por columna y limpieza personal: las columnas `FINALIZADA` muestran un candado informativo; una tarea movida a ellas queda solo para consulta. La Vista Personal incluye una eliminación masiva confirmada, acotada en servidor a las tareas personales del usuario autenticado. La interfaz evita emojis y usa iconografía SVG profesional.
+- D-023 Cierre visible por columna y limpieza personal: las columnas `FINALIZADA` muestran un candado informativo; una tarea movida a ellas queda solo para consulta. La eliminación masiva de Vista Personal quedó superada por D-024; se conserva la decisión visual del candado y la iconografía SVG profesional.
 - D-024 Tablero único de Área: se retira la Vista Personal y sus rutas de uso. Todas las tareas nuevas se fuerzan a `AREA`; asistentes crean y gestionan solo sus tareas asignadas, mientras Jefe de Personal y Jefe de Área ven todas las tareas y pueden asignarlas a asistentes activos. Las tareas personales históricas se conservan en datos, pero no se exponen.
 
 - D-029 Instalación limpia de producción: se eliminan usuarios, tareas y accesos demo de las semillas y del login. Un instalador temporal protegido por `INSTALL_TOKEN` crea únicamente el primer Jefe de Área sobre una base vacía; queda bloqueado después de usarse.
@@ -62,3 +62,9 @@
 - D-025 Ciclo de cierre y vencimientos: una tarea aprobada o ubicada en `FINALIZADA` se cierra y permanece 24 horas en el tablero antes de pasar al historial. Asistentes solo la visualizan; Jefatura puede editarla, eliminarla o reabrirla únicamente en `EN_PROCESO`, y puede archivarla inmediatamente. Las tarjetas vencidas se distinguen visualmente y el historial registra el cumplimiento del plazo.
 - D-026 Edición por estado para asistentes: el asistente puede editar únicamente tareas asignadas en `PENDIENTE` y `EN_PROCESO`, sin modificar nunca la fecha límite. En `EN_REVISION` y `FINALIZADA` la tarea queda en modo consulta hasta la respuesta de Jefatura.
 - D-027 Gestión de Usuarios por roles: se aprueba un módulo separado para Jefatura. El Jefe de Área posee mayor jerarquía administrativa; ambos jefes mantienen los mismos permisos operativos en tareas y pueden crear, editar, cambiar rol, activar, desactivar y restablecer contraseñas. La única restricción jerárquica es que el Jefe de Personal no puede desactivar cuentas con rol Jefe de Área. Los permisos serán por rol, se permitirá auto-desactivación y el cambio de contraseña será manual, sin enlaces ni correo.
+
+## Estado vigente del alcance
+
+- El tablero operativo expuesto es únicamente `AREA`.
+- Dashboard, Vista Personal y sus rutas operativas no forman parte del producto vigente.
+- El soporte de `tipo_tarea = PERSONAL` queda limitado a compatibilidad con datos históricos no expuestos.

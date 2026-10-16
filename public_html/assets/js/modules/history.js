@@ -115,9 +115,7 @@ export function renderHistoryTable(tasks) {
 
     tbody.innerHTML = tasks.map(t => {
         const prioBadge = `<span class="badge badge-prioridad-${t.prioridad}">${t.prioridad}</span>`;
-        const tipoBadge = t.tipo_tarea === 'PERSONAL'
-            ? `<span class="badge badge-tipo-personal">PERSONAL</span>`
-            : `<span class="badge badge-tipo-area">ÁREA</span>`;
+        const tipoBadge = `<span class="badge badge-tipo-area">ÁREA</span>`;
 
         const timeDiffText = t.horas_desde_finalizada !== null
             ? (t.horas_desde_finalizada >= 48

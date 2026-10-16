@@ -8,8 +8,8 @@ use App\Config\Database;
 use App\Controllers\ApprovalController;
 use App\Controllers\AuditController;
 use App\Controllers\CommentController;
-use App\Controllers\DashboardController;
 use App\Controllers\DependencyController;
+use App\Controllers\HistoryController;
 use App\Controllers\NotificationController;
 use App\Controllers\SubtaskController;
 use App\Controllers\TaskController;
@@ -27,7 +27,6 @@ use App\Models\Task;
 use App\Models\TaskDependency;
 use App\Models\User;
 use App\Services\AutomationEngine;
-use App\Services\DashboardService;
 
 Response::$exitOnSend = false;
 
@@ -624,17 +623,23 @@ $tareaPilotoFin = Task::findById((int)$tareaPiloto['id']);
 assert_test('Piloto Paso 6: Elena aprueba y la tarea alcanza estado FINALIZADA', 
     $resDictamen['status'] === 200 && (int)$tareaPilotoFin['columna_id'] === 5);
 
-// Paso 7: Roberto (Jefe Personal) y Elena consultan el Dashboard Operativo y el Balance de Carga
-$metricasElena = DashboardService::getMetrics($jefePlaneamiento, 'global');
-assert_test('Piloto Paso 7.A: Jefatura obtiene KPIs globales (tasa de cumplimiento > 0%)', 
-    ($metricasElena['resumen_estados']['total'] ?? 0) > 0);
-assert_test('Piloto Paso 7.B: Jefatura supervisa balance de carga individual de los 5 miembros', 
-    isset($metricasElena['balance_equipo']) && count($metricasElena['balance_equipo']) === 5);
+// Paso 7: Jefatura consulta el Historial operativo vigente.
+$historyController = new HistoryController();
+$resHistorialJefe = invokeController(fn() => $historyController->index([
+    'user' => $jefePlaneamiento,
+    'query' => []
+]));
+$historialJefe = json_decode($resHistorialJefe['body'], true);
+assert_test('Piloto Paso 7: Jefatura consulta el Historial archivado',
+    $resHistorialJefe['status'] === 200 && is_array($historialJefe['data']['tareas'] ?? null));
 
-// Paso 8: Asistente 3 consulta el dashboard y comprueba aislamiento (sin balance de compañeros)
-$metricasAsistente3 = DashboardService::getMetrics($asistente3, 'personal');
-assert_test('Piloto Paso 8: Asistente 3 solo visualiza sus métricas y no accede al balance general del equipo', 
-    empty($metricasAsistente3['balance_equipo']));
+// Paso 8: un Asistente no puede consultar el Historial de Jefatura.
+$resHistorialAsistente = invokeController(fn() => $historyController->index([
+    'user' => $asistente3,
+    'query' => []
+]));
+assert_test('Piloto Paso 8: Asistente 3 no accede al Historial de Jefatura',
+    $resHistorialAsistente['status'] === 403);
 
 echo "\n=================================================================================\n";
 echo "RESULTADOS DE LA SUITE MVP-10:\n";

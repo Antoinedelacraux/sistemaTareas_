@@ -69,7 +69,7 @@ Database::setConnection($pdo);
 // -----------------------------------------------------------------------------
 // 2. Insertar Fixtures de Prueba (Equipo de 5 personas + 1 inactivo)
 // -----------------------------------------------------------------------------
-$hashSeguro = password_hash('Planeamiento2026!', PASSWORD_BCRYPT, ['cost' => 10]);
+$hashSeguro = password_hash('TestOnly-Planeamiento-2026!', PASSWORD_BCRYPT, ['cost' => 10]);
 $now = gmdate('Y-m-d H:i:s');
 
 $usuariosSeed = [

@@ -21,13 +21,14 @@ class HistoryController
     {
         $user = $request['user'] ?? null;
         if (!$user) {
-            Response::unauthorized('Sesión no iniciada.');
+            Response::error('Sesión no iniciada.', 401, 'ERR_UNAUTHORIZED');
             return;
         }
 
         if (!User::isJefe($user)) {
-            Response::forbidden(
+            Response::error(
                 'Acceso exclusivo para Jefatura de Área y Jefatura de Personal.',
+                403,
                 'ERR_FORBIDDEN_HISTORY_ACCESS'
             );
             return;
